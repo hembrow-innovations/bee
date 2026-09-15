@@ -1,0 +1,12 @@
+[package]
+name = "odm-git"
+version = "0.1.1"
+edition.workspace = true
+license.workspace = true
+description = "ODM multi-git lifecycle via shell-out to git"
+
+[dependencies]
+thiserror = "2"
+
+[dev-dependencies]
+tempfile = "3"

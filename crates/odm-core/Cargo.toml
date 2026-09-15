@@ -1,0 +1,16 @@
+[package]
+name = "odm-core"
+version = "0.1.1"
+edition.workspace = true
+license.workspace = true
+description = "ODM workspace core: config, pin, discovery, paths"
+
+[dependencies]
+odm-git = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

@@ -1,0 +1,31 @@
+[package]
+name = "bee"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/odm-git",
+    "crates/odm-core",
+    "crates/odm-progen",
+    "crates/odm-actions",
+    "crates/odm",
+]
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+odm-git = { path = "crates/odm-git" }
+odm-core = { path = "crates/odm-core" }
+odm-progen = { path = "crates/odm-progen" }
+odm-actions = { path = "crates/odm-actions" }
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+serde_json = "1"
+thiserror = "2"
+clap = { version = "4", features = ["derive"] }
+tempfile = "3"
