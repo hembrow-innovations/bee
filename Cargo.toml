@@ -32,3 +32,6 @@ tempfile = "3"
 
 [dependencies]
 clap = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

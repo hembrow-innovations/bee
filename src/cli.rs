@@ -72,4 +72,17 @@ mod tests {
             .count();
         assert_eq!(count, 1, "{:?}", subcommand_names());
     }
+
+    #[test]
+    fn init_verb_writes_workbench_yaml() {
+        let dir = tempfile::tempdir().unwrap();
+        assert_eq!(crate::execute(Commands::Init, dir.path()), 0);
+        assert!(crate::workbench_path(dir.path()).is_file());
+    }
+
+    #[test]
+    fn other_verbs_still_exit_two() {
+        let dir = tempfile::tempdir().unwrap();
+        assert_eq!(crate::execute(Commands::Sync, dir.path()), 2);
+    }
 }

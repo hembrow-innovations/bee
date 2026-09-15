@@ -1,9 +1,12 @@
 use std::process::ExitCode;
 
-use bee::Cli;
+use bee::{execute, Cli};
 use clap::Parser;
 
 fn main() -> ExitCode {
-    let _cli = Cli::parse();
-    ExitCode::from(2)
+    let cli = Cli::parse();
+    match std::env::current_dir() {
+        Ok(root) => ExitCode::from(execute(cli.command, &root)),
+        Err(_) => ExitCode::from(1),
+    }
 }
