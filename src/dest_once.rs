@@ -4,13 +4,14 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::dest::scan_match_claim;
 use crate::dest_spawn::spawn_cmds;
 
-pub fn run_once(cwd: &Path) -> Result<u8, String> {
+pub fn run_tick(cwd: &Path) -> Result<(u8, usize), String> {
     let run_id = format!("bee-{}", std::process::id());
     let at = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs().to_string())
         .unwrap_or_else(|_| "0".into());
     let (_, matches, _) = scan_match_claim(cwd, &run_id, &at)?;
+    let n = matches.len();
     let mut code: u8 = 0;
     for m in matches {
         let c = spawn_cmds(cwd, &m.lane.lane, &run_id, &m.note.path, &m.lane.cmds)?;
@@ -18,7 +19,11 @@ pub fn run_once(cwd: &Path) -> Result<u8, String> {
             code = c as u8;
         }
     }
-    Ok(code)
+    Ok((code, n))
+}
+
+pub fn run_once(cwd: &Path) -> Result<u8, String> {
+    Ok(run_tick(cwd)?.0)
 }
 
 #[cfg(test)]

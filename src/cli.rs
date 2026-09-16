@@ -72,7 +72,12 @@ pub enum Commands {
         dry_run: bool,
     },
     Once,
-    Watch,
+    Watch {
+        #[arg(long)]
+        until_quiet: bool,
+        #[arg(long)]
+        until_target: Option<std::path::PathBuf>,
+    },
     Explain,
     Gc,
 }
@@ -192,19 +197,5 @@ mod tests {
         assert!(crate::workbench_path(dir.path()).is_file());
     }
 
-    #[test]
-    fn other_verbs_still_exit_two() {
-        let dir = tempfile::tempdir().unwrap();
-        assert_eq!(
-            crate::execute(
-                Cli {
-                    project: None,
-                    wt: vec![],
-                    command: Commands::Watch,
-                },
-                dir.path()
-            ),
-            2
-        );
-    }
+
 }

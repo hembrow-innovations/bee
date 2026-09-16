@@ -1,11 +1,14 @@
 mod cli;
 mod dest;
 mod dest_config;
+mod dest_explain;
+mod dest_journal;
 mod dest_match;
 mod dest_note;
 mod dest_once;
 mod dest_scan;
 mod dest_spawn;
+mod dest_watch;
 #[cfg(test)]
 mod git_fixture;
 mod init;
@@ -115,6 +118,28 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             Ok(code) => code,
             Err(_) => 1,
         },
-        _ => 2,
+        Commands::Watch {
+            until_quiet,
+            until_target,
+        } => match dest_watch::run_watch(
+            root,
+            until_quiet,
+            until_target.as_deref(),
+            std::time::Duration::from_millis(200),
+        ) {
+            Ok(code) => code,
+            Err(_) => 1,
+        },
+        Commands::Explain => match dest_explain::explain(root) {
+            Ok(text) => {
+                print!("{text}");
+                0
+            }
+            Err(_) => 1,
+        },
+        Commands::Gc => match dest_explain::gc(root) {
+            Ok(()) => 0,
+            Err(_) => 1,
+        },
     }
 }

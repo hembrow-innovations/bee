@@ -16,6 +16,7 @@ pub struct DestConfig {
     pub lanes: Vec<Lane>,
     pub disable: Vec<String>,
     pub watch: Option<Vec<String>>,
+    pub history: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -62,11 +63,16 @@ pub fn load_dest_config(cwd: &Path) -> Result<DestConfig, String> {
         None => None,
         Some(v) => Some(parse_string_list(Some(v))?),
     };
+    let history = map
+        .get(Value::String("history".into()))
+        .and_then(Value::as_str)
+        .map(str::to_string);
     Ok(DestConfig {
         folders,
         lanes,
         disable,
         watch,
+        history,
     })
 }
 
