@@ -1,4 +1,6 @@
 mod cli;
+mod forward;
+pub use forward::forward_old_bin;
 mod dest;
 mod dest_config;
 mod dest_explain;

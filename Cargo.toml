@@ -4,6 +4,18 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 
+[[bin]]
+name = "bee"
+path = "src/main.rs"
+
+[[bin]]
+name = "hivemind"
+path = "src/bin/hivemind.rs"
+
+[[bin]]
+name = "odm"
+path = "src/bin/odm.rs"
+
 [workspace]
 resolver = "2"
 members = [
