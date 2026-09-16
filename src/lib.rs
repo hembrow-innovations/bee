@@ -1,10 +1,15 @@
 mod cli;
+mod dest;
+mod dest_config;
+mod dest_match;
+mod dest_note;
+mod dest_scan;
 #[cfg(test)]
 mod git_fixture;
 mod init;
 mod layout;
-mod paths;
 mod ops;
+mod paths;
 mod pin;
 mod project;
 mod sync;
