@@ -712,11 +712,9 @@ mod tests {
             name: None,
         })
         .unwrap();
-        fs::write(
-            dir.path().join(".odm/odm.lock.yaml"),
-            "version: 99\npins: {}\n",
-        )
-        .unwrap();
+        let pin = crate::paths::pin_path(dir.path());
+        fs::create_dir_all(pin.parent().unwrap()).unwrap();
+        fs::write(&pin, "version: 99\npins: {}\n").unwrap();
         let ws = load_ws(dir.path());
         let git = Git::new();
         let report = run_doctor(&git, &ws, false).unwrap();

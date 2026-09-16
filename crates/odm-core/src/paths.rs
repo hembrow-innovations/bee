@@ -37,9 +37,29 @@ pub fn config_path(root: &Path) -> PathBuf {
     odm_dir(root).join("odm.config.yaml")
 }
 
-/// Pin file path: `<root>/.odm/odm.lock.yaml`.
+/// Pin write path: `<root>/.hivemind/workbench.lock.yaml`.
 pub fn pin_path(root: &Path) -> PathBuf {
+    root.join(".hivemind").join("workbench.lock.yaml")
+}
+
+fn odm_lock_path(root: &Path) -> PathBuf {
     odm_dir(root).join("odm.lock.yaml")
+}
+
+fn workbench_yaml_present(root: &Path) -> bool {
+    root.join(".hivemind").join("workbench.yaml").is_file()
+}
+
+/// Pin read path. Present workbench yaml wins; else `.odm/odm.lock.yaml`.
+pub fn pin_read_path(root: &Path) -> PathBuf {
+    if workbench_yaml_present(root) {
+        return pin_path(root);
+    }
+    let legacy = odm_lock_path(root);
+    if legacy.is_file() {
+        return legacy;
+    }
+    pin_path(root)
 }
 
 /// Resolve config-relative `rel` under Workspace `root`.
@@ -216,7 +236,10 @@ mod tests {
         let root = Path::new("/ws");
         assert_eq!(odm_dir(root), PathBuf::from("/ws/.odm"));
         assert_eq!(config_path(root), PathBuf::from("/ws/.odm/odm.config.yaml"));
-        assert_eq!(pin_path(root), PathBuf::from("/ws/.odm/odm.lock.yaml"));
+        assert_eq!(
+            pin_path(root),
+            PathBuf::from("/ws/.hivemind/workbench.lock.yaml")
+        );
     }
 
     #[test]

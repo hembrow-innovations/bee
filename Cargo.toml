@@ -33,6 +33,7 @@ tempfile = "3"
 [dependencies]
 clap = { workspace = true }
 odm-core = { workspace = true }
+odm-git = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }

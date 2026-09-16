@@ -10,8 +10,13 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 pub enum Commands {
     Init,
-    Sync,
-    Pin,
+    Sync {
+        names: Vec<String>,
+    },
+    Pin {
+        #[command(subcommand)]
+        cmd: PinCmd,
+    },
     Status,
     Doctor,
     Project,
@@ -24,6 +29,18 @@ pub enum Commands {
     Watch,
     Explain,
     Gc,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum PinCmd {
+    Record {
+        names: Vec<String>,
+    },
+    Apply {
+        names: Vec<String>,
+        #[arg(long)]
+        force: bool,
+    },
 }
 
 #[cfg(test)]
@@ -83,6 +100,6 @@ mod tests {
     #[test]
     fn other_verbs_still_exit_two() {
         let dir = tempfile::tempdir().unwrap();
-        assert_eq!(crate::execute(Commands::Sync, dir.path()), 2);
+        assert_eq!(crate::execute(Commands::Status, dir.path()), 2);
     }
 }

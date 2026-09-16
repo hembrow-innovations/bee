@@ -4,11 +4,11 @@ use std::path::Path;
 
 use serde::{Deserialize, Serialize};
 
-use crate::config::pin_path;
+use crate::paths::{pin_path, pin_read_path};
 use crate::error::OdmError;
 use crate::io::atomic_write;
 
-/// Optional pin lock file (`.odm/odm.lock.yaml`).
+/// Optional pin lock file (`.hivemind/workbench.lock.yaml`).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PinFile {
@@ -75,7 +75,7 @@ pub fn parse_pin_yaml(text: &str) -> Result<PinFile, OdmError> {
 }
 
 pub fn load_pin(root: &Path) -> Result<Option<PinFile>, OdmError> {
-    let path = pin_path(root);
+    let path = pin_read_path(root);
     if !path.is_file() {
         return Ok(None);
     }

@@ -56,7 +56,7 @@ pub use observation::{
     observe_entity, observe_workspace, EntityObservation, WorkspaceObservation,
 };
 pub use paths::{
-    abs_checkout, config_path, odm_dir, path_buf_to_rel, pin_path, progen_index_dir,
+    abs_checkout, config_path, odm_dir, path_buf_to_rel, pin_path, pin_read_path, progen_index_dir,
     resolve_under_root, worktree_slot_path, PathResolveError,
 };
 pub use pin::{
