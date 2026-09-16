@@ -191,6 +191,7 @@ mod tests {
             trigger,
             need: None,
             claim_status: "claimed".into(),
+            cmds: vec![],
         }
     }
 

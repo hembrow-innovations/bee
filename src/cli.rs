@@ -200,7 +200,7 @@ mod tests {
                 Cli {
                     project: None,
                     wt: vec![],
-                    command: Commands::Once,
+                    command: Commands::Watch,
                 },
                 dir.path()
             ),

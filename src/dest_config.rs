@@ -19,11 +19,18 @@ pub struct DestConfig {
 }
 
 #[derive(Debug, Clone)]
+pub enum CmdSpec {
+    String(String),
+    List(Vec<String>),
+}
+
+#[derive(Debug, Clone)]
 pub struct Lane {
     pub lane: String,
     pub trigger: BTreeMap<String, Value>,
     pub need: Option<BTreeMap<String, Value>>,
     pub claim_status: String,
+    pub cmds: Vec<CmdSpec>,
 }
 
 pub fn load_dest_config(cwd: &Path) -> Result<DestConfig, String> {
@@ -102,14 +109,47 @@ fn parse_lanes(value: Option<&Value>) -> Result<Vec<Lane>, String> {
             .and_then(Value::as_str)
             .unwrap_or("claimed")
             .to_string();
+        let cmds = parse_cmds(type_, item)?;
         lanes.push(Lane {
             lane: id,
             trigger,
             need,
             claim_status,
+            cmds,
         });
     }
     Ok(lanes)
+}
+
+fn parse_cmds(type_: &str, item: &serde_yaml::Mapping) -> Result<Vec<CmdSpec>, String> {
+    if type_ == "pipeline" {
+        let Some(Value::Sequence(stages)) = item.get(Value::String("stages".into())) else {
+            return Ok(vec![]);
+        };
+        let mut cmds = Vec::new();
+        for stage in stages {
+            let Value::Mapping(stage) = stage else {
+                continue;
+            };
+            if let Some(cmd) = parse_cmd(stage.get(Value::String("cmd".into()))) {
+                cmds.push(cmd);
+            }
+        }
+        return Ok(cmds);
+    }
+    Ok(parse_cmd(item.get(Value::String("cmd".into()))).into_iter().collect())
+}
+
+fn parse_cmd(value: Option<&Value>) -> Option<CmdSpec> {
+    match value {
+        Some(Value::String(s)) => Some(CmdSpec::String(s.clone())),
+        Some(Value::Sequence(s)) => Some(CmdSpec::List(
+            s.iter()
+                .filter_map(|v| v.as_str().map(str::to_string))
+                .collect(),
+        )),
+        _ => None,
+    }
 }
 
 fn as_map(value: Option<&Value>) -> Result<BTreeMap<String, Value>, String> {

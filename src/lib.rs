@@ -3,7 +3,9 @@ mod dest;
 mod dest_config;
 mod dest_match;
 mod dest_note;
+mod dest_once;
 mod dest_scan;
+mod dest_spawn;
 #[cfg(test)]
 mod git_fixture;
 mod init;
@@ -109,6 +111,10 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             force,
             dry_run,
         } => odm_exit(ops::generate(root, name, dest, force, dry_run)),
+        Commands::Once => match dest_once::run_once(root) {
+            Ok(code) => code,
+            Err(_) => 1,
+        },
         _ => 2,
     }
 }
