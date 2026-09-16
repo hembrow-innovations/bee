@@ -1,19 +1,18 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::config::config_path;
 use crate::error::OdmError;
+use crate::paths::{catalog_present, config_path};
 
 /// Resolve Workspace root from optional `--root` or walk-up from `start` (usually cwd).
 pub fn discover_root(root_flag: Option<&Path>, start: &Path) -> Result<PathBuf, OdmError> {
     if let Some(root) = root_flag {
         let root = normalize_start(root)?;
-        let cfg = config_path(&root);
-        if !cfg.is_file() {
+        if !catalog_present(&root) {
             return Err(OdmError::workspace(format!(
-                "not a Workspace: --root {} missing {}",
+                "not a Workbench: --root {} missing {}",
                 root.display(),
-                cfg.display()
+                config_path(&root).display()
             )));
         }
         return Ok(root);
@@ -38,7 +37,7 @@ pub fn discover_root(root_flag: Option<&Path>, start: &Path) -> Result<PathBuf, 
     let stop = stop_boundary();
     let mut cur = Some(dir.as_path());
     while let Some(d) = cur {
-        if config_path(d).is_file() {
+        if catalog_present(d) {
             return Ok(d.to_path_buf());
         }
         if stop.as_ref().is_some_and(|s| d == s.as_path()) {
@@ -51,7 +50,7 @@ pub fn discover_root(root_flag: Option<&Path>, start: &Path) -> Result<PathBuf, 
         let parent = d.parent();
         if parent == Some(Path::new("")) || parent == Some(Path::new("/")) {
             if let Some(p) = parent {
-                if config_path(p).is_file() {
+                if catalog_present(p) {
                     return Ok(p.to_path_buf());
                 }
             }
@@ -61,7 +60,7 @@ pub fn discover_root(root_flag: Option<&Path>, start: &Path) -> Result<PathBuf, 
     }
 
     Err(OdmError::workspace(format!(
-        "not a Workspace: no .odm/odm.config.yaml found from {}",
+        "not a Workbench: no .hivemind/workbench.yaml found from {}",
         start.display()
     )))
 }

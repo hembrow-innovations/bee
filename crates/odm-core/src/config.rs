@@ -10,7 +10,7 @@ use crate::paths::{parse_path_token, resolve_under_root, PathResolveError};
 
 pub use crate::paths::{config_path, odm_dir, pin_path};
 
-/// Canonical Workspace config (`.odm/odm.config.yaml`).
+/// Canonical Workbench config (`.hivemind/workbench.yaml`).
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WorkspaceConfig {
@@ -180,7 +180,7 @@ impl Workspace {
 
 /// Deserialize + validate config at `root` (eager bundle load).
 pub fn load_workspace(root: &Path) -> Result<Workspace, OdmError> {
-    let path = config_path(root);
+    let path = crate::paths::config_read_path(root);
     if !path.is_file() {
         return Err(OdmError::workspace(format!(
             "not a Workspace: missing {}",

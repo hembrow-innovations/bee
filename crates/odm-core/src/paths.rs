@@ -32,9 +32,29 @@ pub fn odm_dir(root: &Path) -> PathBuf {
     root.join(".odm")
 }
 
-/// Workspace config path: `<root>/.odm/odm.config.yaml`.
+/// Catalog write path: `<root>/.hivemind/workbench.yaml`.
 pub fn config_path(root: &Path) -> PathBuf {
+    root.join(".hivemind").join("workbench.yaml")
+}
+
+fn odm_config_path(root: &Path) -> PathBuf {
     odm_dir(root).join("odm.config.yaml")
+}
+
+/// Catalog read path. Present workbench yaml wins; else `.odm/odm.config.yaml`.
+pub fn config_read_path(root: &Path) -> PathBuf {
+    if config_path(root).is_file() {
+        return config_path(root);
+    }
+    let legacy = odm_config_path(root);
+    if legacy.is_file() {
+        return legacy;
+    }
+    config_path(root)
+}
+
+pub fn catalog_present(root: &Path) -> bool {
+    config_path(root).is_file() || odm_config_path(root).is_file()
 }
 
 /// Pin write path: `<root>/.hivemind/workbench.lock.yaml`.
@@ -235,7 +255,10 @@ mod tests {
     fn layout_helpers() {
         let root = Path::new("/ws");
         assert_eq!(odm_dir(root), PathBuf::from("/ws/.odm"));
-        assert_eq!(config_path(root), PathBuf::from("/ws/.odm/odm.config.yaml"));
+        assert_eq!(
+            config_path(root),
+            PathBuf::from("/ws/.hivemind/workbench.yaml")
+        );
         assert_eq!(
             pin_path(root),
             PathBuf::from("/ws/.hivemind/workbench.lock.yaml")

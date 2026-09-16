@@ -19,8 +19,14 @@ pub enum Commands {
     },
     Status,
     Doctor,
-    Project,
-    Progen,
+    Project {
+        #[command(subcommand)]
+        cmd: ProjectCmd,
+    },
+    Progen {
+        #[command(subcommand)]
+        cmd: ProgenCmd,
+    },
     Find,
     Context,
     Run,
@@ -29,6 +35,32 @@ pub enum Commands {
     Watch,
     Explain,
     Gc,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum ProjectCmd {
+    Add {
+        name: String,
+        #[arg(long)]
+        path: String,
+        #[arg(long)]
+        url: Option<String>,
+        #[arg(long)]
+        branch: Option<String>,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum ProgenCmd {
+    Add {
+        name: String,
+        #[arg(long)]
+        path: String,
+        #[arg(long)]
+        url: Option<String>,
+        #[arg(long)]
+        branch: Option<String>,
+    },
 }
 
 #[derive(Debug, Subcommand)]

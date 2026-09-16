@@ -5,11 +5,12 @@ mod init;
 mod layout;
 mod paths;
 mod pin;
+mod project;
 mod sync;
 
 use std::path::Path;
 
-pub use cli::{Cli, Commands, PinCmd};
+pub use cli::{Cli, Commands, PinCmd, ProgenCmd, ProjectCmd};
 pub use init::init_workbench;
 pub use layout::{load_workbench, parse_workbench_yaml};
 pub use odm_core::{ProjectEntry, Workbench, WorkbenchConfig};
@@ -37,6 +38,22 @@ pub fn execute(command: Commands, root: &Path) -> u8 {
             PinCmd::Apply { names, force } => {
                 odm_exit(pin::pin_apply_primary(root, &names, force))
             }
+        },
+        Commands::Project { cmd } => match cmd {
+            ProjectCmd::Add {
+                name,
+                path,
+                url,
+                branch,
+            } => odm_exit(project::add_project(root, &name, path, url, branch)),
+        },
+        Commands::Progen { cmd } => match cmd {
+            ProgenCmd::Add {
+                name,
+                path,
+                url,
+                branch,
+            } => odm_exit(project::add_progen_checkout(root, &name, path, url, branch)),
         },
         _ => 2,
     }

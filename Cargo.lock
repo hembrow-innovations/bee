@@ -101,6 +101,7 @@ dependencies = [
  "clap",
  "odm-core",
  "odm-git",
+ "odm-progen",
  "tempfile",
 ]
 
