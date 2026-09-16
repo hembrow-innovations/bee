@@ -39,7 +39,9 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
         },
         Commands::Sync { names } => odm_exit(sync::sync_workbench(root, &names)),
         Commands::Pin { cmd } => match cmd {
-            PinCmd::Record { names } => odm_exit(pin::pin_record_primary(root, &names)),
+            PinCmd::Record { names, force } => {
+                odm_exit(pin::pin_record_primary(root, &names, force))
+            }
             PinCmd::Apply { names, force } => {
                 odm_exit(pin::pin_apply_primary(root, &names, force))
             }
@@ -50,7 +52,8 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                 path,
                 url,
                 branch,
-            } => odm_exit(project::add_project(root, &name, path, url, branch)),
+                gitlink,
+            } => odm_exit(project::add_project(root, &name, path, url, branch, gitlink)),
         },
         Commands::Progen { cmd } => match cmd {
             ProgenCmd::Add {
@@ -58,7 +61,10 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                 path,
                 url,
                 branch,
-            } => odm_exit(project::add_progen_checkout(root, &name, path, url, branch)),
+                gitlink,
+            } => odm_exit(project::add_progen_checkout(
+                root, &name, path, url, branch, gitlink,
+            )),
         },
         Commands::Doctor => odm_exit(ops::doctor(root)),
         Commands::Status => match ops::status(root) {

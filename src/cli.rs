@@ -87,6 +87,8 @@ pub enum ProjectCmd {
         url: Option<String>,
         #[arg(long)]
         branch: Option<String>,
+        #[arg(long, requires = "url")]
+        gitlink: bool,
     },
 }
 
@@ -100,6 +102,8 @@ pub enum ProgenCmd {
         url: Option<String>,
         #[arg(long)]
         branch: Option<String>,
+        #[arg(long, requires = "url")]
+        gitlink: bool,
     },
 }
 
@@ -107,6 +111,8 @@ pub enum ProgenCmd {
 pub enum PinCmd {
     Record {
         names: Vec<String>,
+        #[arg(long)]
+        force: bool,
     },
     Apply {
         names: Vec<String>,

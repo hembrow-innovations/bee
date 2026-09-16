@@ -129,6 +129,7 @@ mod tests {
             "projects/alpha".into(),
             Some(bare.to_string_lossy().into()),
             Some("main".into()),
+            false,
         )
         .unwrap();
         let orphan = root.join("worktrees/alpha/slot1");

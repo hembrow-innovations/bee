@@ -6,12 +6,21 @@ use odm_progen::add_progen;
 
 use crate::load_workbench;
 
+fn checkout_mode(gitlink: bool) -> CheckoutMode {
+    if gitlink {
+        CheckoutMode::Gitlink
+    } else {
+        CheckoutMode::Clone
+    }
+}
+
 pub fn add_project(
     root: &Path,
     name: &str,
     path: String,
     url: Option<String>,
     branch: Option<String>,
+    gitlink: bool,
 ) -> Result<(), OdmError> {
     let mut wb = load_workbench(root)?;
     let git = Git::new();
@@ -25,7 +34,7 @@ pub fn add_project(
             url,
             branch,
             type_: None,
-            checkout: CheckoutMode::Clone,
+            checkout: checkout_mode(gitlink),
         },
         false,
     )?;
@@ -38,6 +47,7 @@ pub fn add_progen_checkout(
     path: String,
     url: Option<String>,
     branch: Option<String>,
+    gitlink: bool,
 ) -> Result<(), OdmError> {
     let mut wb = load_workbench(root)?;
     let git = Git::new();
@@ -50,7 +60,7 @@ pub fn add_progen_checkout(
             path,
             url,
             branch,
-            checkout: CheckoutMode::Clone,
+            checkout: checkout_mode(gitlink),
         },
         false,
     )?;
@@ -78,6 +88,7 @@ mod tests {
             "projects/alpha".into(),
             Some(bare.to_string_lossy().into()),
             Some("main".into()),
+            false,
         )
         .unwrap();
         assert!(root.join("projects/alpha/.git").exists());
@@ -92,11 +103,47 @@ mod tests {
         let dir = tempdir().unwrap();
         let root = dir.path();
         init_workbench(root).unwrap();
-        add_progen_checkout(root, "desk", "generated/desk".into(), None, None).unwrap();
+        add_progen_checkout(root, "desk", "generated/desk".into(), None, None, false).unwrap();
         assert!(root.join("generated/desk").is_dir());
         let yaml = fs::read_to_string(workbench_path(root)).unwrap();
         assert!(yaml.contains("desk"));
         assert!(yaml.contains("generated/desk"));
         assert!(!yaml.contains("gitlink"));
+    }
+
+    #[test]
+    fn project_and_progen_add_gitlink_opt_in() {
+        crate::git_fixture::allow_file_protocol();
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        crate::init_workbench(root).unwrap();
+        crate::git_fixture::git_init_commit(root);
+        let bare_p = crate::git_fixture::bare_with_main(root, "plink");
+        add_project(
+            root,
+            "plink",
+            "vendor/plink".into(),
+            Some(bare_p.to_string_lossy().into()),
+            Some("main".into()),
+            true,
+        )
+        .unwrap();
+        let bare_g = crate::git_fixture::bare_with_main(root, "glink");
+        add_progen_checkout(
+            root,
+            "glink",
+            "vendor/glink".into(),
+            Some(bare_g.to_string_lossy().into()),
+            Some("main".into()),
+            true,
+        )
+        .unwrap();
+        let yaml = std::fs::read_to_string(crate::workbench_path(root)).unwrap();
+        assert!(yaml.contains("checkout: gitlink"), "{yaml}");
+        assert!(root.join("vendor/plink").exists());
+        assert!(root.join("vendor/glink").exists());
+        let lock = std::fs::read_to_string(crate::pin_path(root)).unwrap_or_default();
+        assert!(!lock.contains("plink"));
+        assert!(!lock.contains("glink"));
     }
 }

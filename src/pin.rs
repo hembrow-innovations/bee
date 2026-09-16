@@ -1,18 +1,19 @@
 use std::path::Path;
 
 use odm_core::{
-    abs_checkout, pin_apply, resolve_managed, save_pin, CheckoutMode, OdmError, PinEntry, PinFile,
+    abs_checkout, pin_apply, pin_record, resolve_managed, save_pin, CheckoutMode, OdmError,
+    PinEntry, PinFile,
 };
 use odm_git::Git;
 
 use crate::load_workbench;
 
-pub fn pin_record_primary(root: &Path, names: &[String]) -> Result<(), OdmError> {
+pub fn pin_record_primary(root: &Path, names: &[String], force: bool) -> Result<(), OdmError> {
     let wb = load_workbench(root)?;
     let git = Git::new();
     let entities = resolve_managed(&wb.config, names)?;
     let mut pin = odm_core::load_pin(root)?.unwrap_or_else(PinFile::new_v1);
-    for entity in entities {
+    for entity in &entities {
         if entity.checkout != CheckoutMode::Clone {
             continue;
         }
@@ -23,17 +24,28 @@ pub fn pin_record_primary(root: &Path, names: &[String]) -> Result<(), OdmError>
                 entity.name, entity.path
             )));
         }
-        let rev = git.head_sha(&path)?;
+        let rev = git.head_sha(path.as_path())?;
         pin.pins.insert(
-            entity.name,
+            entity.name.clone(),
             PinEntry {
                 rev,
-                url: entity.url,
-                branch: entity.branch,
+                url: entity.url.clone(),
+                branch: entity.branch.clone(),
             },
         );
     }
-    save_pin(root, &pin)
+    if entities.iter().any(|e| e.checkout == CheckoutMode::Clone) {
+        save_pin(root, &pin)?;
+    }
+    let gitlink_names: Vec<String> = entities
+        .iter()
+        .filter(|e| e.checkout == CheckoutMode::Gitlink)
+        .map(|e| e.name.clone())
+        .collect();
+    if !gitlink_names.is_empty() {
+        pin_record(&git, root, &wb.config, &gitlink_names, force)?;
+    }
+    Ok(())
 }
 
 pub fn pin_apply_primary(root: &Path, names: &[String], force: bool) -> Result<(), OdmError> {
@@ -74,7 +86,7 @@ mod tests {
         let dir = tempdir().unwrap();
         let root = dir.path();
         seeded(root);
-        pin_record_primary(root, &[]).unwrap();
+        pin_record_primary(root, &[], false).unwrap();
         let lock = pin_path(root);
         assert!(lock.is_file());
         let text = fs::read_to_string(&lock).unwrap();
@@ -87,7 +99,7 @@ mod tests {
         let dir = tempdir().unwrap();
         let root = dir.path();
         seeded(root);
-        pin_record_primary(root, &[]).unwrap();
+        pin_record_primary(root, &[], false).unwrap();
         let primary = root.join("projects/alpha");
         let pinned = head_sha(&primary);
         git_user(&primary);
@@ -110,5 +122,28 @@ mod tests {
             .status()
             .unwrap();
         assert!(!det.success());
+    }
+
+    #[test]
+    fn pin_record_gitlink_refuses_dirty_unless_force() {
+        crate::git_fixture::allow_file_protocol();
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        crate::init_workbench(root).unwrap();
+        crate::git_fixture::git_init_commit(root);
+        let bare = crate::git_fixture::bare_with_main(root, "nested");
+        crate::project::add_project(
+            root,
+            "nested",
+            "vendor/nested".into(),
+            Some(bare.to_string_lossy().into()),
+            Some("main".into()),
+            true,
+        )
+        .unwrap();
+        fs::write(root.join("vendor/nested/dirty"), "x").unwrap();
+        let err = pin_record_primary(root, &[], false).unwrap_err();
+        assert!(err.to_string().contains("dirty"), "{err}");
+        pin_record_primary(root, &[], true).unwrap();
     }
 }
