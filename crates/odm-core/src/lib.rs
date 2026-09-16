@@ -29,7 +29,8 @@ pub use checkout::{
 };
 pub use config::{
     load_workspace, parse_config_yaml, save_config, validate_and_load_bundles, ActionDef,
-    ActionTask, CheckoutMode, GeneratorDef, ProjectEntry, ProgenEntry, Workspace, WorkspaceConfig,
+    ActionTask, CheckoutMode, GeneratorDef, ProjectEntry, ProgenEntry, Workbench, WorkbenchConfig,
+    Workspace, WorkspaceConfig,
 };
 pub use discover::discover_root;
 pub use doctor::{

@@ -156,7 +156,10 @@ pub struct GeneratorDef {
     pub url: Option<String>,
 }
 
-/// Loaded Workspace: root path + validated config + merged bundles.
+pub type Workbench = Workspace;
+pub type WorkbenchConfig = WorkspaceConfig;
+
+/// Loaded Workbench: root path + validated config + merged bundles.
 #[derive(Debug, Clone)]
 pub struct Workspace {
     pub root: PathBuf,
