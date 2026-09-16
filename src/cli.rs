@@ -1,10 +1,32 @@
 use clap::{Parser, Subcommand};
+use odm_core::OdmError;
 
 #[derive(Debug, Parser)]
 #[command(name = "bee", version, about = "Rust CLI of the Hive family.")]
 pub struct Cli {
+    #[arg(long, global = true)]
+    pub project: Option<String>,
+    #[arg(long, global = true, action = clap::ArgAction::Append)]
+    pub wt: Vec<String>,
     #[command(subcommand)]
     pub command: Commands,
+}
+
+pub fn resolve_wt_flags(flags: &[String]) -> Result<Option<String>, OdmError> {
+    match flags {
+        [] => Ok(None),
+        [w] => Ok(Some(w.clone())),
+        [first, rest @ ..] => {
+            if rest.iter().all(|w| w == first) {
+                Ok(Some(first.clone()))
+            } else {
+                Err(OdmError::usage(format!(
+                    "conflicting --wt values: {}",
+                    flags.join(", ")
+                )))
+            }
+        }
+    }
 }
 
 #[derive(Debug, Subcommand)]
@@ -27,10 +49,28 @@ pub enum Commands {
         #[command(subcommand)]
         cmd: ProgenCmd,
     },
-    Find,
-    Context,
-    Run,
-    Generate,
+    Find {
+        query: Option<String>,
+        #[arg(long, default_value_t = 200)]
+        limit: usize,
+    },
+    Context {
+        id: String,
+    },
+    Run {
+        action: Option<String>,
+        #[arg(last = true)]
+        extra: Vec<String>,
+    },
+    Generate {
+        name: Option<String>,
+        #[arg(long, requires = "name")]
+        dest: Option<String>,
+        #[arg(long, requires = "name")]
+        force: bool,
+        #[arg(long, requires = "name")]
+        dry_run: bool,
+    },
     Once,
     Watch,
     Explain,
@@ -123,15 +163,42 @@ mod tests {
     }
 
     #[test]
+    fn help_binds_project_and_wt() {
+        let help = help_text();
+        assert!(help.contains("--project"), "{help}");
+        assert!(help.contains("--wt"), "{help}");
+    }
+
+    #[test]
     fn init_verb_writes_workbench_yaml() {
         let dir = tempfile::tempdir().unwrap();
-        assert_eq!(crate::execute(Commands::Init, dir.path()), 0);
+        assert_eq!(
+            crate::execute(
+                Cli {
+                    project: None,
+                    wt: vec![],
+                    command: Commands::Init,
+                },
+                dir.path()
+            ),
+            0
+        );
         assert!(crate::workbench_path(dir.path()).is_file());
     }
 
     #[test]
     fn other_verbs_still_exit_two() {
         let dir = tempfile::tempdir().unwrap();
-        assert_eq!(crate::execute(Commands::Status, dir.path()), 2);
+        assert_eq!(
+            crate::execute(
+                Cli {
+                    project: None,
+                    wt: vec![],
+                    command: Commands::Once,
+                },
+                dir.path()
+            ),
+            2
+        );
     }
 }
