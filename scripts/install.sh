@@ -20,12 +20,12 @@ detect_triple() {
   arch="$(uname -m 2>/dev/null || true)"
 
   case "${OS:-}" in
-    Windows_NT) err "Windows is not supported; install on macOS or Linux" ;;
+    Windows_NT) err "Windows is not supported; install on macOS" ;;
   esac
 
   case "$os" in
     MINGW*|MSYS*|CYGWIN*|Windows_NT)
-      err "Windows is not supported; install on macOS or Linux"
+      err "Windows is not supported; install on macOS"
       ;;
     Darwin)
       case "$arch" in
@@ -34,15 +34,8 @@ detect_triple() {
         *) err "unsupported macOS architecture: ${arch}" ;;
       esac
       ;;
-    Linux)
-      case "$arch" in
-        x86_64|amd64) printf '%s\n' "x86_64-unknown-linux-gnu" ;;
-        aarch64|arm64) printf '%s\n' "aarch64-unknown-linux-gnu" ;;
-        *) err "unsupported Linux architecture: ${arch}" ;;
-      esac
-      ;;
     *)
-      err "unsupported OS: ${os:-unknown} (supported: macOS, Linux)"
+      err "unsupported OS: ${os:-unknown} (supported: macOS)"
       ;;
   esac
 }
