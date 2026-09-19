@@ -1,14 +1,16 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde_yaml::Value;
 
-use crate::lanes_path;
+use crate::paths::{hive_root, lanes_path};
 
 const CONFIG_KEYS: &[&str] = &[
-    "watch", "folders", "lanes", "disable", "history", "actors", "stop",
+    "watch", "folders", "lanes", "disable", "history", "actors", "stop", "notes",
 ];
+
+const NOTES_KEYS: &[&str] = &["planning", "archive", "tickets", "quarantine", "logs"];
 
 #[derive(Debug, Clone)]
 pub struct DestConfig {
@@ -17,6 +19,25 @@ pub struct DestConfig {
     pub disable: Vec<String>,
     pub watch: Option<Vec<String>>,
     pub history: Option<String>,
+    pub notes: Option<NotesMap>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NotesMap {
+    pub planning: Option<String>,
+    pub archive: Option<String>,
+    pub tickets: Option<String>,
+    pub quarantine: Option<String>,
+    pub logs: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NotesDirs {
+    pub planning: PathBuf,
+    pub archive: Option<PathBuf>,
+    pub tickets: Option<PathBuf>,
+    pub quarantine: Option<PathBuf>,
+    pub logs: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone)]
@@ -67,13 +88,77 @@ pub fn load_dest_config(cwd: &Path) -> Result<DestConfig, String> {
         .get(Value::String("history".into()))
         .and_then(Value::as_str)
         .map(str::to_string);
+    let notes = parse_notes(map.get(Value::String("notes".into())))?;
     Ok(DestConfig {
         folders,
         lanes,
         disable,
         watch,
         history,
+        notes,
     })
+}
+
+pub fn lookup_notes(start: &Path) -> Result<NotesDirs, String> {
+    let root = hive_root(start)?;
+    let cfg = load_dest_config(&root)?;
+    let notes = cfg
+        .notes
+        .ok_or_else(|| "Missing notes.planning".to_string())?;
+    let planning = notes
+        .planning
+        .ok_or_else(|| "Missing notes.planning".to_string())?;
+    Ok(NotesDirs {
+        planning: hive_rel(&root, &planning)?,
+        archive: opt_rel(&root, notes.archive.as_deref())?,
+        tickets: opt_rel(&root, notes.tickets.as_deref())?,
+        quarantine: opt_rel(&root, notes.quarantine.as_deref())?,
+        logs: opt_rel(&root, notes.logs.as_deref())?,
+    })
+}
+
+fn parse_notes(value: Option<&Value>) -> Result<Option<NotesMap>, String> {
+    let Some(value) = value else {
+        return Ok(None);
+    };
+    let Value::Mapping(map) = value else {
+        return Err("notes must be a map".into());
+    };
+    for key in map.keys() {
+        let Some(name) = key.as_str() else {
+            return Err("unknown key".into());
+        };
+        if !NOTES_KEYS.contains(&name) {
+            return Err(format!("Unknown key \"notes.{name}\""));
+        }
+    }
+    Ok(Some(NotesMap {
+        planning: notes_path(map, "planning")?,
+        archive: notes_path(map, "archive")?,
+        tickets: notes_path(map, "tickets")?,
+        quarantine: notes_path(map, "quarantine")?,
+        logs: notes_path(map, "logs")?,
+    }))
+}
+
+fn notes_path(map: &serde_yaml::Mapping, key: &str) -> Result<Option<String>, String> {
+    match map.get(Value::String(key.into())) {
+        None => Ok(None),
+        Some(Value::String(s)) => Ok(Some(s.clone())),
+        Some(_) => Err(format!("notes.{key} must be a path")),
+    }
+}
+
+fn opt_rel(root: &Path, rel: Option<&str>) -> Result<Option<PathBuf>, String> {
+    rel.map(|p| hive_rel(root, p)).transpose()
+}
+
+fn hive_rel(root: &Path, rel: &str) -> Result<PathBuf, String> {
+    let p = Path::new(rel);
+    if p.is_absolute() {
+        return Err("notes paths must be Hive-root relative".into());
+    }
+    Ok(root.join(p))
 }
 
 fn parse_lanes(value: Option<&Value>) -> Result<Vec<Lane>, String> {
@@ -143,7 +228,9 @@ fn parse_cmds(type_: &str, item: &serde_yaml::Mapping) -> Result<Vec<CmdSpec>, S
         }
         return Ok(cmds);
     }
-    Ok(parse_cmd(item.get(Value::String("cmd".into()))).into_iter().collect())
+    Ok(parse_cmd(item.get(Value::String("cmd".into())))
+        .into_iter()
+        .collect())
 }
 
 fn parse_cmd(value: Option<&Value>) -> Option<CmdSpec> {
@@ -209,7 +296,9 @@ mod tests {
     #[test]
     fn missing_yaml_fails() {
         let dir = tempdir().unwrap();
-        assert!(load_dest_config(dir.path()).unwrap_err().contains("Missing"));
+        assert!(load_dest_config(dir.path())
+            .unwrap_err()
+            .contains("Missing"));
     }
 
     #[test]
@@ -231,5 +320,78 @@ mod tests {
         fs::write(dir.path().join("hivemind.yaml"), "lanes: boom\n").unwrap();
         let cfg = load_dest_config(dir.path()).unwrap();
         assert!(cfg.lanes.is_empty());
+    }
+
+    fn write_yaml(root: &Path, body: &str) {
+        fs::create_dir_all(root.join(".hivemind")).unwrap();
+        fs::write(root.join(".hivemind/hivemind.yaml"), body).unwrap();
+    }
+
+    #[test]
+    fn unknown_key_still_fails_on_typo() {
+        let dir = tempdir().unwrap();
+        write_yaml(dir.path(), "folders: []\nlanes: {}\nunknown: 1\n");
+        let err = load_dest_config(dir.path()).unwrap_err();
+        assert!(err.contains("Unknown key \"unknown\""), "{err}");
+    }
+
+    #[test]
+    fn notes_key_does_not_fail_dest_load() {
+        let dir = tempdir().unwrap();
+        write_yaml(
+            dir.path(),
+            "folders: []\nlanes: {}\nnotes:\n  planning: .heio/planning\n",
+        );
+        let cfg = load_dest_config(dir.path()).unwrap();
+        assert!(cfg.lanes.is_empty());
+    }
+
+    #[test]
+    fn notes_paths_are_hive_root_relative() {
+        let dir = tempdir().unwrap();
+        write_yaml(
+            dir.path(),
+            "lanes: {}\nnotes:\n  planning: .heio/planning\n  archive: .heio/archive\n  tickets: .heio/tickets\n  quarantine: .heio/quarantine\n  logs: .heio/logs\n",
+        );
+        let root = dir.path().canonicalize().unwrap();
+        let got = lookup_notes(dir.path()).unwrap();
+        assert_eq!(got.planning, root.join(".heio/planning"));
+        assert_eq!(got.archive, Some(root.join(".heio/archive")));
+        assert_eq!(got.tickets, Some(root.join(".heio/tickets")));
+        assert_eq!(got.quarantine, Some(root.join(".heio/quarantine")));
+        assert_eq!(got.logs, Some(root.join(".heio/logs")));
+    }
+
+    #[test]
+    fn walk_up_finds_hivemind_yaml_from_nested_cwd() {
+        let dir = tempdir().unwrap();
+        write_yaml(
+            dir.path(),
+            "lanes: {}\nnotes:\n  planning: .heio/planning\n",
+        );
+        let nested = dir.path().join("a/b");
+        fs::create_dir_all(&nested).unwrap();
+        let got = lookup_notes(&nested).unwrap();
+        assert_eq!(
+            got.planning,
+            dir.path().canonicalize().unwrap().join(".heio/planning")
+        );
+    }
+
+    #[test]
+    fn missing_yaml_is_not_heio_planning_walk() {
+        let dir = tempdir().unwrap();
+        fs::create_dir_all(dir.path().join(".heio/planning")).unwrap();
+        let err = lookup_notes(dir.path()).unwrap_err();
+        assert!(err.contains("Missing .hivemind/hivemind.yaml"), "{err}");
+        assert!(!err.to_lowercase().contains(".heio/planning"), "{err}");
+    }
+
+    #[test]
+    fn missing_notes_planning_fails_note_verb_lookup() {
+        let dir = tempdir().unwrap();
+        write_yaml(dir.path(), "lanes: {}\n");
+        let err = lookup_notes(dir.path()).unwrap_err();
+        assert!(err.contains("notes.planning"), "{err}");
     }
 }

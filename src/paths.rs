@@ -4,6 +4,22 @@ pub fn hivemind_dir(root: &Path) -> PathBuf {
     root.join(".hivemind")
 }
 
+pub fn hive_root(start: &Path) -> Result<PathBuf, String> {
+    let mut dir = start.to_path_buf();
+    if let Ok(c) = dir.canonicalize() {
+        dir = c;
+    }
+    loop {
+        if lanes_path(&dir).is_file() {
+            return Ok(dir);
+        }
+        match dir.parent() {
+            Some(parent) if parent != dir => dir = parent.to_path_buf(),
+            _ => return Err("Missing .hivemind/hivemind.yaml".into()),
+        }
+    }
+}
+
 pub fn workbench_path(root: &Path) -> PathBuf {
     hivemind_dir(root).join("workbench.yaml")
 }

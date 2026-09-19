@@ -3,6 +3,7 @@ mod forward;
 pub use forward::forward_old_bin;
 mod dest;
 mod dest_config;
+pub use dest_config::{lookup_notes, NotesDirs};
 mod dest_explain;
 mod dest_journal;
 mod dest_match;
@@ -28,7 +29,7 @@ pub use init::init_workbench;
 pub use layout::{load_workbench, parse_workbench_yaml};
 pub use odm_core::{ProjectEntry, Workbench, WorkbenchConfig};
 pub use paths::{
-    actors_dir, hivemind_dir, lanes_path, pin_path, pin_read_path, workbench_path,
+    actors_dir, hive_root, hivemind_dir, lanes_path, pin_path, pin_read_path, workbench_path,
     workbench_read_path,
 };
 

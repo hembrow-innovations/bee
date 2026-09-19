@@ -15,6 +15,7 @@ const CONFIG_KEYS = new Set([
   "history",
   "actors",
   "stop",
+  "notes",
 ]);
 
 const ACTOR_KEYS = new Set([

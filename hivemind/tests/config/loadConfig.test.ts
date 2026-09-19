@@ -47,6 +47,16 @@ test("loadConfig throws on unknown top-level keys", () => {
   assert.throws(() => loadConfig(cwd), /Unknown key "unknown"/);
 });
 
+test("notes: does not fail dest load", () => {
+  const cwd = withTemp("hivemind-load-notes-");
+  writeConfig(
+    cwd,
+    "folders: []\nlanes: {}\nnotes:\n  planning: .heio/planning\n",
+  );
+  const cfg = loadConfig(cwd);
+  assert.deepEqual(cfg.lanes, []);
+});
+
 test("loadConfig rejects top-level concurrency", () => {
   const cwd = withTemp("hivemind-load-global-conc-");
   writeConfig(cwd, "concurrency: 2\nfolders: []\nlanes: {}\n");
