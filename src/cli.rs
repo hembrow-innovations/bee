@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use odm_core::OdmError;
 
 #[derive(Debug, Parser)]
@@ -80,6 +80,26 @@ pub enum Commands {
     },
     Explain,
     Gc,
+    Note {
+        #[command(subcommand)]
+        cmd: NoteCmd,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum NoteCmd {
+    NextId { kind: NoteKind },
+    CheckIds,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum NoteKind {
+    Ticket,
+    Task,
+    Slice,
+    Location,
+    #[value(alias = "rounds")]
+    Round,
 }
 
 #[derive(Debug, Subcommand)]
@@ -133,7 +153,7 @@ mod tests {
 
     const UNION: &[&str] = &[
         "init", "sync", "pin", "status", "doctor", "project", "progen", "find", "context", "run",
-        "generate", "once", "watch", "explain", "gc",
+        "generate", "once", "watch", "explain", "gc", "note",
     ];
 
     fn help_text() -> String {
@@ -181,6 +201,23 @@ mod tests {
     }
 
     #[test]
+    fn status_takes_no_id_args() {
+        let status = Cli::command().find_subcommand("status").unwrap().clone();
+        assert!(status.get_positionals().next().is_none());
+    }
+
+    #[test]
+    fn note_help_lists_next_id_and_check_ids() {
+        let note = Cli::command().find_subcommand("note").unwrap().clone();
+        let names: Vec<String> = note
+            .get_subcommands()
+            .map(|c| c.get_name().to_string())
+            .collect();
+        assert!(names.iter().any(|n| n == "next-id"), "{names:?}");
+        assert!(names.iter().any(|n| n == "check-ids"), "{names:?}");
+    }
+
+    #[test]
     fn init_verb_writes_workbench_yaml() {
         let dir = tempfile::tempdir().unwrap();
         assert_eq!(
@@ -196,6 +233,4 @@ mod tests {
         );
         assert!(crate::workbench_path(dir.path()).is_file());
     }
-
-
 }

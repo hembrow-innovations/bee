@@ -16,6 +16,7 @@ mod dest_watch;
 mod git_fixture;
 mod init;
 mod layout;
+mod note;
 mod ops;
 mod paths;
 mod pin;
@@ -24,7 +25,7 @@ mod sync;
 
 use std::path::Path;
 
-pub use cli::{resolve_wt_flags, Cli, Commands, PinCmd, ProgenCmd, ProjectCmd};
+pub use cli::{resolve_wt_flags, Cli, Commands, NoteCmd, NoteKind, PinCmd, ProgenCmd, ProjectCmd};
 pub use init::init_workbench;
 pub use layout::{load_workbench, parse_workbench_yaml};
 pub use odm_core::{ProjectEntry, Workbench, WorkbenchConfig};
@@ -55,9 +56,7 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             PinCmd::Record { names, force } => {
                 odm_exit(pin::pin_record_primary(root, &names, force))
             }
-            PinCmd::Apply { names, force } => {
-                odm_exit(pin::pin_apply_primary(root, &names, force))
-            }
+            PinCmd::Apply { names, force } => odm_exit(pin::pin_apply_primary(root, &names, force)),
         },
         Commands::Project { cmd } => match cmd {
             ProjectCmd::Add {
@@ -66,7 +65,9 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                 url,
                 branch,
                 gitlink,
-            } => odm_exit(project::add_project(root, &name, path, url, branch, gitlink)),
+            } => odm_exit(project::add_project(
+                root, &name, path, url, branch, gitlink,
+            )),
         },
         Commands::Progen { cmd } => match cmd {
             ProgenCmd::Add {
@@ -101,16 +102,12 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             }
             Err(e) => odm_core::exit_code(&e) as u8,
         },
-        Commands::Run { action, extra } => match ops::run(
-            root,
-            action,
-            &extra,
-            cli.project.as_deref(),
-            wt.as_deref(),
-        ) {
-            Ok(code) => code as u8,
-            Err(e) => odm_core::exit_code(&e) as u8,
-        },
+        Commands::Run { action, extra } => {
+            match ops::run(root, action, &extra, cli.project.as_deref(), wt.as_deref()) {
+                Ok(code) => code as u8,
+                Err(e) => odm_core::exit_code(&e) as u8,
+            }
+        }
         Commands::Generate {
             name,
             dest,
@@ -143,6 +140,36 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
         Commands::Gc => match dest_explain::gc(root) {
             Ok(()) => 0,
             Err(_) => 1,
+        },
+        Commands::Note { cmd } => match cmd {
+            NoteCmd::NextId { kind } => match note::next_id(root, kind) {
+                Ok(id) => {
+                    println!("{id}");
+                    0
+                }
+                Err(e) => {
+                    eprintln!("{e}");
+                    1
+                }
+            },
+            NoteCmd::CheckIds => match note::check_ids(root) {
+                Ok(hits) if hits.is_empty() => 0,
+                Ok(hits) => {
+                    for hit in hits {
+                        eprintln!(
+                            "duplicate live {}-{}: {}",
+                            hit.kind,
+                            hit.padded,
+                            hit.live.join(" ")
+                        );
+                    }
+                    1
+                }
+                Err(e) => {
+                    eprintln!("{e}");
+                    1
+                }
+            },
         },
     }
 }
