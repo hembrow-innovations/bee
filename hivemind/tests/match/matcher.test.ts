@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { withTemp } from "../with-temp.ts";
 import type { UnitLane } from "../../src/config/loadConfig.ts";
+import type { ScannedNote } from "../../src/scan/scan.ts";
 import type {
   HistoryEvent,
   Journal,
@@ -59,7 +60,7 @@ test("matchNotes requires every trigger key and ignores extra front matter", () 
 
 test("matchNotes skips a note when need fails and does not fault it", () => {
   const plan = lane({ need: { sealed: true } });
-  const notes = [
+  const notes: ScannedNote[] = [
     {
       path: "tickets/open.md",
       frontMatter: { status: "ready-for-agent" },
@@ -146,7 +147,7 @@ test("hivemind.match:need-exists", () => {
 });
 
 test("hivemind.match:need-status-of", () => {
-  const notes = [
+  const notes: ScannedNote[] = [
     {
       path: "tickets/ready.md",
       frontMatter: {

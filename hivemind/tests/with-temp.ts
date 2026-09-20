@@ -35,8 +35,8 @@ export function withTemp<T>(
   }
   try {
     const result = fn(dir);
-    if (result && typeof result === "object" && "then" in result) {
-      return (result as Promise<unknown>).finally(() => rm(dir)) as T;
+    if (result instanceof Promise) {
+      return result.finally(() => rm(dir)) as T;
     }
     rm(dir);
     return result;

@@ -10,8 +10,9 @@ import {
 } from "../../src/config/loadConfig.ts";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const WORKBENCH = join(HERE, "../../..");
-const FIXTURE = join(WORKBENCH, "tests/fixtures/heio-stack.hivemind.yaml");
+const BEE = join(HERE, "../../..");
+const WORKBENCH = join(HERE, "../../../..");
+const FIXTURE = join(BEE, "tests/fixtures/heio-stack.hivemind.yaml");
 const DEST_YAML = join(WORKBENCH, ".hivemind/hivemind.yaml");
 const OPENCODE_CMD = [
   "opencode",
@@ -375,6 +376,9 @@ test("dest yaml runs the endless improvement loop on the heartbeat note", () => 
   const shape = byId.get("shape");
   const keep = byId.get("keep");
   assert.ok(audit && shape && keep, "audit, shape, and keep lanes exist");
+  if (audit.type !== "single" || shape.type !== "single" || keep.type !== "single") {
+    throw new Error("expected single");
+  }
   assert.ok(byId.has("drain"), "drain lane stays");
   assert.equal(cfg.history, ".heio/logs/hivemind.tsv");
 
@@ -932,14 +936,18 @@ test("hivemind.config:lane-audit", () => {
   const opted = withTemp("hivemind-load-audit-git-diff-");
   writeConfig(opted, single("    audit: git-diff"));
   const optedLane = loadConfig(opted).lanes[0];
-  assert.equal(optedLane?.audit, "git-diff");
-  assert.equal(optedLane?.scalars.audit, undefined);
+  assert.equal(optedLane?.type, "single");
+  if (optedLane?.type !== "single") throw new Error("expected single");
+  assert.equal(optedLane.audit, "git-diff");
+  assert.equal(optedLane.scalars.audit, undefined);
 
   const omitted = withTemp("hivemind-load-audit-omit-");
   writeConfig(omitted, single());
   const omittedLane = loadConfig(omitted).lanes[0];
-  assert.equal(omittedLane?.audit, undefined);
-  assert.equal(omittedLane?.scalars.audit, undefined);
+  assert.equal(omittedLane?.type, "single");
+  if (omittedLane?.type !== "single") throw new Error("expected single");
+  assert.equal(omittedLane.audit, undefined);
+  assert.equal(omittedLane.scalars.audit, undefined);
 
   const pipe = withTemp("hivemind-load-audit-pipe-");
   writeConfig(

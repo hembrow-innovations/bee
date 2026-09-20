@@ -1,0 +1,132 @@
+# Heio-stack template. Full file. No overlay.
+# Pack sample, not this dest's OpenCode agent.
+# Sealed: spec + EXPECT are immutable once written. Miss → new ticket, no
+# unseal. Slice status ready means schedulable (replaces frozen). Then active /
+# released / failed. Failed stays sealed. Tickets: ready-for-agent vs
+# ready-for-human. Mint omitted. Doctor not shipped.
+history: .heio/logs/hivemind.tsv
+folders:
+  - path: .heio/tickets
+    schema:
+      id: string
+      title: string
+      kind: string
+      status: string
+      labels: string
+      tags: string
+      sprint: string
+      slice: string
+      created_at: string
+      updated_at: string
+      claimed-by: string
+      caused-by: string
+      failed: string
+      intent: string
+    required: [id, status]
+  - path: .heio/planning
+    schema:
+      id: string
+      title: string
+      kind: string
+      status: string
+      sprint: string
+      tags: string
+      created_at: string
+      updated_at: string
+      claimed-by: string
+      blocked-by: string
+    required: [id, kind, status]
+  - path: .heio/archive
+    schema:
+      id: string
+      title: string
+      kind: string
+      status: string
+      labels: string
+      tags: string
+      sprint: string
+      created_at: string
+      updated_at: string
+      blocked-by: string
+      mode: string
+      sitting-kind: string
+    required: [id]
+  - path: .heio/quarantine
+    schema: quarantine
+    required: [origin-location, quarantined-at, fault]
+# Worktree is an actor cmd convention, never required in core. Optional
+# pattern: a cmd that runs git worktree add, then spawns with --cwd {{worktree}}.
+# cmd is the adapter.
+actors:
+  opencode:
+    cmd:
+      - opencode
+      - run
+      - --auto
+      - --format
+      - json
+      - --agent
+      - "{{agent}}"
+      - --file
+      - "{{prompt}}"
+  # Cross-model review: two actors, two cmds. Uncomment and set review.actor.
+  # Example: pi --model ... or codex exec. Not enabled in this pack.
+  #  pi:
+  #    cmd:
+  #      - pi
+  #      - --model
+  #      - "{{env.REVIEW_MODEL}}"
+  #      - --file
+  #      - "{{prompt}}"
+lanes:
+  # Plan: one matching ticket per life.
+  # EMPTY MATCH: exit. Do not invent work. Do not write product code or intent.
+  # Task-pool files come from a HITL planning sitting, not a Tasker lane.
+  plan:
+    type: single
+    concurrency: 1
+    actor: opencode
+    agent: heio-planner
+    prompt: .opencode/prompts/heio-planning.md
+    trigger:
+      kind: ticket
+      status: ready-for-agent
+    scope:
+      - .heio/planning
+      - .heio/tickets
+    claim-status: active
+    backoff: 30s
+  # Build: next unchecked task on a ready/active slice. Need: sealed spec +
+  # EXPECT.
+  build:
+    type: single
+    concurrency: 1
+    actor: opencode
+    agent: heio-builder
+    prompt: .opencode/prompts/heio-slice.md
+    trigger:
+      kind: slice
+      status: active
+    scope:
+      - .heio/planning
+    claim-status: building
+    backoff: 30s
+  # Review: released work. Miss → new ticket at mint-status. Old slice sealed +
+  # failed. mint-status stays ready-for-human (Mint omitted). Cross-model
+  # review: set actor to a second identity (commented pi --model / codex exec).
+  review:
+    type: single
+    concurrency: 1
+    actor: opencode
+    # actor: pi
+    agent: heio-verifier
+    prompt: .opencode/prompts/heio-slice.md
+    trigger:
+      kind: slice
+      status: released
+    scope:
+      - .heio/planning
+      - .heio/tickets
+    claim-status: reviewing
+    mint-status: ready-for-human
+    backoff: 30s
