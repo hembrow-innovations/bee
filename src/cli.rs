@@ -152,6 +152,48 @@ pub enum DocsCmd {
         #[arg(long)]
         fields: Option<String>,
     },
+    Write {
+        path: String,
+        #[arg(long)]
+        content: Option<String>,
+        #[arg(long)]
+        content_file: Option<String>,
+        #[arg(long)]
+        if_absent: bool,
+    },
+    Append {
+        path: String,
+        #[arg(long)]
+        content: Option<String>,
+        #[arg(long)]
+        content_file: Option<String>,
+        #[arg(long)]
+        if_missing: bool,
+    },
+    Patch {
+        path: String,
+        #[arg(long)]
+        target_type: Option<String>,
+        #[arg(long, action = clap::ArgAction::Append)]
+        target: Vec<String>,
+        #[arg(long)]
+        op: Option<String>,
+        #[arg(long)]
+        content: Option<String>,
+        #[arg(long)]
+        content_file: Option<String>,
+    },
+    Rm {
+        path: String,
+        #[arg(long)]
+        permanent: bool,
+    },
+    Mv {
+        from: String,
+        to: String,
+        #[arg(long)]
+        overwrite: bool,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -321,6 +363,39 @@ mod tests {
         }
         assert!(Cli::try_parse_from(["bee", "docs", "home"]).is_ok());
         assert!(Cli::try_parse_from(["bee", "docs", "search", "q", "--vault", "docs"]).is_ok());
+    }
+
+    #[test]
+    fn docs_help_lists_write_verbs() {
+        let docs = Cli::command().find_subcommand("docs").unwrap().clone();
+        let names: Vec<String> = docs
+            .get_subcommands()
+            .map(|c| c.get_name().to_string())
+            .collect();
+        for verb in ["write", "append", "patch", "rm", "mv"] {
+            assert!(
+                names.iter().any(|n| n == verb),
+                "missing {verb} in {names:?}"
+            );
+        }
+        assert!(Cli::try_parse_from(["bee", "docs", "write", "a.md", "--content", "x"]).is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "append", "a.md", "--content", "x"]).is_ok());
+        assert!(Cli::try_parse_from([
+            "bee",
+            "docs",
+            "patch",
+            "a.md",
+            "--target-type",
+            "heading",
+            "--target",
+            "T",
+            "--content",
+            "x"
+        ])
+        .is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "rm", "a.md"]).is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "mv", "a.md", "b.md"]).is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "write", "a.md", "--vault", "docs"]).is_ok());
     }
 
     #[test]

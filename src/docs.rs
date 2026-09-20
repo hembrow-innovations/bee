@@ -25,7 +25,7 @@ pub fn run(start: &Path, vault_arg: Option<&str>, cmd: &DocsCmd) -> Result<Strin
     run_with_env(start, vault_arg, env.as_deref(), cmd)
 }
 
-fn run_with_env(
+pub(crate) fn run_with_env(
     start: &Path,
     vault_arg: Option<&str>,
     env_vault: Option<&str>,
@@ -83,6 +83,11 @@ fn run_with_env(
             limit,
             fields,
         } => recent(&vault, *days, *limit, fields.as_deref()),
+        DocsCmd::Write { .. }
+        | DocsCmd::Append { .. }
+        | DocsCmd::Patch { .. }
+        | DocsCmd::Rm { .. }
+        | DocsCmd::Mv { .. } => crate::docs_write::run(&vault, cmd),
     }
 }
 
@@ -628,7 +633,7 @@ fn unquote(value: &str) -> String {
     }
 }
 
-fn resolve_note(vault: &Path, path: &str) -> Result<(PathBuf, String), String> {
+pub(crate) fn resolve_note(vault: &Path, path: &str) -> Result<(PathBuf, String), String> {
     let mut raw = path.trim().to_string();
     if raw.starts_with("[[") && raw.ends_with("]]") {
         raw = raw[2..raw.len() - 2]
