@@ -13,11 +13,16 @@ const SKIP: &[&str] = &[".obsidian", ".trash", "99_scribble", ".git"];
 const BODY_CAP: usize = 1000;
 const HIT_CAP: usize = 160;
 
-struct VaultFile {
-    rel: String,
-    abs: PathBuf,
+pub(crate) struct VaultFile {
+    pub rel: String,
+    pub abs: PathBuf,
     mtime: SystemTime,
     size: u64,
+}
+
+pub(crate) struct VaultHit {
+    pub root: PathBuf,
+    pub source: &'static str,
 }
 
 pub fn run(start: &Path, vault_arg: Option<&str>, cmd: &DocsCmd) -> Result<String, String> {
@@ -31,8 +36,9 @@ pub(crate) fn run_with_env(
     env_vault: Option<&str>,
     cmd: &DocsCmd,
 ) -> Result<String, String> {
-    let vault = find_vault_root(start, vault_arg, env_vault)
+    let hit = find_vault_root(start, vault_arg, env_vault)
         .ok_or_else(|| "no docs vault found from cwd. Pass --vault.".to_string())?;
+    let vault = hit.root;
     match cmd {
         DocsCmd::Home => home(&vault),
         DocsCmd::Ls {
@@ -88,6 +94,10 @@ pub(crate) fn run_with_env(
         | DocsCmd::Patch { .. }
         | DocsCmd::Rm { .. }
         | DocsCmd::Mv { .. } => crate::docs_write::run(&vault, cmd),
+        DocsCmd::Links { .. } | DocsCmd::Tags { .. } | DocsCmd::Vault { .. } => {
+            crate::docs_graph::run(&vault, hit.source, cmd)
+        }
+        DocsCmd::New { .. } => crate::docs_new::run(&vault, start, cmd),
     }
 }
 
@@ -95,14 +105,23 @@ fn find_vault_root(
     start: &Path,
     vault_arg: Option<&str>,
     env_vault: Option<&str>,
-) -> Option<PathBuf> {
+) -> Option<VaultHit> {
     if let Some(raw) = vault_arg.filter(|s| !s.is_empty()) {
-        return locate(start, raw);
+        return locate(start, raw).map(|root| VaultHit {
+            root,
+            source: "flag",
+        });
     }
     if let Some(raw) = env_vault.filter(|s| !s.is_empty()) {
-        return locate(start, raw);
+        return locate(start, raw).map(|root| VaultHit {
+            root,
+            source: "env",
+        });
     }
-    walk_named(start, "docs")
+    walk_named(start, "docs").map(|root| VaultHit {
+        root,
+        source: "walk-up",
+    })
 }
 
 fn locate(start: &Path, raw: &str) -> Option<PathBuf> {
@@ -139,7 +158,7 @@ fn walk_named(start: &Path, name: &str) -> Option<PathBuf> {
     }
 }
 
-fn list_notes(vault: &Path, ext: &str) -> Vec<VaultFile> {
+pub(crate) fn list_notes(vault: &Path, ext: &str) -> Vec<VaultFile> {
     let mut out = Vec::new();
     visit(vault, vault, ext, &mut out);
     out
@@ -301,7 +320,7 @@ fn rows(files: &[VaultFile], only_path: bool) -> Vec<String> {
         .collect()
 }
 
-fn listed(rows: &[String]) -> String {
+pub(crate) fn listed(rows: &[String]) -> String {
     if rows.is_empty() {
         return "count: 0\n".into();
     }
@@ -541,7 +560,7 @@ fn fm_ok(text: &str, filters: &[String]) -> bool {
     })
 }
 
-fn note_tags(text: &str) -> Vec<String> {
+pub(crate) fn note_tags(text: &str) -> Vec<String> {
     let mut have = match parse_front_matter(text) {
         ParseFrontMatter::Ok(map) => field_list(&map, "tags"),
         ParseFrontMatter::Fault(_) => Vec::new(),
@@ -615,7 +634,7 @@ fn field_string(fields: &YamlMap, key: &str) -> Option<String> {
     }
 }
 
-fn field_list(fields: &YamlMap, key: &str) -> Vec<String> {
+pub(crate) fn field_list(fields: &YamlMap, key: &str) -> Vec<String> {
     match fields.get(Value::String(key.into())) {
         Some(Value::Sequence(seq)) => seq.iter().filter_map(|v| v.as_str().map(unquote)).collect(),
         Some(Value::String(s)) if !s.is_empty() => vec![unquote(s)],

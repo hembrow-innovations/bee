@@ -194,6 +194,39 @@ pub enum DocsCmd {
         #[arg(long)]
         overwrite: bool,
     },
+    Links {
+        path: Option<String>,
+        #[arg(long)]
+        broken: bool,
+        #[arg(long)]
+        orphans: bool,
+        #[arg(long)]
+        outlinks: bool,
+        #[arg(long)]
+        backlinks: bool,
+    },
+    Tags {
+        #[arg(long)]
+        limit: Option<usize>,
+        #[arg(num_args = 0..=2)]
+        spec: Vec<String>,
+    },
+    Vault {
+        info: Option<String>,
+    },
+    New {
+        kind: String,
+        #[arg(long)]
+        title: Option<String>,
+        #[arg(long)]
+        domain: Option<String>,
+        #[arg(long)]
+        area: Option<String>,
+        #[arg(long)]
+        slug: Option<String>,
+        #[arg(long)]
+        tag: Vec<String>,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -396,6 +429,42 @@ mod tests {
         assert!(Cli::try_parse_from(["bee", "docs", "rm", "a.md"]).is_ok());
         assert!(Cli::try_parse_from(["bee", "docs", "mv", "a.md", "b.md"]).is_ok());
         assert!(Cli::try_parse_from(["bee", "docs", "write", "a.md", "--vault", "docs"]).is_ok());
+    }
+
+    #[test]
+    fn docs_help_lists_graph_new_verbs() {
+        let docs = Cli::command().find_subcommand("docs").unwrap().clone();
+        let names: Vec<String> = docs
+            .get_subcommands()
+            .map(|c| c.get_name().to_string())
+            .collect();
+        for verb in ["links", "tags", "vault", "new"] {
+            assert!(
+                names.iter().any(|n| n == verb),
+                "missing {verb} in {names:?}"
+            );
+        }
+        assert!(Cli::try_parse_from(["bee", "docs", "links", "a.md"]).is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "links", "--broken"]).is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "tags"]).is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "tags", "files", "stack"]).is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "vault"]).is_ok());
+        assert!(Cli::try_parse_from([
+            "bee",
+            "docs",
+            "new",
+            "adr",
+            "--title",
+            "Pick",
+            "--domain",
+            "hive",
+            "--area",
+            "decisions",
+            "--slug",
+            "pick"
+        ])
+        .is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "links", "a.md", "--vault", "docs"]).is_ok());
     }
 
     #[test]

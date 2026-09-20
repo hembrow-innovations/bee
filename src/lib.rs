@@ -13,6 +13,8 @@ mod dest_scan;
 mod dest_spawn;
 mod dest_watch;
 mod docs;
+mod docs_graph;
+mod docs_new;
 mod docs_write;
 #[cfg(test)]
 mod git_fixture;
