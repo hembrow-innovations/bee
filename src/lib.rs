@@ -1,6 +1,6 @@
 mod cli;
 mod forward;
-pub use forward::forward_old_bin;
+pub use forward::{forward_heio_bin, forward_old_bin};
 mod dest;
 mod dest_config;
 pub use dest_config::{lookup_notes, NotesDirs};

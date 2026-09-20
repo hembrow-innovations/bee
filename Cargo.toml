@@ -17,6 +17,10 @@ path = "src/bin/hivemind.rs"
 name = "odm"
 path = "src/bin/odm.rs"
 
+[[bin]]
+name = "heio"
+path = "src/bin/heio.rs"
+
 [workspace]
 resolver = "2"
 members = [
