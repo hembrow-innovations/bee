@@ -90,7 +90,7 @@ fn init_ws(root: &Path) {
     fs::create_dir_all(root).unwrap();
     odm()
         .current_dir(root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
 }

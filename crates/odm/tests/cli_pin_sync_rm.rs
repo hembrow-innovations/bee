@@ -286,7 +286,7 @@ fn progen_rm_undeclares_without_delete() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
     let root_s = root.to_str().unwrap();
@@ -327,7 +327,7 @@ fn progen_rm_delete_removes_clean_path() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
     let root_s = root.to_str().unwrap();
@@ -362,7 +362,7 @@ fn progen_rm_unknown_exits_1() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
 

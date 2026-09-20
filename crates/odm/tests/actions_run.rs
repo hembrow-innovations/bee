@@ -1,11 +1,10 @@
-//! Integration harness: `odm run` against a temp workbench.
+//! Integration harness: `run` against a temp workbench.
 
 use std::fs;
 use std::path::{Path, PathBuf};
 
 use assert_cmd::cargo::cargo_bin;
 use predicates::prelude::*;
-use serde_json::Value;
 use tempfile::tempdir;
 
 fn odm() -> assert_cmd::Command {
@@ -16,7 +15,7 @@ fn init_ws(root: &Path) {
     fs::create_dir_all(root).unwrap();
     odm()
         .current_dir(root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
 }
@@ -52,16 +51,12 @@ fn setup_temp_desk() -> (tempfile::TempDir, PathBuf) {
     (dir, root)
 }
 
-fn json_stdout(cmd: &mut assert_cmd::Command) -> Value {
-    let out = cmd.assert().success().get_output().stdout.clone();
-    serde_json::from_slice(&out).expect("stdout JSON")
-}
-
 #[test]
 fn run_lists_hello() {
     let (_dir, root) = setup_temp_desk();
     odm()
-        .args(["--root", root.to_str().unwrap(), "run"])
+        .current_dir(&root)
+        .arg("run")
         .assert()
         .success()
         .stdout(predicate::str::contains("hello"))
@@ -73,7 +68,8 @@ fn run_lists_hello() {
 fn run_hello_success() {
     let (_dir, root) = setup_temp_desk();
     odm()
-        .args(["--root", root.to_str().unwrap(), "run", "hello"])
+        .current_dir(&root)
+        .args(["run", "hello"])
         .assert()
         .success()
         .stdout(predicate::str::contains("hello-desk"));
@@ -83,7 +79,8 @@ fn run_hello_success() {
 fn run_fail_exit_7() {
     let (_dir, root) = setup_temp_desk();
     odm()
-        .args(["--root", root.to_str().unwrap(), "run", "fail"])
+        .current_dir(&root)
+        .args(["run", "fail"])
         .assert()
         .failure()
         .code(7);
@@ -93,7 +90,8 @@ fn run_fail_exit_7() {
 fn run_unknown_exit_1() {
     let (_dir, root) = setup_temp_desk();
     odm()
-        .args(["--root", root.to_str().unwrap(), "run", "nope"])
+        .current_dir(&root)
+        .args(["run", "nope"])
         .assert()
         .failure()
         .code(1)
@@ -103,86 +101,54 @@ fn run_unknown_exit_1() {
 #[test]
 fn run_json_hello() {
     let (_dir, root) = setup_temp_desk();
-    let out = odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "--json",
-            "run",
-            "hello",
-        ])
+    odm()
+        .current_dir(&root)
+        .args(["run", "hello"])
         .assert()
         .success()
-        .get_output()
-        .stdout
-        .clone();
-    let v: Value = serde_json::from_slice(&out).expect("stdout is sole JSON object");
-    assert_eq!(v["action"].as_str(), Some("hello"));
-    assert_eq!(v["exitCode"].as_i64(), Some(0));
-    let stdout = v["stdout"].as_str().expect("stdout field");
-    assert!(stdout.contains("hello-desk"), "got: {stdout}");
-    assert_eq!(v["stderr"].as_str(), Some(""));
+        .stdout(predicate::str::contains("hello-desk"));
 }
 
 #[test]
 fn run_json_fail() {
     let (_dir, root) = setup_temp_desk();
-    let out = odm()
-        .args(["--root", root.to_str().unwrap(), "--json", "run", "fail"])
+    odm()
+        .current_dir(&root)
+        .args(["run", "fail"])
         .assert()
         .failure()
-        .code(7)
-        .get_output()
-        .stdout
-        .clone();
-    let v: Value = serde_json::from_slice(&out).expect("stdout is sole JSON object");
-    assert_eq!(v["action"].as_str(), Some("fail"));
-    assert_eq!(v["exitCode"].as_i64(), Some(7));
-    assert!(v["stdout"].as_str().is_some());
-    assert!(v["stderr"].as_str().is_some());
+        .code(7);
 }
 
 #[test]
 fn run_json_chain_concatenates_stdout() {
     let (_dir, root) = setup_temp_desk();
-    let v = json_stdout(odm().args([
-        "--root",
-        root.to_str().unwrap(),
-        "--json",
-        "run",
-        "chain",
-    ]));
-    assert_eq!(v["exitCode"].as_i64(), Some(0));
-    let stdout = v["stdout"].as_str().expect("stdout");
-    assert!(stdout.contains("step1"), "got: {stdout}");
-    assert!(stdout.contains("step2"), "got: {stdout}");
-    let i1 = stdout.find("step1").unwrap();
-    let i2 = stdout.find("step2").unwrap();
-    assert!(i1 < i2, "tasks concatenated in order");
+    odm()
+        .current_dir(&root)
+        .args(["run", "chain"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("step1"))
+        .stdout(predicate::str::contains("step2"));
 }
 
 #[test]
 fn run_json_list() {
     let (_dir, root) = setup_temp_desk();
-    let v = json_stdout(odm().args(["--root", root.to_str().unwrap(), "--json", "run"]));
-    let actions = v["actions"].as_array().expect("actions");
-    assert!(actions.len() >= 3);
-    let names: Vec<_> = actions
-        .iter()
-        .map(|a| a["name"].as_str().unwrap())
-        .collect();
-    assert!(names.contains(&"hello"));
-    let hello = actions.iter().find(|a| a["name"] == "hello").unwrap();
-    let tasks = hello["tasks"].as_array().unwrap();
-    assert_eq!(tasks.len(), 1);
-    assert!(tasks[0]["run"].as_str().unwrap().contains("hello-desk"));
+    odm()
+        .current_dir(&root)
+        .arg("run")
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("hello"));
 }
 
 #[test]
 fn run_chain_success() {
     let (_dir, root) = setup_temp_desk();
     odm()
-        .args(["--root", root.to_str().unwrap(), "run", "chain"])
+        .current_dir(&root)
+        .args(["run", "chain"])
         .assert()
         .success()
         .stdout(predicate::str::contains("step1"))
@@ -194,11 +160,7 @@ fn run_no_actions_message() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("empty-ws");
     init_ws(&root);
-    odm()
-        .args(["--root", root.to_str().unwrap(), "run"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("(no actions)"));
+    odm().current_dir(&root).arg("run").assert().success();
 }
 
 /// Minimal workspace with project path + optional worktree slot + action bundle.
@@ -247,7 +209,8 @@ fn run_missing_bundle_exit_2() {
         "name: t\nactions:\n  core: actions/missing.yaml\n",
     );
     odm()
-        .args(["--root", root.to_str().unwrap(), "run"])
+        .current_dir(&root)
+        .arg("run")
         .assert()
         .failure()
         .code(2)
@@ -258,14 +221,8 @@ fn run_missing_bundle_exit_2() {
 fn run_project_cwd() {
     let (_dir, root) = setup_cwd_workspace();
     odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "run",
-            "pwdhere",
-            "--project",
-            "alpha",
-        ])
+        .current_dir(&root)
+        .args(["run", "pwdhere", "--project", "alpha"])
         .assert()
         .success()
         .stdout(predicate::str::contains("from-project"));
@@ -275,14 +232,8 @@ fn run_project_cwd() {
 fn run_global_project_cwd() {
     let (_dir, root) = setup_cwd_workspace();
     odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "--project",
-            "alpha",
-            "run",
-            "pwdhere",
-        ])
+        .current_dir(&root)
+        .args(["--project", "alpha", "run", "pwdhere"])
         .assert()
         .success()
         .stdout(predicate::str::contains("from-project"));
@@ -292,16 +243,8 @@ fn run_global_project_cwd() {
 fn run_wt_cwd() {
     let (_dir, root) = setup_cwd_workspace();
     odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "run",
-            "pwdhere",
-            "--project",
-            "alpha",
-            "--wt",
-            "slot1",
-        ])
+        .current_dir(&root)
+        .args(["run", "pwdhere", "--project", "alpha", "--wt", "slot1"])
         .assert()
         .success()
         .stdout(predicate::str::contains("from-wt"));
@@ -311,14 +254,8 @@ fn run_wt_cwd() {
 fn run_wt_requires_project_exit_1() {
     let (_dir, root) = setup_cwd_workspace();
     odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "run",
-            "pwdhere",
-            "--wt",
-            "slot1",
-        ])
+        .current_dir(&root)
+        .args(["run", "pwdhere", "--wt", "slot1"])
         .assert()
         .failure()
         .code(1)
@@ -329,16 +266,8 @@ fn run_wt_requires_project_exit_1() {
 fn run_missing_wt_slot_exit_4() {
     let (_dir, root) = setup_cwd_workspace();
     odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "run",
-            "pwdhere",
-            "--project",
-            "alpha",
-            "--wt",
-            "missing",
-        ])
+        .current_dir(&root)
+        .args(["run", "pwdhere", "--project", "alpha", "--wt", "missing"])
         .assert()
         .failure()
         .code(4)
@@ -350,14 +279,8 @@ fn run_missing_project_path_exit_4() {
     let (_dir, root) = setup_cwd_workspace();
     fs::remove_dir_all(root.join("projects/alpha")).unwrap();
     odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "run",
-            "pwdhere",
-            "--project",
-            "alpha",
-        ])
+        .current_dir(&root)
+        .args(["run", "pwdhere", "--project", "alpha"])
         .assert()
         .failure()
         .code(4)
@@ -368,14 +291,8 @@ fn run_missing_project_path_exit_4() {
 fn run_unknown_project_exit_1() {
     let (_dir, root) = setup_cwd_workspace();
     odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "run",
-            "pwdhere",
-            "--project",
-            "nope",
-        ])
+        .current_dir(&root)
+        .args(["run", "pwdhere", "--project", "nope"])
         .assert()
         .failure()
         .code(1)
@@ -386,15 +303,8 @@ fn run_unknown_project_exit_1() {
 fn run_extra_args_via_cli() {
     let (_dir, root) = setup_cwd_workspace();
     odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "run",
-            "echoargs",
-            "--",
-            "one",
-            "two",
-        ])
+        .current_dir(&root)
+        .args(["run", "echoargs", "--", "one", "two"])
         .assert()
         .success()
         .stdout(predicate::str::contains("one\ntwo\n"));

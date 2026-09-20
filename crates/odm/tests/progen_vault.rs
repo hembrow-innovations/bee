@@ -24,7 +24,7 @@ fn progen_add_find_context_flow() {
 
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
 
@@ -140,7 +140,7 @@ fn generate_lists_empty_and_requires_dest() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
 
@@ -168,7 +168,7 @@ fn list_includes_disk_summary() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
     fs::create_dir_all(root.join("projects/alpha")).unwrap();
@@ -215,7 +215,7 @@ fn find_requires_progen_configured() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
     odm()
@@ -233,7 +233,7 @@ fn find_limit_zero_is_usage() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
     odm()
@@ -257,7 +257,7 @@ fn find_limit_caps_hits() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
     odm()
@@ -296,7 +296,7 @@ fn multi_progen_scope() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
     odm()
@@ -378,7 +378,7 @@ fn core_desk_seeded_progen_find() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
     odm()

@@ -471,9 +471,10 @@ fn worktree_add_non_git_project_fails() {
 
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
+    let _ = fs::remove_dir_all(root.join(".git"));
 
     // path-only project: mkdir checkout, no git init
     odm()
@@ -856,9 +857,10 @@ fn worktree_prune_non_git_project_fails() {
 
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git"])
+        .arg("init")
         .assert()
         .success();
+    let _ = fs::remove_dir_all(root.join(".git"));
 
     odm()
         .args([
