@@ -1,11 +1,28 @@
+//! Dest predicate machine: scan notes, match lanes, claim, and spawn.
+
+pub(crate) mod config;
+pub(crate) mod explain;
+pub(crate) mod journal;
+pub(crate) mod matcher;
+pub(crate) mod note;
+pub(crate) mod once;
+pub(crate) mod scan;
+pub(crate) mod spawn;
+pub(crate) mod watch;
+
 use std::path::Path;
 
 use serde_yaml::Value;
 
-use crate::dest_config::load_dest_config;
-use crate::dest_match::{match_notes, Match};
-use crate::dest_note::{claim, ClaimResult};
-use crate::dest_scan::{scan, ScanResult};
+use self::config::load_dest_config;
+use self::matcher::{match_notes, Match};
+use self::note::{claim, ClaimResult};
+use self::scan::{scan, ScanResult};
+
+pub use config::{lookup_notes, NotesDirs};
+pub use explain::{explain, gc};
+pub use once::run_once;
+pub use watch::run_watch;
 
 pub fn scan_match_claim(
     cwd: &Path,

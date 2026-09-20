@@ -1,69 +1,56 @@
+//! Bee is the Rust CLI for a Hive: layout, dest lanes, tracker notes, and doc-store verbs.
+
 mod cli;
-mod forward;
-pub use forward::{forward_heio_bin, forward_old_bin};
 mod dest;
-mod dest_config;
-pub use dest_config::{lookup_notes, NotesDirs};
-mod dest_explain;
-mod dest_journal;
-mod dest_match;
-mod dest_note;
-mod dest_once;
-mod dest_scan;
-mod dest_spawn;
-mod dest_watch;
 mod docs;
-mod docs_graph;
-mod docs_new;
-mod docs_write;
-#[cfg(test)]
-mod git_fixture;
-mod init;
-mod layout;
+mod forward;
+mod hive;
 mod note;
-mod note_write;
-mod ops;
-mod paths;
-mod pin;
-mod project;
-mod sync;
+
+pub use dest::{lookup_notes, NotesDirs};
+pub use forward::{forward_heio_bin, forward_old_bin};
+pub use hive::paths;
+pub use hive::{project, sync};
 
 use std::path::Path;
 
 pub use cli::{
     resolve_wt_flags, Cli, Commands, DocsCmd, NoteCmd, NoteKind, PinCmd, ProgenCmd, ProjectCmd,
 };
-pub use init::init_workbench;
-pub use layout::{load_workbench, parse_workbench_yaml};
-pub use odm_core::{ProjectEntry, Workbench, WorkbenchConfig};
-pub use paths::{
-    actors_dir, hive_root, hivemind_dir, lanes_path, pin_path, pin_read_path, workbench_path,
-    workbench_read_path,
+pub use hive::{
+    actors_dir, hive_root, hivemind_dir, init_workbench, lanes_path, load_workbench,
+    parse_workbench_yaml, pin_path, pin_read_path, workbench_path, workbench_read_path,
 };
+pub use hive_core::{ProjectEntry, Workbench, WorkbenchConfig};
 
-fn odm_exit(result: Result<(), odm_core::OdmError>) -> u8 {
+#[cfg(test)]
+pub use hive::git_fixture;
+
+fn hive_exit(result: Result<(), hive_core::HiveError>) -> u8 {
     match result {
         Ok(()) => 0,
-        Err(e) => odm_core::exit_code(&e) as u8,
+        Err(e) => hive_core::exit_code(&e) as u8,
     }
 }
 
 pub fn execute(cli: Cli, root: &Path) -> u8 {
     let wt = match resolve_wt_flags(&cli.wt) {
         Ok(w) => w,
-        Err(e) => return odm_core::exit_code(&e) as u8,
+        Err(e) => return hive_core::exit_code(&e) as u8,
     };
     match cli.command {
         Commands::Init => match init_workbench(root) {
             Ok(()) => 0,
             Err(_) => 1,
         },
-        Commands::Sync { names } => odm_exit(sync::sync_workbench(root, &names)),
+        Commands::Sync { names } => hive_exit(hive::sync::sync_workbench(root, &names)),
         Commands::Pin { cmd } => match cmd {
             PinCmd::Record { names, force } => {
-                odm_exit(pin::pin_record_primary(root, &names, force))
+                hive_exit(hive::pin::pin_record_primary(root, &names, force))
             }
-            PinCmd::Apply { names, force } => odm_exit(pin::pin_apply_primary(root, &names, force)),
+            PinCmd::Apply { names, force } => {
+                hive_exit(hive::pin::pin_apply_primary(root, &names, force))
+            }
         },
         Commands::Project { cmd } => match cmd {
             ProjectCmd::Add {
@@ -72,9 +59,10 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                 url,
                 branch,
                 gitlink,
-            } => odm_exit(project::add_project(
+            } => hive_exit(hive::project::add_project(
                 root, &name, path, url, branch, gitlink,
             )),
+            ProjectCmd::Rm { name } => hive_exit(hive::project::rm_project(root, &name)),
         },
         Commands::Progen { cmd } => match cmd {
             ProgenCmd::Add {
@@ -83,36 +71,36 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                 url,
                 branch,
                 gitlink,
-            } => odm_exit(project::add_progen_checkout(
+            } => hive_exit(hive::project::add_progen_checkout(
                 root, &name, path, url, branch, gitlink,
             )),
         },
-        Commands::Doctor => odm_exit(ops::doctor(root)),
-        Commands::Status => match ops::status(root) {
+        Commands::Doctor => hive_exit(hive::ops::doctor(root)),
+        Commands::Status => match hive::ops::status(root) {
             Ok(text) => {
                 print!("{text}");
                 0
             }
-            Err(e) => odm_core::exit_code(&e) as u8,
+            Err(e) => hive_core::exit_code(&e) as u8,
         },
-        Commands::Find { query, limit } => match ops::find(root, query, limit) {
+        Commands::Find { query, limit } => match hive::ops::find(root, query, limit) {
             Ok(text) => {
                 print!("{text}");
                 0
             }
-            Err(e) => odm_core::exit_code(&e) as u8,
+            Err(e) => hive_core::exit_code(&e) as u8,
         },
-        Commands::Context { id } => match ops::context(root, &id) {
+        Commands::Context { id } => match hive::ops::context(root, &id) {
             Ok(text) => {
                 print!("{text}");
                 0
             }
-            Err(e) => odm_core::exit_code(&e) as u8,
+            Err(e) => hive_core::exit_code(&e) as u8,
         },
         Commands::Run { action, extra } => {
-            match ops::run(root, action, &extra, cli.project.as_deref(), wt.as_deref()) {
+            match hive::ops::run(root, action, &extra, cli.project.as_deref(), wt.as_deref()) {
                 Ok(code) => code as u8,
-                Err(e) => odm_core::exit_code(&e) as u8,
+                Err(e) => hive_core::exit_code(&e) as u8,
             }
         }
         Commands::Generate {
@@ -120,15 +108,15 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             dest,
             force,
             dry_run,
-        } => odm_exit(ops::generate(root, name, dest, force, dry_run)),
-        Commands::Once => match dest_once::run_once(root) {
+        } => hive_exit(hive::ops::generate(root, name, dest, force, dry_run)),
+        Commands::Once => match dest::run_once(root) {
             Ok(code) => code,
             Err(_) => 1,
         },
         Commands::Watch {
             until_quiet,
             until_target,
-        } => match dest_watch::run_watch(
+        } => match dest::run_watch(
             root,
             until_quiet,
             until_target.as_deref(),
@@ -137,14 +125,14 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             Ok(code) => code,
             Err(_) => 1,
         },
-        Commands::Explain => match dest_explain::explain(root) {
+        Commands::Explain => match dest::explain(root) {
             Ok(text) => {
                 print!("{text}");
                 0
             }
             Err(_) => 1,
         },
-        Commands::Gc => match dest_explain::gc(root) {
+        Commands::Gc => match dest::gc(root) {
             Ok(()) => 0,
             Err(_) => 1,
         },
@@ -177,7 +165,7 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     1
                 }
             },
-            NoteCmd::Claim { id } => match note_write::claim(root, &id, &note_write::iso_now()) {
+            NoteCmd::Claim { id } => match note::claim(root, &id, &note::iso_now()) {
                 Ok(_) => 0,
                 Err(e) => {
                     eprintln!("{e}");
@@ -185,7 +173,7 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                 }
             },
             NoteCmd::Status { id, status } => {
-                match note_write::set_status(root, &id, &status, &note_write::iso_now()) {
+                match note::set_status(root, &id, &status, &note::iso_now()) {
                     Ok(_) => 0,
                     Err(e) => {
                         eprintln!("{e}");
@@ -193,7 +181,7 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     }
                 }
             }
-            NoteCmd::Housekeep => match note_write::housekeep(root) {
+            NoteCmd::Housekeep => match note::housekeep(root) {
                 Ok(_) => 0,
                 Err(e) => {
                     eprintln!("{e}");

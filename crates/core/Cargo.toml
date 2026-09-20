@@ -1,0 +1,16 @@
+[package]
+name = "hive-core"
+version = "0.1.1"
+edition.workspace = true
+license.workspace = true
+description = "Hive catalog: config, pin, discovery, paths"
+
+[dependencies]
+hive-git = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

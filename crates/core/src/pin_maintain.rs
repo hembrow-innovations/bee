@@ -1,0 +1,633 @@
+//! Pin maintenance — auto-maintain after HEAD changes; status and apply.
+
+use std::path::Path;
+
+use hive_git::Git;
+
+use hive_git::GitlinkRecord;
+
+use crate::checkout::{all_managed, resolve_managed, ManagedEntity};
+use crate::config::{CheckoutMode, HiveConfig};
+use crate::error::HiveError;
+use crate::paths::abs_checkout;
+use crate::pin::{load_pin, prune_pins, save_pin, PinEntry, PinFile};
+use crate::status::{pin_source, PinSource};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DirtyAction {
+    Refuse,
+    Force,
+}
+
+pub(crate) fn lockfile_pin_names(entities: &[ManagedEntity]) -> Vec<&str> {
+    entities
+        .iter()
+        .filter(|e| pin_source(true, e.checkout) == PinSource::LockFile)
+        .map(|e| e.name.as_str())
+        .collect()
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PinStatusReport {
+    pub pin_file: String,
+    pub present: bool,
+    pub entries: Vec<PinStatusEntry>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PinStatusEntry {
+    pub name: String,
+    pub pin_rev: Option<String>,
+    pub head: Option<String>,
+    pub state: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PinApplyResult {
+    pub name: String,
+    pub status: String,
+    pub rev: Option<String>,
+    /// Always true on success — apply checks out detached HEAD by design.
+    pub detached: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PinRecordResult {
+    pub name: String,
+    pub status: String,
+    pub rev: Option<String>,
+}
+
+/// Create/update pin file for managed entities that have a defined HEAD.
+/// No-op when workspace root is not a git repo.
+pub fn maintain_pins_after<R: hive_git::CommandRunner>(
+    git: &Git<R>,
+    root: &Path,
+    config: &HiveConfig,
+    entities: &[&ManagedEntity],
+) -> Result<(), HiveError> {
+    if !git.is_repo(root)? {
+        return Ok(());
+    }
+
+    let managed = all_managed(config);
+    let managed_names = lockfile_pin_names(&managed);
+
+    let mut pin = match load_pin(root)? {
+        Some(p) => p,
+        None => {
+            if entities.is_empty() {
+                return Ok(());
+            }
+            PinFile::new_v1()
+        }
+    };
+
+    prune_pins(&mut pin, &managed_names);
+
+    for entity in entities {
+        if pin_source(true, entity.checkout) != PinSource::LockFile {
+            continue;
+        }
+        let path = abs_checkout(root, &entity.path)?;
+        if !path.exists() || !git.is_repo(&path)? {
+            continue;
+        }
+        let rev = match git.head_sha(&path) {
+            Ok(r) => r,
+            Err(_) => continue,
+        };
+        pin.pins.insert(
+            entity.name.clone(),
+            PinEntry {
+                rev,
+                url: entity.url.clone(),
+                branch: entity.branch.clone(),
+            },
+        );
+    }
+
+    if pin.pins.is_empty() && !pin_path_exists(root) {
+        return Ok(());
+    }
+
+    save_pin(root, &pin)
+}
+
+fn pin_path_exists(root: &Path) -> bool {
+    crate::paths::pin_path(root).is_file()
+}
+
+/// Pin status for named entities (or all managed when empty).
+pub fn pin_status<R: hive_git::CommandRunner>(
+    git: &Git<R>,
+    root: &Path,
+    config: &HiveConfig,
+    names: &[String],
+) -> Result<PinStatusReport, HiveError> {
+    let pin = load_pin(root)?;
+    let present = pin.is_some();
+    let pin_file = ".odm/odm.lock.yaml".to_string();
+    let obs = crate::observation::observe_hive(git, root, config, pin.as_ref())?;
+
+    let entities = if names.is_empty() {
+        all_managed(config)
+    } else {
+        resolve_managed(config, names)?
+    };
+
+    let mut entries = Vec::new();
+    for entity in entities {
+        let row = obs
+            .find(&entity.name)
+            .ok_or_else(|| HiveError::usage(format!("unknown entity '{}'", entity.name)))?;
+        entries.push(PinStatusEntry {
+            name: entity.name,
+            pin_rev: row.pin_rev.clone(),
+            head: row.head.clone(),
+            state: row.pin_state.as_str().to_string(),
+        });
+    }
+
+    Ok(PinStatusReport {
+        pin_file,
+        present,
+        entries,
+    })
+}
+
+/// Stage gitlink child HEAD into the parent index. Does not commit.
+/// Dirty child → fail unless force. Named clone → Usage.
+pub fn pin_record<R: hive_git::CommandRunner>(
+    git: &Git<R>,
+    root: &Path,
+    config: &HiveConfig,
+    names: &[String],
+    force: bool,
+) -> Result<Vec<PinRecordResult>, HiveError> {
+    if !git.is_repo_root(root)? {
+        return Err(HiveError::operation("gitlink requires a git workspace root"));
+    }
+
+    let entities = if names.is_empty() {
+        all_managed(config)
+            .into_iter()
+            .filter(|e| e.checkout == CheckoutMode::Gitlink)
+            .collect()
+    } else {
+        let resolved = resolve_managed(config, names)?;
+        for e in &resolved {
+            if e.checkout != CheckoutMode::Gitlink {
+                return Err(HiveError::usage(format!(
+                    "'{}' is not a gitlink entry",
+                    e.name
+                )));
+            }
+        }
+        resolved
+    };
+
+    let dirty = if force {
+        DirtyAction::Force
+    } else {
+        DirtyAction::Refuse
+    };
+
+    let mut results = Vec::new();
+    for entity in entities {
+        let path = abs_checkout(root, &entity.path)?;
+        if !path.exists() {
+            return Err(HiveError::not_found(format!(
+                "path missing for '{}': {}",
+                entity.name, entity.path
+            )));
+        }
+        if !git.is_repo(&path)? {
+            return Err(HiveError::not_found(format!(
+                "path is not a git repo for '{}': {}",
+                entity.name, entity.path
+            )));
+        }
+        if dirty == DirtyAction::Refuse && !git.is_clean(&path)? {
+            return Err(HiveError::operation(format!(
+                "working tree dirty for '{}' (use --force)",
+                entity.name
+            )));
+        }
+        let rev = git.head_sha(&path)?;
+        let rel = Path::new(&entity.path);
+        match git.gitlink_record(root, rel)? {
+            GitlinkRecord::Recorded { sha } if sha == rev => {}
+            GitlinkRecord::Conflict => {
+                return Err(HiveError::operation(format!(
+                    "gitlink index is in conflict for '{}'",
+                    entity.name
+                )));
+            }
+            _ => git.update_gitlink(root, rel, &rev)?,
+        }
+        results.push(PinRecordResult {
+            name: entity.name,
+            status: "recorded".into(),
+            rev: Some(rev),
+        });
+    }
+    Ok(results)
+}
+
+/// Apply pins (detached HEAD). Dirty → fail unless force. Missing path → NotFound.
+/// Gitlink names use the parent index SHA. Clone names use the lock file.
+pub fn pin_apply<R: hive_git::CommandRunner>(
+    git: &Git<R>,
+    root: &Path,
+    config: &HiveConfig,
+    names: &[String],
+    force: bool,
+) -> Result<Vec<PinApplyResult>, HiveError> {
+    let pin = load_pin(root)?;
+    let dirty = if force {
+        DirtyAction::Force
+    } else {
+        DirtyAction::Refuse
+    };
+
+    if names.is_empty() {
+        let mut results = Vec::new();
+        match pin.as_ref() {
+            Some(p) => {
+                for (name, entry) in &p.pins {
+                    if let Some(entity) = find_managed_entity(config, name) {
+                        if pin_source(true, entity.checkout) != PinSource::LockFile {
+                            continue;
+                        }
+                    }
+                    let rel = find_managed_path(config, name).ok_or_else(|| {
+                        HiveError::usage(format!("pin '{name}' has no managed config entry"))
+                    })?;
+                    checkout_detached_at(git, root, name, &rel, &entry.rev, dirty, &mut results)?;
+                }
+            }
+            None => {
+                if !all_managed(config)
+                    .iter()
+                    .any(|e| pin_source(true, e.checkout) == PinSource::Gitlink)
+                {
+                    return Err(HiveError::not_found(
+                        "pin file not found: .odm/odm.lock.yaml",
+                    ));
+                }
+            }
+        }
+        for entity in all_managed(config) {
+            if pin_source(true, entity.checkout) == PinSource::Gitlink {
+                apply_gitlink(git, root, &entity, dirty, &mut results)?;
+            }
+        }
+        return Ok(results);
+    }
+
+    let mut results = Vec::new();
+    for name in names {
+        if let Some(entity) = find_managed_entity(config, name) {
+            match pin_source(true, entity.checkout) {
+                PinSource::Gitlink => {
+                    apply_gitlink(git, root, &entity, dirty, &mut results)?;
+                }
+                PinSource::LockFile => {
+                    apply_lockfile(
+                        git,
+                        root,
+                        pin.as_ref(),
+                        name,
+                        &entity.path,
+                        dirty,
+                        &mut results,
+                    )?;
+                }
+                PinSource::Unmanaged => {
+                    return Err(HiveError::usage(format!(
+                        "unknown or unmanaged entity '{name}'"
+                    )));
+                }
+            }
+        } else {
+            let p = pin
+                .as_ref()
+                .ok_or_else(|| HiveError::not_found("pin file not found: .odm/odm.lock.yaml"))?;
+            let entry = p
+                .pins
+                .get(name)
+                .ok_or_else(|| HiveError::not_found(format!("no pin for '{name}'")))?;
+            let rel = find_managed_path(config, name)
+                .ok_or_else(|| HiveError::usage(format!("unknown or unmanaged entity '{name}'")))?;
+            checkout_detached_at(git, root, name, &rel, &entry.rev, dirty, &mut results)?;
+        }
+    }
+    Ok(results)
+}
+
+fn find_managed_entity(config: &HiveConfig, name: &str) -> Option<ManagedEntity> {
+    resolve_managed(config, &[name.to_string()])
+        .ok()?
+        .into_iter()
+        .next()
+}
+
+fn apply_lockfile<R: hive_git::CommandRunner>(
+    git: &Git<R>,
+    root: &Path,
+    pin: Option<&PinFile>,
+    name: &str,
+    rel: &str,
+    dirty: DirtyAction,
+    results: &mut Vec<PinApplyResult>,
+) -> Result<(), HiveError> {
+    let pin = pin.ok_or_else(|| HiveError::not_found("pin file not found: .odm/odm.lock.yaml"))?;
+    let entry = pin
+        .pins
+        .get(name)
+        .ok_or_else(|| HiveError::not_found(format!("no pin for '{name}'")))?;
+    checkout_detached_at(git, root, name, rel, &entry.rev, dirty, results)
+}
+
+fn apply_gitlink<R: hive_git::CommandRunner>(
+    git: &Git<R>,
+    root: &Path,
+    entity: &ManagedEntity,
+    dirty: DirtyAction,
+    results: &mut Vec<PinApplyResult>,
+) -> Result<(), HiveError> {
+    let rev = match git.gitlink_record(root, Path::new(&entity.path))? {
+        GitlinkRecord::Recorded { sha } => sha,
+        GitlinkRecord::Missing => {
+            return Err(HiveError::not_found(format!(
+                "gitlink missing for '{}'",
+                entity.name
+            )));
+        }
+        GitlinkRecord::Conflict => {
+            return Err(HiveError::operation(format!(
+                "gitlink index is in conflict for '{}'",
+                entity.name
+            )));
+        }
+    };
+    checkout_detached_at(git, root, &entity.name, &entity.path, &rev, dirty, results)
+}
+
+fn checkout_detached_at<R: hive_git::CommandRunner>(
+    git: &Git<R>,
+    root: &Path,
+    name: &str,
+    rel: &str,
+    rev: &str,
+    dirty: DirtyAction,
+    results: &mut Vec<PinApplyResult>,
+) -> Result<(), HiveError> {
+    let path = abs_checkout(root, rel)?;
+    if !path.exists() {
+        return Err(HiveError::not_found(format!(
+            "path missing for '{name}': {rel}"
+        )));
+    }
+    if !git.is_repo_root(&path)? {
+        return Err(HiveError::not_found(format!(
+            "path is not a git repo for '{name}': {rel}"
+        )));
+    }
+    if dirty == DirtyAction::Refuse && !git.is_clean(&path)? {
+        return Err(HiveError::operation(format!(
+            "working tree dirty for '{name}' (use --force)"
+        )));
+    }
+    git.checkout_detached(&path, rev)?;
+    results.push(PinApplyResult {
+        name: name.to_string(),
+        status: "applied".into(),
+        rev: Some(rev.to_string()),
+        detached: true,
+    });
+    Ok(())
+}
+
+fn find_managed_path(config: &HiveConfig, name: &str) -> Option<String> {
+    if let Some(e) = config.projects.get(name) {
+        if e.url.is_some() {
+            return Some(e.path.clone());
+        }
+    }
+    if let Some(e) = config.progens.get(name) {
+        if e.url.is_some() {
+            return Some(e.path.clone());
+        }
+    }
+    None
+}
+
+/// Prune pin file to current managed set when a pin file already exists.
+pub(crate) fn prune_pin_file_if_present(
+    root: &Path,
+    config: &HiveConfig,
+) -> Result<(), HiveError> {
+    if let Some(mut pin) = load_pin(root)? {
+        let managed = all_managed(config);
+        let names = lockfile_pin_names(&managed);
+        prune_pins(&mut pin, &names);
+        save_pin(root, &pin)?;
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::checkout::{sync_managed, ManagedEntity};
+    use crate::config::{save_config, ProjectEntry, HiveConfig};
+    use crate::error::HiveError;
+    use crate::init::{init_hive, InitOptions};
+    use crate::pin::load_pin;
+    use hive_git::Git;
+    use std::fs;
+    use std::path::{Path, PathBuf};
+    use std::process::Command;
+    use tempfile::tempdir;
+
+    fn git_user(repo: &Path) {
+        Command::new("git")
+            .args([
+                "-C",
+                repo.to_str().unwrap(),
+                "config",
+                "user.email",
+                "t@est",
+            ])
+            .status()
+            .unwrap();
+        Command::new("git")
+            .args(["-C", repo.to_str().unwrap(), "config", "user.name", "t"])
+            .status()
+            .unwrap();
+    }
+
+    fn bare_fixture(root: &Path, name: &str) -> PathBuf {
+        let bare = root.join(format!("{name}.git"));
+        assert!(Command::new("git")
+            .args(["init", "--bare", bare.to_str().unwrap()])
+            .status()
+            .unwrap()
+            .success());
+        let seed = root.join(format!("{name}-seed"));
+        assert!(Command::new("git")
+            .args(["clone", bare.to_str().unwrap(), seed.to_str().unwrap()])
+            .status()
+            .unwrap()
+            .success());
+        git_user(&seed);
+        fs::write(seed.join("README"), name).unwrap();
+        assert!(Command::new("git")
+            .args(["-C", seed.to_str().unwrap(), "add", "README"])
+            .status()
+            .unwrap()
+            .success());
+        assert!(Command::new("git")
+            .args(["-C", seed.to_str().unwrap(), "commit", "-m", "init"])
+            .status()
+            .unwrap()
+            .success());
+        assert!(Command::new("git")
+            .args(["-C", seed.to_str().unwrap(), "branch", "-M", "main"])
+            .status()
+            .unwrap()
+            .success());
+        assert!(Command::new("git")
+            .args(["-C", seed.to_str().unwrap(), "push", "-u", "origin", "main"])
+            .status()
+            .unwrap()
+            .success());
+        bare
+    }
+
+    #[test]
+    fn pin_source_lockfile_names_skip_gitlink() {
+        use crate::config::CheckoutMode;
+        let ents = vec![
+            ManagedEntity {
+                name: "clone".into(),
+                path: "a".into(),
+                url: "u".into(),
+                checkout: CheckoutMode::Clone,
+                ..Default::default()
+            },
+            ManagedEntity {
+                name: "link".into(),
+                path: "b".into(),
+                url: "u".into(),
+                checkout: CheckoutMode::Gitlink,
+                ..Default::default()
+            },
+        ];
+        assert_eq!(lockfile_pin_names(&ents), vec!["clone"]);
+        let _ = DirtyAction::Refuse;
+        let _ = DirtyAction::Force;
+        assert_ne!(DirtyAction::Refuse, DirtyAction::Force);
+    }
+
+    #[test]
+    fn pin_apply_and_status() {
+        let dir = tempdir().unwrap();
+        let res = init_hive(InitOptions {
+            path: dir.path().to_path_buf(),
+            no_git: false,
+            name: None,
+        })
+        .unwrap();
+        let root = res.root;
+        let bare = bare_fixture(&root, "alpha");
+        let mut cfg = HiveConfig::default();
+        cfg.projects.insert(
+            "alpha".into(),
+            ProjectEntry {
+                path: "projects/alpha".into(),
+                url: Some(bare.to_string_lossy().into()),
+                branch: Some("main".into()),
+                type_: None,
+                ..Default::default()
+            },
+        );
+        save_config(&root, &cfg).unwrap();
+        let g = Git::new();
+        sync_managed(&g, &root, &cfg, &[]).unwrap();
+        let pin = load_pin(&root).unwrap().unwrap();
+        let rev = pin.pins["alpha"].rev.clone();
+
+        let st = pin_status(&g, &root, &cfg, &[]).unwrap();
+        assert!(st.present);
+        assert_eq!(st.entries[0].state, "in_sync");
+
+        let applied = pin_apply(&g, &root, &cfg, &[], false).unwrap();
+        assert_eq!(applied[0].status, "applied");
+        assert!(applied[0].detached);
+        assert_eq!(applied[0].rev.as_deref(), Some(rev.as_str()));
+    }
+
+    #[test]
+    fn pin_apply_dirty_fails_without_force() {
+        let dir = tempdir().unwrap();
+        let res = init_hive(InitOptions {
+            path: dir.path().to_path_buf(),
+            no_git: false,
+            name: None,
+        })
+        .unwrap();
+        let root = res.root;
+        let bare = bare_fixture(&root, "alpha");
+        let mut cfg = HiveConfig::default();
+        cfg.projects.insert(
+            "alpha".into(),
+            ProjectEntry {
+                path: "projects/alpha".into(),
+                url: Some(bare.to_string_lossy().into()),
+                branch: Some("main".into()),
+                type_: None,
+                ..Default::default()
+            },
+        );
+        save_config(&root, &cfg).unwrap();
+        let g = Git::new();
+        sync_managed(&g, &root, &cfg, &[]).unwrap();
+        fs::write(root.join("projects/alpha/dirty"), "x").unwrap();
+        let err = pin_apply(&g, &root, &cfg, &[], false).unwrap_err();
+        assert!(err.to_string().contains("dirty"));
+        pin_apply(&g, &root, &cfg, &[], true).unwrap();
+    }
+
+    #[test]
+    fn pin_record_named_clone_is_usage() {
+        let dir = tempdir().unwrap();
+        let res = init_hive(InitOptions {
+            path: dir.path().to_path_buf(),
+            no_git: false,
+            name: None,
+        })
+        .unwrap();
+        let root = res.root;
+        let mut cfg = HiveConfig::default();
+        cfg.projects.insert(
+            "alpha".into(),
+            ProjectEntry {
+                path: "projects/alpha".into(),
+                url: Some("https://example.com/alpha.git".into()),
+                branch: Some("main".into()),
+                type_: None,
+                ..Default::default()
+            },
+        );
+        save_config(&root, &cfg).unwrap();
+        let g = Git::new();
+        let err = pin_record(&g, &root, &cfg, &["alpha".into()], false).unwrap_err();
+        assert!(matches!(err, HiveError::Usage(_)));
+        assert!(err.to_string().contains("gitlink"));
+        let empty = pin_record(&g, &root, &cfg, &[], false).unwrap();
+        assert!(empty.is_empty());
+    }
+}

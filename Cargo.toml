@@ -24,11 +24,11 @@ path = "src/bin/heio.rs"
 [workspace]
 resolver = "2"
 members = [
-    "crates/odm-git",
-    "crates/odm-core",
-    "crates/odm-progen",
-    "crates/odm-actions",
-    "crates/odm",
+    "crates/git",
+    "crates/core",
+    "crates/store",
+    "crates/actions",
+    "crates/cli",
 ]
 
 [workspace.package]
@@ -36,10 +36,10 @@ edition = "2021"
 license = "MIT"
 
 [workspace.dependencies]
-odm-git = { path = "crates/odm-git" }
-odm-core = { path = "crates/odm-core" }
-odm-progen = { path = "crates/odm-progen" }
-odm-actions = { path = "crates/odm-actions" }
+hive-git = { path = "crates/git" }
+hive-core = { path = "crates/core" }
+hive-store = { path = "crates/store" }
+hive-actions = { path = "crates/actions" }
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 serde_json = "1"
@@ -52,10 +52,10 @@ tempfile = "3"
 clap = { workspace = true }
 serde = { workspace = true }
 serde_yaml = { workspace = true }
-odm-actions = { workspace = true }
-odm-core = { workspace = true }
-odm-git = { workspace = true }
-odm-progen = { workspace = true }
+hive-actions = { workspace = true }
+hive-core = { workspace = true }
+hive-git = { workspace = true }
+hive-store = { workspace = true }
 regex = { workspace = true }
 
 [dev-dependencies]

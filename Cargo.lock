@@ -99,10 +99,10 @@ name = "bee"
 version = "0.1.0"
 dependencies = [
  "clap",
- "odm-actions",
- "odm-core",
- "odm-git",
- "odm-progen",
+ "hive-actions",
+ "hive-core",
+ "hive-git",
+ "hive-store",
  "regex",
  "serde",
  "serde_yaml",
@@ -285,6 +285,65 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
+name = "hive-actions"
+version = "0.1.1"
+dependencies = [
+ "hive-core",
+ "tempfile",
+]
+
+[[package]]
+name = "hive-cli"
+version = "0.1.1"
+dependencies = [
+ "assert_cmd",
+ "clap",
+ "hive-actions",
+ "hive-core",
+ "hive-git",
+ "hive-store",
+ "predicates",
+ "serde",
+ "serde_json",
+ "tempfile",
+]
+
+[[package]]
+name = "hive-core"
+version = "0.1.1"
+dependencies = [
+ "hive-git",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "tempfile",
+ "thiserror",
+]
+
+[[package]]
+name = "hive-git"
+version = "0.1.1"
+dependencies = [
+ "tempfile",
+ "thiserror",
+]
+
+[[package]]
+name = "hive-store"
+version = "0.1.1"
+dependencies = [
+ "hive-core",
+ "hive-git",
+ "regex",
+ "rusqlite",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "tempfile",
+ "thiserror",
+]
+
+[[package]]
 name = "indexmap"
 version = "2.14.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -348,65 +407,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "odm"
-version = "0.1.1"
-dependencies = [
- "assert_cmd",
- "clap",
- "odm-actions",
- "odm-core",
- "odm-git",
- "odm-progen",
- "predicates",
- "serde",
- "serde_json",
- "tempfile",
-]
-
-[[package]]
-name = "odm-actions"
-version = "0.1.1"
-dependencies = [
- "odm-core",
- "tempfile",
-]
-
-[[package]]
-name = "odm-core"
-version = "0.1.1"
-dependencies = [
- "odm-git",
- "serde",
- "serde_json",
- "serde_yaml",
- "tempfile",
- "thiserror",
-]
-
-[[package]]
-name = "odm-git"
-version = "0.1.1"
-dependencies = [
- "tempfile",
- "thiserror",
-]
-
-[[package]]
-name = "odm-progen"
-version = "0.1.1"
-dependencies = [
- "odm-core",
- "odm-git",
- "regex",
- "rusqlite",
- "serde",
- "serde_json",
- "serde_yaml",
- "tempfile",
- "thiserror",
 ]
 
 [[package]]

@@ -1,3 +1,7 @@
+pub(crate) mod graph;
+pub(crate) mod new;
+pub(crate) mod write;
+
 use std::fs;
 use std::path::{Component, Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -6,8 +10,8 @@ use regex::{Regex, RegexBuilder};
 use serde_yaml::Value;
 
 use crate::cli::DocsCmd;
-use crate::dest_note::{parse_front_matter, ParseFrontMatter, YamlMap};
-use crate::note_write::iso_stamp;
+use crate::dest::note::{parse_front_matter, ParseFrontMatter, YamlMap};
+use crate::note::iso_stamp;
 
 const SKIP: &[&str] = &[".obsidian", ".trash", "99_scribble", ".git"];
 const BODY_CAP: usize = 1000;
@@ -93,11 +97,11 @@ pub(crate) fn run_with_env(
         | DocsCmd::Append { .. }
         | DocsCmd::Patch { .. }
         | DocsCmd::Rm { .. }
-        | DocsCmd::Mv { .. } => crate::docs_write::run(&vault, cmd),
+        | DocsCmd::Mv { .. } => crate::docs::write::run(&vault, cmd),
         DocsCmd::Links { .. } | DocsCmd::Tags { .. } | DocsCmd::Vault { .. } => {
-            crate::docs_graph::run(&vault, hit.source, cmd)
+            crate::docs::graph::run(&vault, hit.source, cmd)
         }
-        DocsCmd::New { .. } => crate::docs_new::run(&vault, start, cmd),
+        DocsCmd::New { .. } => crate::docs::new::run(&vault, start, cmd),
     }
 }
 

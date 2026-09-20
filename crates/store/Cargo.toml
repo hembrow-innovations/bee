@@ -1,0 +1,19 @@
+[package]
+name = "hive-store"
+version = "0.1.1"
+edition.workspace = true
+license.workspace = true
+description = "Doc-store façade: scope, vault ops, federated find and context"
+
+[dependencies]
+hive-core = { workspace = true }
+hive-git = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_yaml = { workspace = true }
+thiserror = { workspace = true }
+rusqlite = { version = "0.31", features = ["bundled"] }
+regex = "1"
+
+[dev-dependencies]
+tempfile = { workspace = true }

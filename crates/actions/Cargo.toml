@@ -1,0 +1,12 @@
+[package]
+name = "hive-actions"
+version = "0.1.1"
+edition.workspace = true
+license.workspace = true
+description = "Action dispatch: resolve cwd and shell-out"
+
+[dependencies]
+hive-core = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }

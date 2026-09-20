@@ -1,13 +1,14 @@
 # bee
 
-Rust CLI of the Hive family.
+Rust CLI for a Hive. Layout, dest lanes, tracker notes, and doc-store verbs. Node is not required.
 
-Hive is the family. `bee` is the CLI.
+Config lives under `.hivemind/`. Old bins `hivemind`, `odm`, and `heio` print a rename and forward to `bee`.
 
 ```sh
 curl -fsSL https://github.com/hembrow-innovations/bee/releases/latest/download/install.sh | sh
 ```
 
 ```sh
+cargo test --workspace
 cargo build --release
 ```

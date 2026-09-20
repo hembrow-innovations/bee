@@ -1,8 +1,8 @@
 use clap::{Parser, Subcommand, ValueEnum};
-use odm_core::OdmError;
+use hive_core::HiveError;
 
 #[derive(Debug, Parser)]
-#[command(name = "bee", version, about = "Rust CLI of the Hive family.")]
+#[command(name = "bee", version, about = "Rust CLI for a Hive.")]
 pub struct Cli {
     #[arg(long, global = true)]
     pub project: Option<String>,
@@ -12,7 +12,7 @@ pub struct Cli {
     pub command: Commands,
 }
 
-pub fn resolve_wt_flags(flags: &[String]) -> Result<Option<String>, OdmError> {
+pub fn resolve_wt_flags(flags: &[String]) -> Result<Option<String>, HiveError> {
     match flags {
         [] => Ok(None),
         [w] => Ok(Some(w.clone())),
@@ -20,7 +20,7 @@ pub fn resolve_wt_flags(flags: &[String]) -> Result<Option<String>, OdmError> {
             if rest.iter().all(|w| w == first) {
                 Ok(Some(first.clone()))
             } else {
-                Err(OdmError::usage(format!(
+                Err(HiveError::usage(format!(
                     "conflicting --wt values: {}",
                     flags.join(", ")
                 )))
@@ -252,6 +252,9 @@ pub enum ProjectCmd {
         #[arg(long, requires = "url")]
         gitlink: bool,
     },
+    Rm {
+        name: String,
+    },
 }
 
 #[derive(Debug, Subcommand)]
@@ -309,6 +312,17 @@ mod tests {
         let help = help_text();
         for verb in UNION {
             assert!(help.contains(verb), "missing {verb} in {help}");
+        }
+    }
+
+    #[test]
+    fn project_rm_matches_queen_argv() {
+        let cli = Cli::try_parse_from(["bee", "project", "rm", "alpha"]).unwrap();
+        match cli.command {
+            Commands::Project {
+                cmd: ProjectCmd::Rm { name },
+            } => assert_eq!(name, "alpha"),
+            other => panic!("{other:?}"),
         }
     }
 

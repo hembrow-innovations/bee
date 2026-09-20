@@ -1,9 +1,13 @@
+pub(crate) mod write;
+
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::Path;
 
 use crate::cli::NoteKind;
 use crate::{hive_root, lookup_notes};
+
+pub use write::{claim, housekeep, iso_now, iso_stamp, set_status};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct IdCollision {
