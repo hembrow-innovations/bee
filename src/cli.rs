@@ -92,6 +92,7 @@ pub enum NoteCmd {
     CheckIds,
     Claim { id: String },
     Status { id: String, status: String },
+    Housekeep,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -228,6 +229,17 @@ mod tests {
             .collect();
         assert!(names.iter().any(|n| n == "claim"), "{names:?}");
         assert!(names.iter().any(|n| n == "status"), "{names:?}");
+    }
+
+    #[test]
+    fn note_help_lists_housekeep() {
+        let note = Cli::command().find_subcommand("note").unwrap().clone();
+        let names: Vec<String> = note
+            .get_subcommands()
+            .map(|c| c.get_name().to_string())
+            .collect();
+        assert!(names.iter().any(|n| n == "housekeep"), "{names:?}");
+        assert!(Cli::try_parse_from(["bee", "note", "housekeep"]).is_ok());
     }
 
     #[test]

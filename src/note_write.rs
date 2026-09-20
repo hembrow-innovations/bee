@@ -656,4 +656,171 @@ mod tests {
             fs::read_to_string(dir.path().join(".heio/planning/tasks/task-02-foo.md")).unwrap();
         assert!(text.contains("status: implemented"), "{text}");
     }
+
+    #[test]
+    fn housekeep_files_terminals_keeps_filename_and_status() {
+        let dir = tempdir().unwrap();
+        write_hive(dir.path());
+        write_rel(
+            dir.path(),
+            ".heio/planning/tasks/task-03-done.md",
+            "---\nkind: task\nstatus: completed\ntitle: landed task\n---\nbody\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/tickets/ticket-04-shut.md",
+            "---\nkind: ticket\nstatus: closed\ntitle: shut ticket\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/tickets/ticket-05-drop.md",
+            "---\nkind: ticket\nstatus: dropped\ntitle: dropped ticket\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/tickets/ticket-06-open.md",
+            "---\nkind: ticket\nstatus: open\ntitle: still open\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/locations/location-07-done.md",
+            "---\nkind: location\nstatus: done\ntitle: arrived\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/rounds/rounds-08-pub.md",
+            "---\nkind: round\nstatus: published\ntitle: sitting done\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/sprints/week-1/shape.md",
+            "---\nid: week-1\nkind: sprint\nstatus: closed\ntitle: closed sprint\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/sprints/week-1/slice-09-cut.md",
+            "---\nkind: slice\nstatus: met\ntitle: met cut\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/sprints/week-2/shape.md",
+            "---\nid: week-2\nkind: sprint\nstatus: active\ntitle: live sprint\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/sprints/week-2/slice-10-met.md",
+            "---\nkind: slice\nstatus: met\ntitle: met stays with sprint\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/planning/intent.md",
+            "---\nkind: intent\nstatus: superseded\n---\n",
+        );
+        write_rel(
+            dir.path(),
+            ".heio/archive/index.md",
+            "# Archive\n\nOne-liners of what landed. Newest first.\n\n- **old**: prior\n",
+        );
+        let moved = housekeep(dir.path()).unwrap();
+        assert!(moved.contains(&"task-03-done".into()), "{moved:?}");
+        let archived = dir
+            .path()
+            .join(".heio/archive/planning/tasks/task-03-done.md");
+        assert!(archived.exists());
+        assert!(!dir
+            .path()
+            .join(".heio/planning/tasks/task-03-done.md")
+            .exists());
+        let body = fs::read_to_string(&archived).unwrap();
+        assert!(body.contains("status: completed"), "{body}");
+        assert!(body.contains("body"), "{body}");
+        assert!(dir
+            .path()
+            .join(".heio/archive/planning/tickets/ticket-04-shut.md")
+            .exists());
+        assert!(dir
+            .path()
+            .join(".heio/archive/planning/tickets/ticket-05-drop.md")
+            .exists());
+        assert!(dir
+            .path()
+            .join(".heio/planning/tickets/ticket-06-open.md")
+            .exists());
+        assert!(dir
+            .path()
+            .join(".heio/archive/planning/locations/location-07-done.md")
+            .exists());
+        assert!(dir
+            .path()
+            .join(".heio/archive/planning/rounds/rounds-08-pub.md")
+            .exists());
+        assert!(dir
+            .path()
+            .join(".heio/archive/planning/sprints/week-1/shape.md")
+            .exists());
+        assert!(dir
+            .path()
+            .join(".heio/archive/planning/sprints/week-1/slice-09-cut.md")
+            .exists());
+        assert!(dir
+            .path()
+            .join(".heio/planning/sprints/week-2/slice-10-met.md")
+            .exists());
+        assert!(dir.path().join(".heio/planning/intent.md").exists());
+        let index = fs::read_to_string(dir.path().join(".heio/archive/index.md")).unwrap();
+        assert!(index.contains("**task-03-done**: landed task"), "{index}");
+        assert!(index.contains("**week-1**: closed sprint"), "{index}");
+        assert!(index.find("**task-03-done**").unwrap() < index.find("**old**").unwrap());
+        assert_eq!(index.matches("**task-03-done**").count(), 1);
+        assert!(housekeep(dir.path()).unwrap().is_empty());
+    }
+
+    #[test]
+    fn housekeep_uses_notes_archive_path() {
+        let dir = tempdir().unwrap();
+        fs::create_dir_all(dir.path().join(".hivemind")).unwrap();
+        fs::write(
+            dir.path().join(".hivemind/hivemind.yaml"),
+            "lanes: {}\nnotes:\n  planning: notes/live\n  archive: notes/filed\n",
+        )
+        .unwrap();
+        write_rel(
+            dir.path(),
+            "notes/live/tasks/task-02-foo.md",
+            "---\nkind: task\nstatus: completed\ntitle: ship\n---\n",
+        );
+        housekeep(dir.path()).unwrap();
+        assert!(dir
+            .path()
+            .join("notes/filed/planning/tasks/task-02-foo.md")
+            .exists());
+        assert!(!dir.path().join("notes/live/tasks/task-02-foo.md").exists());
+        let index = fs::read_to_string(dir.path().join("notes/filed/index.md")).unwrap();
+        assert!(index.contains("**task-02-foo**: ship"), "{index}");
+    }
+
+    #[test]
+    fn execute_housekeep() {
+        let dir = tempdir().unwrap();
+        write_hive(dir.path());
+        write_rel(
+            dir.path(),
+            ".heio/planning/tickets/ticket-01-a.md",
+            "---\nkind: ticket\nstatus: closed\ntitle: a\n---\n",
+        );
+        assert_eq!(execute(cli(NoteCmd::Housekeep), dir.path()), 0);
+        assert!(dir
+            .path()
+            .join(".heio/archive/planning/tickets/ticket-01-a.md")
+            .exists());
+    }
+
+    #[test]
+    fn housekeep_missing_notes_planning_fails() {
+        let dir = tempdir().unwrap();
+        fs::create_dir_all(dir.path().join(".hivemind")).unwrap();
+        fs::write(dir.path().join(".hivemind/hivemind.yaml"), "lanes: {}\n").unwrap();
+        let err = housekeep(dir.path()).unwrap_err();
+        assert!(err.contains("notes.planning"), "{err}");
+    }
 }

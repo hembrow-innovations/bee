@@ -187,6 +187,13 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     }
                 }
             }
+            NoteCmd::Housekeep => match note_write::housekeep(root) {
+                Ok(_) => 0,
+                Err(e) => {
+                    eprintln!("{e}");
+                    1
+                }
+            },
         },
     }
 }
