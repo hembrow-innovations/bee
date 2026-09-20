@@ -12,6 +12,7 @@ mod dest_once;
 mod dest_scan;
 mod dest_spawn;
 mod dest_watch;
+mod docs;
 #[cfg(test)]
 mod git_fixture;
 mod init;
@@ -26,7 +27,9 @@ mod sync;
 
 use std::path::Path;
 
-pub use cli::{resolve_wt_flags, Cli, Commands, NoteCmd, NoteKind, PinCmd, ProgenCmd, ProjectCmd};
+pub use cli::{
+    resolve_wt_flags, Cli, Commands, DocsCmd, NoteCmd, NoteKind, PinCmd, ProgenCmd, ProjectCmd,
+};
 pub use init::init_workbench;
 pub use layout::{load_workbench, parse_workbench_yaml};
 pub use odm_core::{ProjectEntry, Workbench, WorkbenchConfig};
@@ -194,6 +197,16 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     1
                 }
             },
+        },
+        Commands::Docs { vault, cmd } => match docs::run(root, vault.as_deref(), &cmd) {
+            Ok(text) => {
+                print!("{text}");
+                0
+            }
+            Err(e) => {
+                eprintln!("{e}");
+                1
+            }
         },
     }
 }

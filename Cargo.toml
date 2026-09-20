@@ -41,6 +41,7 @@ serde_yaml = "0.9"
 serde_json = "1"
 thiserror = "2"
 clap = { version = "4", features = ["derive"] }
+regex = "1"
 tempfile = "3"
 
 [dependencies]
@@ -51,6 +52,7 @@ odm-actions = { workspace = true }
 odm-core = { workspace = true }
 odm-git = { workspace = true }
 odm-progen = { workspace = true }
+regex = { workspace = true }
 
 [dev-dependencies]
 tempfile = { workspace = true }

@@ -103,6 +103,7 @@ dependencies = [
  "odm-core",
  "odm-git",
  "odm-progen",
+ "regex",
  "serde",
  "serde_yaml",
  "tempfile",

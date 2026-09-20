@@ -84,6 +84,12 @@ pub enum Commands {
         #[command(subcommand)]
         cmd: NoteCmd,
     },
+    Docs {
+        #[arg(long, global = true)]
+        vault: Option<String>,
+        #[command(subcommand)]
+        cmd: DocsCmd,
+    },
 }
 
 #[derive(Debug, Subcommand)]
@@ -93,6 +99,59 @@ pub enum NoteCmd {
     Claim { id: String },
     Status { id: String, status: String },
     Housekeep,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum DocsCmd {
+    Home,
+    Ls {
+        dir: Option<String>,
+        #[arg(short = 'r', long)]
+        recursive: bool,
+        #[arg(long, default_value = "path")]
+        sort: String,
+        #[arg(long)]
+        limit: Option<usize>,
+        #[arg(long)]
+        ext: Option<String>,
+        #[arg(long)]
+        fields: Option<String>,
+    },
+    Read {
+        #[arg(required = true)]
+        paths: Vec<String>,
+        #[arg(long)]
+        full: bool,
+        #[arg(long)]
+        metadata: bool,
+    },
+    Search {
+        query: Vec<String>,
+        #[arg(long)]
+        regex: bool,
+        #[arg(long)]
+        case_sensitive: bool,
+        #[arg(long)]
+        context: Option<usize>,
+        #[arg(long)]
+        tag: Vec<String>,
+        #[arg(long)]
+        path: Option<String>,
+        #[arg(long)]
+        frontmatter: Vec<String>,
+        #[arg(long)]
+        modified_since: Option<String>,
+        #[arg(long)]
+        limit: Option<usize>,
+    },
+    Recent {
+        #[arg(long)]
+        days: Option<u64>,
+        #[arg(long)]
+        limit: Option<usize>,
+        #[arg(long)]
+        fields: Option<String>,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -156,7 +215,7 @@ mod tests {
 
     const UNION: &[&str] = &[
         "init", "sync", "pin", "status", "doctor", "project", "progen", "find", "context", "run",
-        "generate", "once", "watch", "explain", "gc", "note",
+        "generate", "once", "watch", "explain", "gc", "note", "docs",
     ];
 
     fn help_text() -> String {
@@ -245,6 +304,37 @@ mod tests {
     #[test]
     fn status_rejects_id_args() {
         assert!(Cli::try_parse_from(["bee", "status", "task-1", "claimed"]).is_err());
+    }
+
+    #[test]
+    fn docs_help_lists_read_verbs() {
+        let docs = Cli::command().find_subcommand("docs").unwrap().clone();
+        let names: Vec<String> = docs
+            .get_subcommands()
+            .map(|c| c.get_name().to_string())
+            .collect();
+        for verb in ["home", "ls", "read", "search", "recent"] {
+            assert!(
+                names.iter().any(|n| n == verb),
+                "missing {verb} in {names:?}"
+            );
+        }
+        assert!(Cli::try_parse_from(["bee", "docs", "home"]).is_ok());
+        assert!(Cli::try_parse_from(["bee", "docs", "search", "q", "--vault", "docs"]).is_ok());
+    }
+
+    #[test]
+    fn find_stays_catalog_when_docs_exists() {
+        assert!(
+            subcommand_names().iter().any(|n| n == "find"),
+            "{:?}",
+            subcommand_names()
+        );
+        let cli = Cli::try_parse_from(["bee", "find", "q"]).unwrap();
+        match cli.command {
+            Commands::Find { query, .. } => assert_eq!(query.as_deref(), Some("q")),
+            other => panic!("{other:?}"),
+        }
     }
 
     #[test]
