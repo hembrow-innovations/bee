@@ -16,9 +16,9 @@ fn odm() -> assert_cmd::Command {
 fn setup_gen_ws() -> (tempfile::TempDir, std::path::PathBuf) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("gen-ws");
-    fs::create_dir_all(root.join(".odm")).unwrap();
+    fs::create_dir_all(root.join(".hivemind")).unwrap();
     fs::write(
-        root.join(".odm/odm.config.yaml"),
+        root.join(".hivemind/workbench.yaml"),
         "name: gen-ws\ngenerators:\n  core: generators/core.yaml\n",
     )
     .unwrap();

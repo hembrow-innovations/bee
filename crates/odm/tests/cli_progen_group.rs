@@ -23,7 +23,7 @@ fn multi_progen_with_group() -> (tempfile::TempDir, std::path::PathBuf) {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git", "."])
+        .args(["init", "--no-git"])
         .assert()
         .success();
     odm()
@@ -37,7 +37,7 @@ fn multi_progen_with_group() -> (tempfile::TempDir, std::path::PathBuf) {
         .assert()
         .success();
 
-    let cfg = root.join(".odm/odm.config.yaml");
+    let cfg = root.join(".hivemind/workbench.yaml");
     let mut yaml = fs::read_to_string(&cfg).unwrap();
     yaml.push_str("progen_groups:\n  only-a:\n    - a\n");
     fs::write(&cfg, yaml).unwrap();

@@ -132,8 +132,10 @@ fn gitlink_sha(repo: &Path, rel: &str) -> String {
 fn ws_git_committed() -> (tempfile::TempDir, PathBuf) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(&root)
+        .arg("init")
         .assert()
         .success();
     commit_workspace(&root);
@@ -264,7 +266,7 @@ fn gitlink_pin_record_stages() {
 
     assert_eq!(gitlink_sha(&root, "vendor/nested"), child_head);
     assert_eq!(head_sha(&root), parent_before, "must not commit workspace root");
-    let lock = root.join(".odm/odm.lock.yaml");
+    let lock = root.join(".hivemind/workbench.lock.yaml");
     assert!(
         !lock.exists() || !fs::read_to_string(&lock).unwrap().contains("nested"),
         "pin file must not list gitlink name"

@@ -13,25 +13,26 @@ fn odm() -> assert_cmd::Command {
     assert_cmd::Command::new(cargo_bin("odm"))
 }
 
-fn copy_dir(src: &Path, dst: &Path) {
-    fs::create_dir_all(dst).unwrap();
-    for entry in fs::read_dir(src).unwrap() {
-        let entry = entry.unwrap();
-        let ty = entry.file_type().unwrap();
-        let to = dst.join(entry.file_name());
-        if ty.is_dir() {
-            copy_dir(&entry.path(), &to);
-        } else {
-            fs::copy(entry.path(), to).unwrap();
-        }
-    }
-}
+const DESK_ACTIONS: &str = "\
+hello:
+  tasks:
+    - run: echo hello-desk
+fail:
+  tasks:
+    - run: exit 7
+chain:
+  tasks:
+    - run: echo step1
+    - run: echo step2
+";
 
-fn core_desk_example() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples/core-desk")
-        .canonicalize()
-        .expect("examples/core-desk")
+fn setup_desk_actions(root: &Path) {
+    fs::create_dir_all(root.join("actions")).unwrap();
+    fs::write(root.join("actions/core.yaml"), DESK_ACTIONS).unwrap();
+    write_config(
+        root,
+        "name: desk\nactions:\n  core: actions/core.yaml\n",
+    );
 }
 
 fn git_user(repo: &Path) {
@@ -86,15 +87,17 @@ fn bare_with_main(root: &Path, name: &str) -> PathBuf {
 }
 
 fn init_ws(root: &Path) {
+    fs::create_dir_all(root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap(), "--no-git"])
+        .current_dir(root)
+        .args(["init", "--no-git"])
         .assert()
         .success();
 }
 
 fn write_config(root: &Path, yaml: &str) {
-    fs::create_dir_all(root.join(".odm")).unwrap();
-    fs::write(root.join(".odm/odm.config.yaml"), yaml).unwrap();
+    fs::create_dir_all(root.join(".hivemind")).unwrap();
+    fs::write(root.join(".hivemind/workbench.yaml"), yaml).unwrap();
 }
 
 /// How to interpret stdout when `--json` is injected.
@@ -145,8 +148,9 @@ fn setup_unknown_project() -> (TempDir, Vec<String>) {
 
 fn setup_unknown_action() -> (TempDir, Vec<String>) {
     let dir = tempdir().unwrap();
-    let root = dir.path().join("core-desk");
-    copy_dir(&core_desk_example(), &root);
+    let root = dir.path().join("ws");
+    init_ws(&root);
+    setup_desk_actions(&root);
     (dir, with_root(&root, &["run", "nope"]))
 }
 
@@ -175,16 +179,19 @@ fn setup_generate_nonempty() -> (TempDir, Vec<String>) {
 
 fn setup_run_fail() -> (TempDir, Vec<String>) {
     let dir = tempdir().unwrap();
-    let root = dir.path().join("core-desk");
-    copy_dir(&core_desk_example(), &root);
+    let root = dir.path().join("ws");
+    init_ws(&root);
+    setup_desk_actions(&root);
     (dir, with_root(&root, &["run", "fail"]))
 }
 
 fn setup_prune_partial() -> (TempDir, Vec<String>) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(&root)
+        .arg("init")
         .assert()
         .success();
     let bare = bare_with_main(&root, "alpha");

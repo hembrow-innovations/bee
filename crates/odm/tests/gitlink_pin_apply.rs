@@ -140,8 +140,10 @@ fn is_detached(repo: &Path) -> bool {
 fn ws_git_committed() -> (tempfile::TempDir, PathBuf) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(&root)
+        .arg("init")
         .assert()
         .success();
     commit_workspace(&root);
@@ -222,7 +224,7 @@ fn gitlink_pin_apply_restores_sha() {
         parent_before,
         "must not commit workspace root"
     );
-    let lock = root.join(".odm/odm.lock.yaml");
+    let lock = root.join(".hivemind/workbench.lock.yaml");
     assert!(
         !lock.exists() || !fs::read_to_string(&lock).unwrap().contains("nested"),
         "pin file must not list gitlink name"
@@ -372,7 +374,7 @@ fn gitlink_pin_apply_mixed_uses_pin_source() {
         recorded,
         "must not stage"
     );
-    let lock = fs::read_to_string(root.join(".odm/odm.lock.yaml")).unwrap();
+    let lock = fs::read_to_string(root.join(".hivemind/workbench.lock.yaml")).unwrap();
     assert!(lock.contains("alpha"));
     assert!(
         !lock.contains("nested"),
@@ -395,7 +397,7 @@ fn gitlink_pin_apply_empty_ignores_lock_key() {
     let recorded = gitlink_sha(&root, "vendor/nested");
     let fake = "b".repeat(40);
     fs::write(
-        root.join(".odm/odm.lock.yaml"),
+        root.join(".hivemind/workbench.lock.yaml"),
         format!(
             "version: 1\npins:\n  nested:\n    rev: {fake}\n    url: https://example.com/nested.git\n"
         ),

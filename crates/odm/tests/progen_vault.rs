@@ -1,7 +1,6 @@
 //! Progen / Obsidian-vault integration tests.
 
 use std::fs;
-use std::path::PathBuf;
 
 use assert_cmd::cargo::cargo_bin;
 use predicates::prelude::*;
@@ -25,7 +24,7 @@ fn progen_add_find_context_flow() {
 
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git", "."])
+        .args(["init", "--no-git"])
         .assert()
         .success();
 
@@ -141,7 +140,7 @@ fn generate_lists_empty_and_requires_dest() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git", "."])
+        .args(["init", "--no-git"])
         .assert()
         .success();
 
@@ -169,12 +168,12 @@ fn list_includes_disk_summary() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git", "."])
+        .args(["init", "--no-git"])
         .assert()
         .success();
     fs::create_dir_all(root.join("projects/alpha")).unwrap();
     fs::write(
-        root.join(".odm/odm.config.yaml"),
+        root.join(".hivemind/workbench.yaml"),
         "\
 name: t
 projects:
@@ -216,7 +215,7 @@ fn find_requires_progen_configured() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git", "."])
+        .args(["init", "--no-git"])
         .assert()
         .success();
     odm()
@@ -234,7 +233,7 @@ fn find_limit_zero_is_usage() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git", "."])
+        .args(["init", "--no-git"])
         .assert()
         .success();
     odm()
@@ -258,7 +257,7 @@ fn find_limit_caps_hits() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git", "."])
+        .args(["init", "--no-git"])
         .assert()
         .success();
     odm()
@@ -297,7 +296,7 @@ fn multi_progen_scope() {
     fs::create_dir_all(&root).unwrap();
     odm()
         .current_dir(&root)
-        .args(["init", "--no-git", "."])
+        .args(["init", "--no-git"])
         .assert()
         .success();
     odm()
@@ -374,14 +373,26 @@ fn multi_progen_scope() {
 
 #[test]
 fn core_desk_seeded_progen_find() {
-    let example = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples/core-desk")
-        .canonicalize()
-        .unwrap();
     let dir = tempdir().unwrap();
-    let root = dir.path().join("core-desk");
-    copy_dir(&example, &root);
-
+    let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
+    odm()
+        .current_dir(&root)
+        .args(["init", "--no-git"])
+        .assert()
+        .success();
+    odm()
+        .current_dir(&root)
+        .args(["progen", "add", "notes", "--path", "progens/notes"])
+        .assert()
+        .success();
+    fs::create_dir_all(root.join("progens/notes/.obsidian")).unwrap();
+    fs::write(root.join("progens/notes/.obsidian/app.json"), "{}\n").unwrap();
+    fs::write(
+        root.join("progens/notes/Welcome.md"),
+        "---\nid: welcome\n---\nDeskUniqueToken\n",
+    )
+    .unwrap();
     assert!(root.join("progens/notes/Welcome.md").is_file());
     assert!(root.join("progens/notes/.obsidian/app.json").is_file());
 
@@ -399,18 +410,4 @@ fn core_desk_seeded_progen_find() {
     let hits = v["hits"].as_array().unwrap();
     assert_eq!(hits.len(), 1);
     assert_eq!(hits[0]["id"], "welcome");
-}
-
-fn copy_dir(src: &std::path::Path, dst: &std::path::Path) {
-    fs::create_dir_all(dst).unwrap();
-    for entry in fs::read_dir(src).unwrap() {
-        let entry = entry.unwrap();
-        let ty = entry.file_type().unwrap();
-        let to = dst.join(entry.file_name());
-        if ty.is_dir() {
-            copy_dir(&entry.path(), &to);
-        } else {
-            fs::copy(entry.path(), to).unwrap();
-        }
-    }
 }

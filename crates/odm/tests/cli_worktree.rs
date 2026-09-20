@@ -66,8 +66,10 @@ fn bare_with_main(root: &Path, name: &str) -> PathBuf {
 
 /// init workspace + project add with bare remote so primary is a real git checkout.
 fn workspace_with_git_project(root: &Path) {
+    fs::create_dir_all(root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(root)
+        .arg("init")
         .assert()
         .success();
 
@@ -465,9 +467,11 @@ fn project_git_dual_wt_conflict_usage() {
 fn worktree_add_non_git_project_fails() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
 
     odm()
-        .args(["init", root.to_str().unwrap(), "--no-git"])
+        .current_dir(&root)
+        .args(["init", "--no-git"])
         .assert()
         .success();
 
@@ -621,8 +625,10 @@ fn worktree_prune_empty_orphan_and_force_and_registered_safe() {
 
 /// init + two git projects (alpha, beta).
 fn workspace_with_two_git_projects(root: &Path) {
+    fs::create_dir_all(root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(root)
+        .arg("init")
         .assert()
         .success();
 
@@ -846,9 +852,11 @@ fn worktree_prune_unknown_project_usage() {
 fn worktree_prune_non_git_project_fails() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
 
     odm()
-        .args(["init", root.to_str().unwrap(), "--no-git"])
+        .current_dir(&root)
+        .args(["init", "--no-git"])
         .assert()
         .success();
 

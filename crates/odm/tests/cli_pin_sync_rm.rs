@@ -74,8 +74,10 @@ fn bare_with_main(root: &Path, name: &str) -> PathBuf {
 fn ws_with_project() -> (tempfile::TempDir, PathBuf) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(&root)
+        .arg("init")
         .assert()
         .success();
     let bare = bare_with_main(dir.path(), "alpha");
@@ -161,8 +163,10 @@ fn pin_status_named_subset() {
 fn sync_named_ok_and_json_shape() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(&root)
+        .arg("init")
         .assert()
         .success();
     let bare = bare_with_main(dir.path(), "alpha");
@@ -279,8 +283,10 @@ fn project_rm_delete_dirty_needs_force() {
 fn progen_rm_undeclares_without_delete() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap(), "--no-git"])
+        .current_dir(&root)
+        .args(["init", "--no-git"])
         .assert()
         .success();
     let root_s = root.to_str().unwrap();
@@ -318,8 +324,10 @@ fn progen_rm_undeclares_without_delete() {
 fn progen_rm_delete_removes_clean_path() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap(), "--no-git"])
+        .current_dir(&root)
+        .args(["init", "--no-git"])
         .assert()
         .success();
     let root_s = root.to_str().unwrap();
@@ -351,8 +359,10 @@ fn progen_rm_delete_removes_clean_path() {
 fn progen_rm_unknown_exits_1() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap(), "--no-git"])
+        .current_dir(&root)
+        .args(["init", "--no-git"])
         .assert()
         .success();
 
@@ -423,8 +433,10 @@ fn stage_row(repo: &Path, rel: &str) -> String {
 fn ws_git_committed() -> (tempfile::TempDir, PathBuf) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(&root)
+        .arg("init")
         .assert()
         .success();
     commit_workspace(&root);
@@ -458,14 +470,14 @@ fn gitlink_add() {
     assert_eq!(v["materialized"], "gitlink_added");
 
     assert!(root.join("vendor/nested").exists());
-    let cfg = fs::read_to_string(root.join(".odm/odm.config.yaml")).unwrap();
+    let cfg = fs::read_to_string(root.join(".hivemind/workbench.yaml")).unwrap();
     assert!(cfg.contains("checkout: gitlink"), "{cfg}");
     let gi = fs::read_to_string(root.join(".gitignore")).unwrap_or_default();
     assert!(
         !gi.contains("vendor/nested"),
         "gitignore must skip gitlink path: {gi}"
     );
-    let lock = root.join(".odm/odm.lock.yaml");
+    let lock = root.join(".hivemind/workbench.lock.yaml");
     assert!(
         !lock.exists() || !fs::read_to_string(&lock).unwrap().contains("nested"),
         "pin file must not list gitlink name"
@@ -499,7 +511,7 @@ fn gitlink_add_progen() {
         "--gitlink",
     ]));
     assert_eq!(v["materialized"], "gitlink_added");
-    let cfg = fs::read_to_string(root.join(".odm/odm.config.yaml")).unwrap();
+    let cfg = fs::read_to_string(root.join(".hivemind/workbench.yaml")).unwrap();
     assert!(cfg.contains("checkout: gitlink"), "{cfg}");
 }
 
@@ -579,7 +591,7 @@ fn gitlink_rm_keeps_tree() {
         .assert()
         .success()
         .stdout(predicate::str::contains("nested").not());
-    let lock = root.join(".odm/odm.lock.yaml");
+    let lock = root.join(".hivemind/workbench.lock.yaml");
     assert!(
         !lock.exists() || !fs::read_to_string(&lock).unwrap().contains("nested"),
         "pin file must not list gitlink name"
@@ -676,7 +688,7 @@ fn gitlink_sync_fetch_only() {
     );
     assert!(!nested.join("MORE").exists(), "fetch must not checkout");
     assert_eq!(rev_parse(&nested, "origin/main"), remote_head);
-    let lock = root.join(".odm/odm.lock.yaml");
+    let lock = root.join(".hivemind/workbench.lock.yaml");
     assert!(
         !lock.exists() || !fs::read_to_string(&lock).unwrap().contains("nested"),
         "lock file must not list gitlink name"
@@ -708,7 +720,7 @@ fn gitlink_status_in_sync() {
 
     let fake = "b".repeat(40);
     fs::write(
-        root.join(".odm/odm.lock.yaml"),
+        root.join(".hivemind/workbench.lock.yaml"),
         format!(
             "version: 1\npins:\n  nested:\n    rev: {fake}\n    url: https://example.com/nested.git\n"
         ),
@@ -723,7 +735,7 @@ fn gitlink_status_in_sync() {
         .unwrap();
     assert_eq!(p["pin_rev"].as_str().unwrap(), link_sha);
     assert_eq!(p["pin_state"], "in_sync");
-    fs::remove_file(root.join(".odm/odm.lock.yaml")).unwrap();
+    fs::remove_file(root.join(".hivemind/workbench.lock.yaml")).unwrap();
 
     fs::write(nested.join("dirty"), "x").unwrap();
     let st = json_stdout(odm().args(["--root", root_s, "--json", "status"]));
@@ -750,7 +762,7 @@ fn gitlink_status_in_sync() {
         ])
         .assert()
         .success();
-    let lock = root.join(".odm/odm.lock.yaml");
+    let lock = root.join(".hivemind/workbench.lock.yaml");
     assert!(
         !lock.exists() || !fs::read_to_string(&lock).unwrap().contains("nested"),
         "project git auto-maintain skips gitlink"

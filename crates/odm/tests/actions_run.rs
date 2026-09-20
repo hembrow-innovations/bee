@@ -1,8 +1,7 @@
-//! Integration harness: `odm run` against a temp copy of examples/core-desk.
+//! Integration harness: `odm run` against a temp workbench.
 
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 use assert_cmd::cargo::cargo_bin;
 use predicates::prelude::*;
@@ -13,31 +12,43 @@ fn odm() -> assert_cmd::Command {
     assert_cmd::Command::new(cargo_bin("odm"))
 }
 
-fn copy_dir(src: &Path, dst: &Path) {
-    fs::create_dir_all(dst).unwrap();
-    for entry in fs::read_dir(src).unwrap() {
-        let entry = entry.unwrap();
-        let ty = entry.file_type().unwrap();
-        let to = dst.join(entry.file_name());
-        if ty.is_dir() {
-            copy_dir(&entry.path(), &to);
-        } else {
-            fs::copy(entry.path(), to).unwrap();
-        }
-    }
+fn init_ws(root: &Path) {
+    fs::create_dir_all(root).unwrap();
+    odm()
+        .current_dir(root)
+        .args(["init", "--no-git"])
+        .assert()
+        .success();
 }
 
-fn core_desk_example() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples/core-desk")
-        .canonicalize()
-        .expect("examples/core-desk")
+fn write_catalog(root: &Path, yaml: &str) {
+    fs::create_dir_all(root.join(".hivemind")).unwrap();
+    fs::write(root.join(".hivemind/workbench.yaml"), yaml).unwrap();
 }
 
-fn setup_temp_core_desk() -> (tempfile::TempDir, PathBuf) {
+const DESK_ACTIONS: &str = "\
+hello:
+  tasks:
+    - run: echo hello-desk
+fail:
+  tasks:
+    - run: exit 7
+chain:
+  tasks:
+    - run: echo step1
+    - run: echo step2
+";
+
+fn setup_temp_desk() -> (tempfile::TempDir, PathBuf) {
     let dir = tempdir().unwrap();
-    let root = dir.path().join("core-desk");
-    copy_dir(&core_desk_example(), &root);
+    let root = dir.path().join("ws");
+    init_ws(&root);
+    fs::create_dir_all(root.join("actions")).unwrap();
+    fs::write(root.join("actions/core.yaml"), DESK_ACTIONS).unwrap();
+    write_catalog(
+        &root,
+        "name: desk\nactions:\n  core: actions/core.yaml\n",
+    );
     (dir, root)
 }
 
@@ -48,7 +59,7 @@ fn json_stdout(cmd: &mut assert_cmd::Command) -> Value {
 
 #[test]
 fn run_lists_hello() {
-    let (_dir, root) = setup_temp_core_desk();
+    let (_dir, root) = setup_temp_desk();
     odm()
         .args(["--root", root.to_str().unwrap(), "run"])
         .assert()
@@ -60,7 +71,7 @@ fn run_lists_hello() {
 
 #[test]
 fn run_hello_success() {
-    let (_dir, root) = setup_temp_core_desk();
+    let (_dir, root) = setup_temp_desk();
     odm()
         .args(["--root", root.to_str().unwrap(), "run", "hello"])
         .assert()
@@ -70,7 +81,7 @@ fn run_hello_success() {
 
 #[test]
 fn run_fail_exit_7() {
-    let (_dir, root) = setup_temp_core_desk();
+    let (_dir, root) = setup_temp_desk();
     odm()
         .args(["--root", root.to_str().unwrap(), "run", "fail"])
         .assert()
@@ -80,7 +91,7 @@ fn run_fail_exit_7() {
 
 #[test]
 fn run_unknown_exit_1() {
-    let (_dir, root) = setup_temp_core_desk();
+    let (_dir, root) = setup_temp_desk();
     odm()
         .args(["--root", root.to_str().unwrap(), "run", "nope"])
         .assert()
@@ -91,7 +102,7 @@ fn run_unknown_exit_1() {
 
 #[test]
 fn run_json_hello() {
-    let (_dir, root) = setup_temp_core_desk();
+    let (_dir, root) = setup_temp_desk();
     let out = odm()
         .args([
             "--root",
@@ -115,7 +126,7 @@ fn run_json_hello() {
 
 #[test]
 fn run_json_fail() {
-    let (_dir, root) = setup_temp_core_desk();
+    let (_dir, root) = setup_temp_desk();
     let out = odm()
         .args(["--root", root.to_str().unwrap(), "--json", "run", "fail"])
         .assert()
@@ -133,7 +144,7 @@ fn run_json_fail() {
 
 #[test]
 fn run_json_chain_concatenates_stdout() {
-    let (_dir, root) = setup_temp_core_desk();
+    let (_dir, root) = setup_temp_desk();
     let v = json_stdout(odm().args([
         "--root",
         root.to_str().unwrap(),
@@ -152,7 +163,7 @@ fn run_json_chain_concatenates_stdout() {
 
 #[test]
 fn run_json_list() {
-    let (_dir, root) = setup_temp_core_desk();
+    let (_dir, root) = setup_temp_desk();
     let v = json_stdout(odm().args(["--root", root.to_str().unwrap(), "--json", "run"]));
     let actions = v["actions"].as_array().expect("actions");
     assert!(actions.len() >= 3);
@@ -169,7 +180,7 @@ fn run_json_list() {
 
 #[test]
 fn run_chain_success() {
-    let (_dir, root) = setup_temp_core_desk();
+    let (_dir, root) = setup_temp_desk();
     odm()
         .args(["--root", root.to_str().unwrap(), "run", "chain"])
         .assert()
@@ -182,11 +193,7 @@ fn run_chain_success() {
 fn run_no_actions_message() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("empty-ws");
-    assert!(Command::new(cargo_bin("odm"))
-        .args(["init", root.to_str().unwrap(), "--no-git"])
-        .status()
-        .unwrap()
-        .success());
+    init_ws(&root);
     odm()
         .args(["--root", root.to_str().unwrap(), "run"])
         .assert()
@@ -198,11 +205,7 @@ fn run_no_actions_message() {
 fn setup_cwd_workspace() -> (tempfile::TempDir, PathBuf) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
-    assert!(Command::new(cargo_bin("odm"))
-        .args(["init", root.to_str().unwrap(), "--no-git"])
-        .status()
-        .unwrap()
-        .success());
+    init_ws(&root);
     fs::create_dir_all(root.join("projects/alpha")).unwrap();
     fs::write(root.join("projects/alpha/marker"), "from-project\n").unwrap();
     fs::create_dir_all(root.join("worktrees/alpha/slot1")).unwrap();
@@ -220,8 +223,8 @@ echoargs:
 ",
     )
     .unwrap();
-    fs::write(
-        root.join(".odm/odm.config.yaml"),
+    write_catalog(
+        &root,
         "\
 name: cwd-ws
 projects:
@@ -230,8 +233,7 @@ projects:
 actions:
   core: actions/core.yaml
 ",
-    )
-    .unwrap();
+    );
     (dir, root)
 }
 
@@ -239,16 +241,11 @@ actions:
 fn run_missing_bundle_exit_2() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
-    assert!(Command::new(cargo_bin("odm"))
-        .args(["init", root.to_str().unwrap(), "--no-git"])
-        .status()
-        .unwrap()
-        .success());
-    fs::write(
-        root.join(".odm/odm.config.yaml"),
+    init_ws(&root);
+    write_catalog(
+        &root,
         "name: t\nactions:\n  core: actions/missing.yaml\n",
-    )
-    .unwrap();
+    );
     odm()
         .args(["--root", root.to_str().unwrap(), "run"])
         .assert()

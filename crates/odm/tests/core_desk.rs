@@ -1,4 +1,4 @@
-//! Integration harness: drive `odm` against a temp copy of examples/core-desk.
+//! Integration harness: drive `odm` against a temp workbench.
 //! Offline only; requires `git` on PATH (skip otherwise).
 
 use std::fs;
@@ -27,7 +27,11 @@ fn skip_without_git() -> bool {
 }
 
 fn odm() -> assert_cmd::Command {
-    assert_cmd::Command::new(cargo_bin("odm"))
+    let mut cmd = assert_cmd::Command::new(cargo_bin("odm"));
+    cmd.env("GIT_CONFIG_COUNT", "1")
+        .env("GIT_CONFIG_KEY_0", "protocol.file.allow")
+        .env("GIT_CONFIG_VALUE_0", "always");
+    cmd
 }
 
 fn git_user(repo: &Path) {
@@ -43,37 +47,127 @@ fn git_user(repo: &Path) {
         .success());
 }
 
-fn copy_dir(src: &Path, dst: &Path) {
-    fs::create_dir_all(dst).unwrap();
-    for entry in fs::read_dir(src).unwrap() {
-        let entry = entry.unwrap();
-        let ty = entry.file_type().unwrap();
-        let to = dst.join(entry.file_name());
-        if ty.is_dir() {
-            copy_dir(&entry.path(), &to);
-        } else {
-            fs::copy(entry.path(), to).unwrap();
-        }
-    }
-}
-
-fn core_desk_example() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../examples/core-desk")
-        .canonicalize()
-        .expect("examples/core-desk")
+fn bare_with_main(root: &Path, name: &str) -> PathBuf {
+    let bare = root.join(format!("{name}.git"));
+    assert!(Command::new("git")
+        .args(["init", "--bare", bare.to_str().unwrap()])
+        .status()
+        .unwrap()
+        .success());
+    let seed = root.join(format!("{name}-seed"));
+    assert!(Command::new("git")
+        .args(["clone", bare.to_str().unwrap(), seed.to_str().unwrap()])
+        .status()
+        .unwrap()
+        .success());
+    git_user(&seed);
+    fs::write(seed.join("README"), name).unwrap();
+    assert!(Command::new("git")
+        .args(["-C", seed.to_str().unwrap(), "add", "README"])
+        .status()
+        .unwrap()
+        .success());
+    assert!(Command::new("git")
+        .args(["-C", seed.to_str().unwrap(), "commit", "-m", "init"])
+        .status()
+        .unwrap()
+        .success());
+    assert!(Command::new("git")
+        .args(["-C", seed.to_str().unwrap(), "branch", "-M", "main"])
+        .status()
+        .unwrap()
+        .success());
+    assert!(Command::new("git")
+        .args(["-C", seed.to_str().unwrap(), "push", "-u", "origin", "main"])
+        .status()
+        .unwrap()
+        .success());
+    bare
 }
 
 fn setup_temp_core_desk() -> (tempfile::TempDir, PathBuf) {
     let dir = tempdir().unwrap();
-    let root = dir.path().join("core-desk");
-    copy_dir(&core_desk_example(), &root);
-    assert!(Command::new("git")
-        .args(["init", root.to_str().unwrap()])
-        .status()
-        .unwrap()
-        .success());
+    let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
+    odm()
+        .current_dir(&root)
+        .arg("init")
+        .assert()
+        .success();
     git_user(&root);
+    let alpha = bare_with_main(dir.path(), "alpha");
+    let beta = bare_with_main(dir.path(), "beta");
+    fs::create_dir_all(root.join("progens/notes/.obsidian")).unwrap();
+    fs::write(root.join("progens/notes/.obsidian/app.json"), "{}\n").unwrap();
+    fs::write(
+        root.join("progens/notes/Welcome.md"),
+        "---\nid: welcome\n---\nDeskUniqueToken\n",
+    )
+    .unwrap();
+    fs::write(
+        root.join("progens/notes/README.md"),
+        "---\nid: readme\n---\nSee [[Welcome]].\n",
+    )
+    .unwrap();
+    fs::create_dir_all(root.join("progens/ops")).unwrap();
+    fs::write(
+        root.join("progens/ops/ops-note.md"),
+        "---\nid: ops-note\n---\nOpsUniqueToken\n",
+    )
+    .unwrap();
+    fs::create_dir_all(root.join("actions")).unwrap();
+    fs::write(
+        root.join("actions/core.yaml"),
+        "in-alpha:\n  tasks:\n    - run: true\n",
+    )
+    .unwrap();
+    fs::create_dir_all(root.join("templates/hello")).unwrap();
+    fs::write(
+        root.join("templates/hello/hello.txt"),
+        "hello from core-desk generator\n",
+    )
+    .unwrap();
+    fs::create_dir_all(root.join("generators")).unwrap();
+    fs::write(
+        root.join("generators/core.yaml"),
+        "hello:\n  template: templates/hello\n",
+    )
+    .unwrap();
+    fs::write(
+        root.join(".hivemind/workbench.yaml"),
+        format!(
+            "\
+name: desk
+projects:
+  alpha:
+    path: projects/alpha
+    url: \"{}\"
+    branch: main
+  beta:
+    path: projects/beta
+    url: \"{}\"
+    branch: main
+progens:
+  notes:
+    path: progens/notes
+  ops:
+    path: progens/ops
+progen_groups:
+  default:
+    - notes
+  all-docs:
+    - notes
+    - ops
+actions:
+  core: actions/core.yaml
+generators:
+  core: generators/core.yaml
+",
+            alpha.display(),
+            beta.display()
+        ),
+    )
+    .unwrap();
     (dir, root)
 }
 
@@ -90,10 +184,16 @@ fn init_empty_dir_json() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("fresh");
 
-    let v = json_stdout(odm().args(["--json", "init", root.to_str().unwrap()]));
-    assert_eq!(v["root"].as_str().unwrap(), root.to_str().unwrap());
+    fs::create_dir_all(&root).unwrap();
+    let v = json_stdout(odm().current_dir(&root).args(["--json", "init"]));
+    assert_eq!(
+        Path::new(v["root"].as_str().unwrap())
+            .canonicalize()
+            .unwrap(),
+        root.canonicalize().unwrap()
+    );
     assert_eq!(v["git"].as_bool(), Some(true));
-    assert!(root.join(".odm/odm.config.yaml").is_file());
+    assert!(root.join(".hivemind/workbench.yaml").is_file());
 }
 
 #[test]
@@ -101,15 +201,11 @@ fn init_empty_dir_no_git() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("fresh-nogit");
 
-    let v = json_stdout(odm().args([
-        "--json",
-        "init",
-        root.to_str().unwrap(),
-        "--no-git",
-    ]));
+    fs::create_dir_all(&root).unwrap();
+    let v = json_stdout(odm().current_dir(&root).args(["--json", "init", "--no-git"]));
     assert!(v.get("root").and_then(|r| r.as_str()).is_some());
     assert_eq!(v["git"].as_bool(), Some(false));
-    assert!(root.join(".odm/odm.config.yaml").is_file());
+    assert!(root.join(".hivemind/workbench.yaml").is_file());
 }
 
 #[test]
@@ -129,7 +225,7 @@ fn core_desk_full_gate() {
         .stdout(predicate::str::contains("beta"));
     assert!(root.join("projects/alpha").is_dir());
     assert!(root.join("projects/beta").is_dir());
-    assert!(root.join(".odm/odm.lock.yaml").is_file());
+    assert!(root.join(".hivemind/workbench.lock.yaml").is_file());
 
     // pin status
     let pin = json_stdout(odm().args(["--root", root_s, "--json", "pin", "status"]));

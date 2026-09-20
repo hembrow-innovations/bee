@@ -10,6 +10,25 @@ fn odm() -> assert_cmd::Command {
     assert_cmd::Command::new(cargo_bin("odm"))
 }
 
+fn init_ws(root: &Path, extra: &[&str]) {
+    fs::create_dir_all(root).unwrap();
+    let mut args = vec!["init"];
+    args.extend_from_slice(extra);
+    odm()
+        .current_dir(root)
+        .args(&args)
+        .assert()
+        .success();
+}
+
+fn catalog(root: &Path) -> PathBuf {
+    root.join(".hivemind/workbench.yaml")
+}
+
+fn pin_file(root: &Path) -> PathBuf {
+    root.join(".hivemind/workbench.lock.yaml")
+}
+
 fn git_user(repo: &Path) {
     assert!(Command::new("git")
         .args(["-C", repo.to_str().unwrap(), "config", "user.email", "t@est"])
@@ -74,17 +93,19 @@ fn help_works() {
 fn init_and_project_list() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
 
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(&root)
+        .arg("init")
         .assert()
         .success()
         .stdout(predicate::str::contains("Initialized Workspace"));
 
-    assert!(root.join(".odm/odm.config.yaml").is_file());
+    assert!(catalog(&root).is_file());
 
     fs::write(
-        root.join(".odm/odm.config.yaml"),
+        catalog(&root),
         "projects:\n  alpha:\n    path: projects/alpha\n    url: ./fixtures/alpha.git\n",
     )
     .unwrap();
@@ -113,15 +134,18 @@ fn init_and_project_list() {
 fn init_json_and_refuse_second() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws2");
+    fs::create_dir_all(&root).unwrap();
 
     odm()
-        .args(["--json", "init", root.to_str().unwrap(), "--no-git"])
+        .current_dir(&root)
+        .args(["--json", "init", "--no-git"])
         .assert()
         .success()
         .stdout(predicate::str::contains("\"git\": false"));
 
     odm()
-        .args(["init", root.to_str().unwrap(), "--no-git"])
+        .current_dir(&root)
+        .args(["init", "--no-git"])
         .assert()
         .failure()
         .code(2)
@@ -133,7 +157,7 @@ fn status_and_doctor_smoke() {
     let dir = tempdir().unwrap();
     odm()
         .current_dir(dir.path())
-        .args(["init", ".", "--no-git"])
+        .args(["init", "--no-git"])
         .assert()
         .success();
 
@@ -165,10 +189,7 @@ fn status_and_doctor_smoke() {
 #[test]
 fn discover_walk_up() {
     let dir = tempdir().unwrap();
-    odm()
-        .args(["init", dir.path().to_str().unwrap(), "--no-git"])
-        .assert()
-        .success();
+    init_ws(dir.path(), &["--no-git"]);
     let nested = dir.path().join("a/b");
     fs::create_dir_all(&nested).unwrap();
     odm()
@@ -182,10 +203,7 @@ fn discover_walk_up() {
 #[test]
 fn unknown_project_usage() {
     let dir = tempdir().unwrap();
-    odm()
-        .args(["init", dir.path().to_str().unwrap(), "--no-git"])
-        .assert()
-        .success();
+    init_ws(dir.path(), &["--no-git"]);
     odm()
         .args([
             "--root",
@@ -204,10 +222,7 @@ fn unknown_project_usage() {
 fn project_add_sync_pin_flow() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
-    odm()
-        .args(["init", root.to_str().unwrap()])
-        .assert()
-        .success();
+    init_ws(&root, &[]);
 
     let bare = bare_with_main(&root, "alpha");
 
@@ -230,7 +245,7 @@ fn project_add_sync_pin_flow() {
         .stdout(predicate::str::contains("cloned"));
 
     assert!(root.join("projects/alpha/README").is_file());
-    assert!(root.join(".odm/odm.lock.yaml").is_file());
+    assert!(pin_file(&root).is_file());
 
     odm()
         .args(["--root", root.to_str().unwrap(), "sync"])
@@ -287,10 +302,7 @@ fn clap_unknown_command_exit_1() {
 fn clap_parse_error_json_envelope() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
-    odm()
-        .args(["init", root.to_str().unwrap(), "--no-git"])
-        .assert()
-        .success();
+    init_ws(&root, &["--no-git"]);
 
     let stdout = String::from_utf8(
         odm()

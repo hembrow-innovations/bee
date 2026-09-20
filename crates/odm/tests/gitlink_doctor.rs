@@ -91,8 +91,10 @@ fn commit_workspace(root: &Path) {
 fn ws_git_committed() -> (tempfile::TempDir, PathBuf) {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
+    fs::create_dir_all(&root).unwrap();
     odm()
-        .args(["init", root.to_str().unwrap()])
+        .current_dir(&root)
+        .arg("init")
         .assert()
         .success();
     commit_workspace(&root);
@@ -186,7 +188,7 @@ fn origin_url(repo: &Path) -> String {
 
 fn declare_gitlink(root: &Path, url: &str) {
     fs::write(
-        root.join(".odm/odm.config.yaml"),
+        root.join(".hivemind/workbench.yaml"),
         format!(
             "projects:\n  nested:\n    path: vendor/nested\n    url: {url}\n    branch: main\n    checkout: gitlink\n"
         ),
@@ -216,13 +218,13 @@ fn gitlink_doctor_extra_fails_and_is_not_imported() {
         extra["message"]
     );
 
-    let cfg_before = fs::read_to_string(root.join(".odm/odm.config.yaml")).unwrap();
+    let cfg_before = fs::read_to_string(root.join(".hivemind/workbench.yaml")).unwrap();
     let doc = json_code(
         odm().args(["--root", root_s, "--json", "doctor", "--fix"]),
         3,
     );
     assert_eq!(check(&doc, "gitlink_extra")["status"], "fail");
-    let cfg_after = fs::read_to_string(root.join(".odm/odm.config.yaml")).unwrap();
+    let cfg_after = fs::read_to_string(root.join(".hivemind/workbench.yaml")).unwrap();
     assert_eq!(cfg_before, cfg_after, "extras must not be imported as projects");
     let listed = odm()
         .args(["--root", root_s, "project", "list"])
@@ -284,7 +286,7 @@ fn gitlink_doctor_checkout_mismatch_fails() {
     let (dir, root) = ws_git_committed();
     let bare = bare_with_main(dir.path(), "nested");
     fs::write(
-        root.join(".odm/odm.config.yaml"),
+        root.join(".hivemind/workbench.yaml"),
         format!(
             "projects:\n  nested:\n    path: vendor/nested\n    url: {}\n    branch: main\n",
             bare.to_str().unwrap()
@@ -388,7 +390,7 @@ fn gitlink_doctor_fix_does_not_rewrite_remotes_or_pin_apply() {
     assert_eq!(origin_url(&nested), "https://example.com/other.git");
     assert_ne!(origin_url(&nested), origin_before);
     assert_eq!(head_sha(&nested), child_before, "doctor --fix must not pin apply");
-    let lock = root.join(".odm/odm.lock.yaml");
+    let lock = root.join(".hivemind/workbench.lock.yaml");
     assert!(
         !lock.exists() || !fs::read_to_string(&lock).unwrap().contains("nested"),
         "doctor --fix must not write gitlink names into the pin file"
