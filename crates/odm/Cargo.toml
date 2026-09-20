@@ -4,14 +4,11 @@ version = "0.1.1"
 edition.workspace = true
 license.workspace = true
 description = "ODM CLI — Orchestrated Development Management"
+autobins = false
 
 [lib]
 name = "odm"
 path = "src/lib.rs"
-
-[[bin]]
-name = "odm"
-path = "src/main.rs"
 
 [dependencies]
 odm-core = { workspace = true }

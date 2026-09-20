@@ -1,6 +1,4 @@
 //! ODM application library — command handlers, DTOs, and multi-crate composition.
-//!
-//! The binary is a thin adapter: parse argv, open context, dispatch handlers, finish, exit.
 
 pub mod cli;
 pub mod commands;

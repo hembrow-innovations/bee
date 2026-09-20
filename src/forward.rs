@@ -70,6 +70,24 @@ mod tests {
     }
 
     #[test]
+    fn odm_crate_declares_no_bin() {
+        let cargo = include_str!("../crates/odm/Cargo.toml");
+        assert!(
+            !cargo.contains("[[bin]]"),
+            "odm crate must not declare a binary; public odm is the bee-package forwarder"
+        );
+    }
+
+    #[test]
+    fn odm_crate_has_no_main_rs() {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("crates/odm/src/main.rs");
+        assert!(
+            !path.exists(),
+            "src/main.rs would autodiscover a second odm bin"
+        );
+    }
+
+    #[test]
     fn heio_status_remaps_to_note_status() {
         assert_eq!(
             remap(&["status", "task-01-x", "claimed"]),

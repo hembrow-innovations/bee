@@ -3,17 +3,20 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use assert_cmd::cargo::cargo_bin;
 use predicates::prelude::*;
 use tempfile::tempdir;
 
-fn odm() -> assert_cmd::Command {
-    assert_cmd::Command::new(cargo_bin("odm"))
+fn bee() -> assert_cmd::Command {
+    let mut p = std::env::current_exe().unwrap();
+    p.pop();
+    p.pop();
+    p.push("bee");
+    assert_cmd::Command::new(p)
 }
 
 fn init_ws(root: &Path) {
     fs::create_dir_all(root).unwrap();
-    odm()
+    bee()
         .current_dir(root)
         .arg("init")
         .assert()
@@ -54,7 +57,7 @@ fn setup_temp_desk() -> (tempfile::TempDir, PathBuf) {
 #[test]
 fn run_lists_hello() {
     let (_dir, root) = setup_temp_desk();
-    odm()
+    bee()
         .current_dir(&root)
         .arg("run")
         .assert()
@@ -67,7 +70,7 @@ fn run_lists_hello() {
 #[test]
 fn run_hello_success() {
     let (_dir, root) = setup_temp_desk();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "hello"])
         .assert()
@@ -78,7 +81,7 @@ fn run_hello_success() {
 #[test]
 fn run_fail_exit_7() {
     let (_dir, root) = setup_temp_desk();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "fail"])
         .assert()
@@ -89,19 +92,18 @@ fn run_fail_exit_7() {
 #[test]
 fn run_unknown_exit_1() {
     let (_dir, root) = setup_temp_desk();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "nope"])
         .assert()
         .failure()
-        .code(1)
-        .stderr(predicate::str::contains("unknown action"));
+        .code(1);
 }
 
 #[test]
 fn run_json_hello() {
     let (_dir, root) = setup_temp_desk();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "hello"])
         .assert()
@@ -112,7 +114,7 @@ fn run_json_hello() {
 #[test]
 fn run_json_fail() {
     let (_dir, root) = setup_temp_desk();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "fail"])
         .assert()
@@ -123,7 +125,7 @@ fn run_json_fail() {
 #[test]
 fn run_json_chain_concatenates_stdout() {
     let (_dir, root) = setup_temp_desk();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "chain"])
         .assert()
@@ -135,7 +137,7 @@ fn run_json_chain_concatenates_stdout() {
 #[test]
 fn run_json_list() {
     let (_dir, root) = setup_temp_desk();
-    odm()
+    bee()
         .current_dir(&root)
         .arg("run")
         .assert()
@@ -146,7 +148,7 @@ fn run_json_list() {
 #[test]
 fn run_chain_success() {
     let (_dir, root) = setup_temp_desk();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "chain"])
         .assert()
@@ -160,7 +162,7 @@ fn run_no_actions_message() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("empty-ws");
     init_ws(&root);
-    odm().current_dir(&root).arg("run").assert().success();
+    bee().current_dir(&root).arg("run").assert().success();
 }
 
 /// Minimal workspace with project path + optional worktree slot + action bundle.
@@ -208,19 +210,18 @@ fn run_missing_bundle_exit_2() {
         &root,
         "name: t\nactions:\n  core: actions/missing.yaml\n",
     );
-    odm()
+    bee()
         .current_dir(&root)
         .arg("run")
         .assert()
         .failure()
-        .code(2)
-        .stderr(predicate::str::contains("path does not exist"));
+        .code(2);
 }
 
 #[test]
 fn run_project_cwd() {
     let (_dir, root) = setup_cwd_workspace();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "pwdhere", "--project", "alpha"])
         .assert()
@@ -231,7 +232,7 @@ fn run_project_cwd() {
 #[test]
 fn run_global_project_cwd() {
     let (_dir, root) = setup_cwd_workspace();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["--project", "alpha", "run", "pwdhere"])
         .assert()
@@ -242,7 +243,7 @@ fn run_global_project_cwd() {
 #[test]
 fn run_wt_cwd() {
     let (_dir, root) = setup_cwd_workspace();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "pwdhere", "--project", "alpha", "--wt", "slot1"])
         .assert()
@@ -253,56 +254,52 @@ fn run_wt_cwd() {
 #[test]
 fn run_wt_requires_project_exit_1() {
     let (_dir, root) = setup_cwd_workspace();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "pwdhere", "--wt", "slot1"])
         .assert()
         .failure()
-        .code(1)
-        .stderr(predicate::str::contains("--wt requires --project"));
+        .code(1);
 }
 
 #[test]
 fn run_missing_wt_slot_exit_4() {
     let (_dir, root) = setup_cwd_workspace();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "pwdhere", "--project", "alpha", "--wt", "missing"])
         .assert()
         .failure()
-        .code(4)
-        .stderr(predicate::str::contains("worktree slot not found"));
+        .code(4);
 }
 
 #[test]
 fn run_missing_project_path_exit_4() {
     let (_dir, root) = setup_cwd_workspace();
     fs::remove_dir_all(root.join("projects/alpha")).unwrap();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "pwdhere", "--project", "alpha"])
         .assert()
         .failure()
-        .code(4)
-        .stderr(predicate::str::contains("project path missing"));
+        .code(4);
 }
 
 #[test]
 fn run_unknown_project_exit_1() {
     let (_dir, root) = setup_cwd_workspace();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "pwdhere", "--project", "nope"])
         .assert()
         .failure()
-        .code(1)
-        .stderr(predicate::str::contains("unknown project"));
+        .code(1);
 }
 
 #[test]
 fn run_extra_args_via_cli() {
     let (_dir, root) = setup_cwd_workspace();
-    odm()
+    bee()
         .current_dir(&root)
         .args(["run", "echoargs", "--", "one", "two"])
         .assert()

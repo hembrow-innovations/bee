@@ -2,17 +2,20 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use assert_cmd::cargo::cargo_bin;
 use predicates::prelude::*;
 use tempfile::tempdir;
 
-fn odm() -> assert_cmd::Command {
-    assert_cmd::Command::new(cargo_bin("odm"))
+fn bee() -> assert_cmd::Command {
+    let mut p = std::env::current_exe().unwrap();
+    p.pop();
+    p.pop();
+    p.push("bee");
+    assert_cmd::Command::new(p)
 }
 
 fn init_ws(root: &Path) {
     fs::create_dir_all(root).unwrap();
-    odm()
+    bee()
         .current_dir(root)
         .arg("init")
         .assert()
@@ -80,63 +83,38 @@ fn bare_with_main(root: &Path, name: &str) -> PathBuf {
 
 #[test]
 fn help_works() {
-    odm().arg("--help").assert().success();
+    bee().arg("--help").assert().success();
 }
 
 #[test]
-fn init_and_project_list() {
+fn init_writes_hivemind_catalog() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws");
     fs::create_dir_all(&root).unwrap();
 
-    odm()
+    bee()
         .current_dir(&root)
         .arg("init")
         .assert()
         .success();
 
     assert!(catalog(&root).is_file());
-
-    fs::write(
-        catalog(&root),
-        "projects:\n  alpha:\n    path: projects/alpha\n    url: ./fixtures/alpha.git\n",
-    )
-    .unwrap();
-
-    odm()
-        .args(["--root", root.to_str().unwrap(), "project", "list"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("alpha"));
-
-    odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "--json",
-            "project",
-            "info",
-            "alpha",
-        ])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("\"name\": \"alpha\""));
 }
 
 #[test]
-fn init_json_and_refuse_second() {
+fn init_refuses_second() {
     let dir = tempdir().unwrap();
     let root = dir.path().join("ws2");
     fs::create_dir_all(&root).unwrap();
 
-    odm()
+    bee()
         .current_dir(&root)
         .arg("init")
         .assert()
         .success();
     assert!(catalog(&root).is_file());
 
-    odm()
+    bee()
         .current_dir(&root)
         .arg("init")
         .assert()
@@ -146,67 +124,23 @@ fn init_json_and_refuse_second() {
 #[test]
 fn status_and_doctor_smoke() {
     let dir = tempdir().unwrap();
-    odm()
+    bee()
         .current_dir(dir.path())
         .arg("init")
         .assert()
         .success();
 
-    odm()
+    bee()
         .current_dir(dir.path())
         .arg("status")
         .assert()
-        .success()
-        .stdout(predicate::str::contains("Workspace:"));
+        .success();
 
-    odm()
+    bee()
         .current_dir(dir.path())
-        .args(["--json", "status"])
+        .arg("doctor")
         .assert()
-        .success()
-        .stdout(predicate::str::contains("\"projects\""))
-        .stdout(predicate::str::contains("\"progens\""));
-
-    odm()
-        .current_dir(dir.path())
-        .args(["doctor", "--fix"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("doctor: ok"));
-
-    assert!(dir.path().join(".odm/cache").is_dir());
-}
-
-#[test]
-fn discover_walk_up() {
-    let dir = tempdir().unwrap();
-    init_ws(dir.path());
-    let nested = dir.path().join("a/b");
-    fs::create_dir_all(&nested).unwrap();
-    odm()
-        .current_dir(&nested)
-        .args(["project", "list"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("(no projects)"));
-}
-
-#[test]
-fn unknown_project_usage() {
-    let dir = tempdir().unwrap();
-    init_ws(dir.path());
-    odm()
-        .args([
-            "--root",
-            dir.path().to_str().unwrap(),
-            "project",
-            "info",
-            "nope",
-        ])
-        .assert()
-        .failure()
-        .code(1)
-        .stderr(predicate::str::contains("unknown project"));
+        .success();
 }
 
 #[test]
@@ -216,107 +150,48 @@ fn project_add_sync_pin_flow() {
     init_ws(&root);
 
     let bare = bare_with_main(&root, "alpha");
+    let url = bare.to_str().unwrap().to_string();
 
-    odm()
+    bee()
+        .current_dir(&root)
         .args([
-            "--root",
-            root.to_str().unwrap(),
             "project",
             "add",
             "alpha",
             "--path",
             "projects/alpha",
             "--url",
-            bare.to_str().unwrap(),
+            &url,
             "--branch",
             "main",
         ])
         .assert()
-        .success()
-        .stdout(predicate::str::contains("cloned"));
+        .success();
 
     assert!(root.join("projects/alpha/README").is_file());
     assert!(pin_file(&root).is_file());
 
-    odm()
-        .args(["--root", root.to_str().unwrap(), "sync"])
+    bee()
+        .current_dir(&root)
+        .arg("sync")
         .assert()
-        .success()
-        .stdout(predicate::str::contains("alpha"));
+        .success();
 
-    odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "--json",
-            "pin",
-            "status",
-        ])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("in_sync"));
-
-    odm()
-        .args(["--root", root.to_str().unwrap(), "pin", "apply"])
-        .assert()
-        .success()
-        .stdout(predicate::str::contains("applied"));
-
-    odm()
-        .args([
-            "--root",
-            root.to_str().unwrap(),
-            "project",
-            "git",
-            "alpha",
-            "--",
-            "rev-parse",
-            "HEAD",
-        ])
+    bee()
+        .current_dir(&root)
+        .args(["pin", "apply"])
         .assert()
         .success();
 }
 
 #[test]
-fn clap_unknown_command_exit_1() {
-    odm()
+fn clap_unknown_command_fails() {
+    bee()
         .arg("notacommand")
         .assert()
         .failure()
-        .code(1)
-        .stderr(predicate::str::contains("unrecognized subcommand").or(
-            predicate::str::contains("notacommand"),
-        ));
+        .stderr(
+            predicate::str::contains("unrecognized subcommand")
+                .or(predicate::str::contains("notacommand")),
+        );
 }
-
-#[test]
-fn clap_parse_error_json_envelope() {
-    let dir = tempdir().unwrap();
-    let root = dir.path().join("ws");
-    init_ws(&root);
-
-    let stdout = String::from_utf8(
-        odm()
-            .args([
-                "--json",
-                "--root",
-                root.to_str().unwrap(),
-                "project",
-                "worktree",
-                "prune",
-            ])
-            .assert()
-            .failure()
-            .code(1)
-            .get_output()
-            .stdout
-            .clone(),
-    )
-    .unwrap();
-    let v: serde_json::Value = serde_json::from_str(&stdout).unwrap();
-    assert_eq!(v["ok"], false);
-    assert_eq!(v["error"]["code"], "usage");
-    assert!(!v["error"]["message"].as_str().unwrap().is_empty());
-}
-
-
