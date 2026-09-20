@@ -90,6 +90,8 @@ pub enum Commands {
 pub enum NoteCmd {
     NextId { kind: NoteKind },
     CheckIds,
+    Claim { id: String },
+    Status { id: String, status: String },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -149,7 +151,7 @@ pub enum PinCmd {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use clap::CommandFactory;
+    use clap::{CommandFactory, Parser};
 
     const UNION: &[&str] = &[
         "init", "sync", "pin", "status", "doctor", "project", "progen", "find", "context", "run",
@@ -215,6 +217,36 @@ mod tests {
             .collect();
         assert!(names.iter().any(|n| n == "next-id"), "{names:?}");
         assert!(names.iter().any(|n| n == "check-ids"), "{names:?}");
+    }
+
+    #[test]
+    fn note_help_lists_claim_and_status() {
+        let note = Cli::command().find_subcommand("note").unwrap().clone();
+        let names: Vec<String> = note
+            .get_subcommands()
+            .map(|c| c.get_name().to_string())
+            .collect();
+        assert!(names.iter().any(|n| n == "claim"), "{names:?}");
+        assert!(names.iter().any(|n| n == "status"), "{names:?}");
+    }
+
+    #[test]
+    fn status_rejects_id_args() {
+        assert!(Cli::try_parse_from(["bee", "status", "task-1", "claimed"]).is_err());
+    }
+
+    #[test]
+    fn note_status_takes_id_and_token() {
+        let cli = Cli::try_parse_from(["bee", "note", "status", "task-1", "claimed"]).unwrap();
+        match cli.command {
+            Commands::Note {
+                cmd: NoteCmd::Status { id, status },
+            } => {
+                assert_eq!(id, "task-1");
+                assert_eq!(status, "claimed");
+            }
+            other => panic!("{other:?}"),
+        }
     }
 
     #[test]

@@ -17,6 +17,7 @@ mod git_fixture;
 mod init;
 mod layout;
 mod note;
+mod note_write;
 mod ops;
 mod paths;
 mod pin;
@@ -170,6 +171,22 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     1
                 }
             },
+            NoteCmd::Claim { id } => match note_write::claim(root, &id, &note_write::iso_now()) {
+                Ok(_) => 0,
+                Err(e) => {
+                    eprintln!("{e}");
+                    1
+                }
+            },
+            NoteCmd::Status { id, status } => {
+                match note_write::set_status(root, &id, &status, &note_write::iso_now()) {
+                    Ok(_) => 0,
+                    Err(e) => {
+                        eprintln!("{e}");
+                        1
+                    }
+                }
+            }
         },
     }
 }
