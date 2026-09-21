@@ -31,37 +31,48 @@ pub fn resolve_wt_flags(flags: &[String]) -> Result<Option<String>, HiveError> {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
+    #[command(about = "Create Hive layout on disk")]
     Init,
+    #[command(about = "Fetch remotes without moving HEAD")]
     Sync {
         names: Vec<String>,
     },
+    #[command(about = "Record or apply checkout pins")]
     Pin {
         #[command(subcommand)]
         cmd: PinCmd,
     },
+    #[command(about = "Show Hive catalog status")]
     Status,
+    #[command(about = "Check Hive layout without fixing")]
     Doctor,
+    #[command(about = "Add or remove a named project")]
     Project {
         #[command(subcommand)]
         cmd: ProjectCmd,
     },
+    #[command(about = "Add a nested progen")]
     Progen {
         #[command(subcommand)]
         cmd: ProgenCmd,
     },
+    #[command(about = "Search catalog notes")]
     Find {
         query: Option<String>,
         #[arg(long, default_value_t = 200)]
         limit: usize,
     },
+    #[command(about = "Show note context by id")]
     Context {
         id: String,
     },
+    #[command(about = "Run a named action")]
     Run {
         action: Option<String>,
         #[arg(last = true)]
         extra: Vec<String>,
     },
+    #[command(about = "Copy a generator template")]
     Generate {
         name: Option<String>,
         #[arg(long, requires = "name")]
@@ -71,19 +82,25 @@ pub enum Commands {
         #[arg(long, requires = "name")]
         dry_run: bool,
     },
+    #[command(about = "Run one dest tick")]
     Once,
+    #[command(about = "Watch dest lanes until stop")]
     Watch {
         #[arg(long)]
         until_quiet: bool,
         #[arg(long)]
         until_target: Option<std::path::PathBuf>,
     },
+    #[command(about = "Explain dest skip reasons")]
     Explain,
+    #[command(about = "Garbage-collect dest scratch")]
     Gc,
+    #[command(about = "Add or inspect tracker notes")]
     Note {
         #[command(subcommand)]
         cmd: NoteCmd,
     },
+    #[command(about = "Read and write the docs vault")]
     Docs {
         #[arg(long, global = true)]
         vault: Option<String>,
@@ -313,6 +330,18 @@ mod tests {
         for verb in UNION {
             assert!(help.contains(verb), "missing {verb} in {help}");
         }
+    }
+
+    #[test]
+    fn help_has_git_style_about_lines() {
+        let help = help_text();
+        assert!(help.contains("Show Hive catalog status"), "{help}");
+        assert!(help.contains("Run one dest tick"), "{help}");
+        assert!(help.contains("Watch dest lanes until stop"), "{help}");
+        assert!(help.contains("Create Hive layout on disk"), "{help}");
+        assert!(help.contains("Add or inspect tracker notes"), "{help}");
+        assert!(help.contains("Read and write the docs vault"), "{help}");
+        assert!(!help.contains("verbs"), "{help}");
     }
 
     #[test]
