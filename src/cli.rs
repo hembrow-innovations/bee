@@ -1,12 +1,59 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use hive_core::HiveError;
 
+const SITUATION_HELP: &str = "\
+These are common Bee commands used in various situations:
+
+Hive layout:
+  init      Create Hive layout on disk
+  sync      Fetch remotes without moving HEAD
+  pin       Record or apply checkout pins
+  status    Show Hive catalog status
+  doctor    Check Hive layout without fixing
+  project   Add or remove a named project
+  progen    Add a nested progen
+  find      Search catalog notes
+  context   Show note context by id
+  run       Run a named action
+  generate  Copy a generator template
+
+dest lanes:
+  once      Run one dest tick
+  watch     Watch dest lanes until stop
+  explain   Explain dest skip reasons
+  gc        Garbage-collect dest scratch
+
+tracker notes:
+  note      Add or inspect tracker notes
+
+docs:
+  docs      Read and write the docs vault
+
+See 'bee <command> --help' to read about a specific command.
+";
+
+const HELP_TEMPLATE: &str = "\
+{about-with-newline}{usage-heading} {usage}
+
+Options:
+{options}
+
+{after-help}";
+
 #[derive(Debug, Parser)]
-#[command(name = "bee", version, about = "Rust CLI for a Hive.")]
+#[command(
+    name = "bee",
+    version,
+    about = "Rust CLI for a Hive.",
+    after_help = SITUATION_HELP,
+    help_template = HELP_TEMPLATE,
+    override_usage = "bee [--project=<PROJECT>] [--wt=<WT>] <command> [<args>]",
+    disable_help_subcommand = true
+)]
 pub struct Cli {
-    #[arg(long, global = true)]
+    #[arg(long, global = true, help = "Select a named project")]
     pub project: Option<String>,
-    #[arg(long, global = true, action = clap::ArgAction::Append)]
+    #[arg(long, global = true, action = clap::ArgAction::Append, help = "Select a worktree slot")]
     pub wt: Vec<String>,
     #[command(subcommand)]
     pub command: Commands,
@@ -344,6 +391,138 @@ mod tests {
         assert!(!help.contains("verbs"), "{help}");
     }
 
+    fn situation_rows<'a>(help: &'a str, heading: &str) -> Vec<&'a str> {
+        let mut iter = help.lines();
+        assert!(
+            iter.any(|line| {
+                line.trim()
+                    .trim_end_matches(':')
+                    .eq_ignore_ascii_case(heading)
+            }),
+            "missing situation heading {heading} in {help}"
+        );
+        iter.take_while(|line| {
+            let t = line.trim();
+            t.is_empty() || line.starts_with(' ') || line.starts_with('\t')
+        })
+        .filter(|line| !line.trim().is_empty())
+        .collect()
+    }
+
+    fn is_verb_about_row(line: &str, verb: &str, about: &str) -> bool {
+        let t = line.trim();
+        let Some(rest) = t.strip_prefix(verb) else {
+            return false;
+        };
+        rest.starts_with(char::is_whitespace) && rest.contains(about) && !t.contains(',')
+    }
+
+    #[test]
+    fn help_groups_porcelain_by_situation() {
+        let help = help_text();
+        assert!(
+            !help.lines().any(|line| line.trim() == "Commands:"),
+            "{help}"
+        );
+        assert!(!help.contains("init, sync"), "{help}");
+        for heading in ["Hive layout", "dest lanes", "tracker notes", "docs"] {
+            let found = help.lines().any(|line| {
+                line.trim()
+                    .trim_end_matches(':')
+                    .eq_ignore_ascii_case(heading)
+            });
+            assert!(found, "missing situation heading {heading} in {help}");
+        }
+        let layout = situation_rows(&help, "Hive layout");
+        assert!(
+            layout
+                .iter()
+                .any(|l| is_verb_about_row(l, "init", "Create Hive layout on disk")),
+            "{help}"
+        );
+        assert!(
+            layout
+                .iter()
+                .any(|l| is_verb_about_row(l, "status", "Show Hive catalog status")),
+            "{help}"
+        );
+        let lanes = situation_rows(&help, "dest lanes");
+        assert!(
+            lanes
+                .iter()
+                .any(|l| is_verb_about_row(l, "once", "Run one dest tick")),
+            "{help}"
+        );
+        let notes = situation_rows(&help, "tracker notes");
+        assert!(
+            notes
+                .iter()
+                .any(|l| is_verb_about_row(l, "note", "Add or inspect tracker notes")),
+            "{help}"
+        );
+        let docs = situation_rows(&help, "docs");
+        assert!(
+            docs.iter()
+                .any(|l| is_verb_about_row(l, "docs", "Read and write the docs vault")),
+            "{help}"
+        );
+        for row in &docs {
+            assert!(
+                is_verb_about_row(row, "docs", "Read and write the docs vault"),
+                "docs group must be verb-plus-about only: {row} in {help}"
+            );
+            for flag in ["--project", "--wt", "-h", "-V"] {
+                assert!(!row.contains(flag), "{flag} under docs in {help}");
+            }
+        }
+        let options_at = help.lines().position(|line| {
+            let trimmed = line.trim();
+            line == trimmed
+                && trimmed
+                    .trim_end_matches(':')
+                    .eq_ignore_ascii_case("Options")
+        });
+        let hive_at = help.lines().position(|line| {
+            line.trim()
+                .trim_end_matches(':')
+                .eq_ignore_ascii_case("Hive layout")
+        });
+        assert!(
+            options_at.is_some() && hive_at.is_some() && options_at < hive_at,
+            "Options must be its own block before situation groups: {help}"
+        );
+        for row in layout
+            .iter()
+            .chain(&lanes)
+            .chain(&notes)
+            .chain(&docs)
+        {
+            assert!(!row.contains(','), "csv dump in situation rows: {help}");
+        }
+    }
+
+    #[test]
+    fn help_does_not_lead_with_flat_commands_list() {
+        let help = help_text();
+        assert!(
+            !help.lines().any(|line| line.trim() == "Commands:"),
+            "{help}"
+        );
+        let hive = help
+            .lines()
+            .position(|line| {
+                line.trim()
+                    .trim_end_matches(':')
+                    .eq_ignore_ascii_case("Hive layout")
+            })
+            .expect(&help);
+        let usage = help
+            .lines()
+            .position(|line| line.trim().starts_with("Usage:"))
+            .expect(&help);
+        assert!(usage < hive, "{help}");
+    }
+
     #[test]
     fn project_rm_matches_queen_argv() {
         let cli = Cli::try_parse_from(["bee", "project", "rm", "alpha"]).unwrap();
@@ -378,6 +557,83 @@ mod tests {
         let help = help_text();
         assert!(help.contains("--project"), "{help}");
         assert!(help.contains("--wt"), "{help}");
+    }
+
+    #[test]
+    fn help_usage_lists_project_and_wt_like_git() {
+        let help = help_text();
+        let usage = help
+            .lines()
+            .find(|line| line.trim().starts_with("Usage:"))
+            .expect(&help);
+        assert!(usage.contains("--project"), "{help}");
+        assert!(usage.contains("--wt"), "{help}");
+        assert!(!usage.contains("[OPTIONS]"), "{help}");
+    }
+
+    #[test]
+    fn help_has_situation_intro_before_grouped_verbs() {
+        let help = help_text();
+        let intro = help.lines().position(|line| {
+            line.contains("common Bee commands used in various situations")
+        });
+        let usage = help
+            .lines()
+            .position(|line| line.trim().starts_with("Usage:"));
+        let hive = help.lines().position(|line| {
+            line.trim()
+                .trim_end_matches(':')
+                .eq_ignore_ascii_case("Hive layout")
+        });
+        assert!(
+            intro.is_some()
+                && usage.is_some()
+                && hive.is_some()
+                && usage.unwrap() < intro.unwrap()
+                && intro.unwrap() < hive.unwrap(),
+            "{help}"
+        );
+    }
+
+    #[test]
+    fn help_has_command_help_footer() {
+        let help = help_text();
+        let foot = help.lines().position(|line| {
+            line.contains("bee <command> --help") || line.contains("bee help <command>")
+        });
+        let hive = help.lines().position(|line| {
+            line.trim()
+                .trim_end_matches(':')
+                .eq_ignore_ascii_case("Hive layout")
+        });
+        assert!(
+            foot.is_some() && hive.is_some() && foot.unwrap() > hive.unwrap(),
+            "{help}"
+        );
+    }
+
+    #[test]
+    fn help_project_and_wt_have_nonempty_abouts() {
+        let help = help_text();
+        for flag in ["--project", "--wt"] {
+            let row = help
+                .lines()
+                .find(|line| line.contains(flag))
+                .unwrap_or_else(|| panic!("missing {flag} in {help}"));
+            let after = row
+                .splitn(2, flag)
+                .nth(1)
+                .unwrap_or("")
+                .trim_start_matches(|c: char| {
+                    c.is_whitespace()
+                        || c == '<'
+                        || c == '>'
+                        || c.is_ascii_uppercase()
+                        || c == '_'
+                })
+                .trim();
+            assert!(!after.is_empty(), "{flag} about empty in {row} of {help}");
+        }
     }
 
     #[test]
