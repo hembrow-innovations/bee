@@ -8,8 +8,10 @@ pub fn run_watch(
     cwd: &Path,
     until_quiet: bool,
     until_target: Option<&Path>,
+    max_spawns: Option<u64>,
     sleep: Duration,
 ) -> Result<u8, String> {
+    let mut spawned = 0u64;
     loop {
         if let Some(target) = until_target {
             if cwd.join(target).exists() || target.exists() {
@@ -19,7 +21,9 @@ pub fn run_watch(
         if cwd.join(".hivemind/STOP").is_file() {
             return Ok(0);
         }
-        let (code, n) = run_tick(cwd)?;
+        let remaining = max_spawns.map(|n| n.saturating_sub(spawned));
+        let (code, n) = run_tick(cwd, remaining)?;
+        spawned = spawned.saturating_add(n as u64);
         if until_quiet && n == 0 {
             return Ok(code);
         }
@@ -28,8 +32,9 @@ pub fn run_watch(
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
+    use clap::Parser;
     use std::fs;
     use tempfile::tempdir;
 
@@ -48,7 +53,7 @@ mod tests {
         let dir = tempdir().unwrap();
         empty_cfg(dir.path());
         assert_eq!(
-            run_watch(dir.path(), true, None, Duration::from_millis(1)).unwrap(),
+            run_watch(dir.path(), true, None, None, Duration::from_millis(1)).unwrap(),
             0
         );
     }
@@ -64,7 +69,7 @@ mod tests {
             fs::write(&stop2, "").unwrap();
         });
         assert_eq!(
-            run_watch(dir.path(), false, None, Duration::from_millis(5)).unwrap(),
+            run_watch(dir.path(), false, None, None, Duration::from_millis(5)).unwrap(),
             0
         );
         assert!(stop.is_file());
@@ -80,10 +85,38 @@ mod tests {
                 dir.path(),
                 false,
                 Some(Path::new("done")),
+                None,
                 Duration::from_millis(1)
             )
             .unwrap(),
             0
         );
+    }
+
+    #[test]
+    pub(crate) fn watch_max_spawns_stops_new_claims() {
+        println!("hivemind.cli:max-spawns");
+        assert!(crate::cli::Cli::try_parse_from(["bee", "watch", "--max-spawns"]).is_err());
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+        fs::create_dir_all(root.join(".hivemind")).unwrap();
+        fs::create_dir_all(root.join("inbox")).unwrap();
+        fs::write(
+            root.join(".hivemind/hivemind.yaml"),
+            "folders:\n  - path: inbox\n    schema:\n      id: string\n      status: string\n    required: [id, status]\n  - path: quarantine\n    schema: quarantine\nlanes:\n  work:\n    type: single\n    trigger:\n      status: ready\n    claim-status: claimed\n    cmd: [\"true\"]\n",
+        )
+        .unwrap();
+        fs::write(root.join("inbox/a.md"), "---\nid: a\nstatus: ready\n---\n").unwrap();
+        fs::write(root.join("inbox/b.md"), "---\nid: b\nstatus: ready\n---\n").unwrap();
+        let max_spawns = Some(1);
+        assert_eq!(
+            run_watch(root, true, None, max_spawns, Duration::from_millis(1)).unwrap(),
+            0
+        );
+        let a = fs::read_to_string(root.join("inbox/a.md")).unwrap();
+        let b = fs::read_to_string(root.join("inbox/b.md")).unwrap();
+        assert!(a.contains("claimed-by:"), "{a}");
+        assert!(b.contains("status: ready"), "{b}");
+        assert!(!b.contains("claimed-by"), "{b}");
     }
 }

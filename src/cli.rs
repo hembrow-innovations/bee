@@ -130,13 +130,18 @@ pub enum Commands {
         dry_run: bool,
     },
     #[command(about = "Run one dest tick")]
-    Once,
+    Once {
+        #[arg(long)]
+        dry_run: bool,
+    },
     #[command(about = "Watch dest lanes until stop")]
     Watch {
         #[arg(long)]
         until_quiet: bool,
         #[arg(long)]
         until_target: Option<std::path::PathBuf>,
+        #[arg(long)]
+        max_spawns: Option<u64>,
     },
     #[command(about = "Explain dest skip reasons")]
     Explain,

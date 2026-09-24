@@ -109,17 +109,31 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             force,
             dry_run,
         } => hive_exit(hive::ops::generate(root, name, dest, force, dry_run)),
-        Commands::Once => match dest::run_once(root) {
-            Ok(code) => code,
-            Err(_) => 1,
-        },
+        Commands::Once { dry_run } => {
+            if dry_run {
+                match dest::dry_run(root) {
+                    Ok(text) => {
+                        print!("{text}");
+                        0
+                    }
+                    Err(_) => 1,
+                }
+            } else {
+                match dest::run_once(root) {
+                    Ok(code) => code,
+                    Err(_) => 1,
+                }
+            }
+        }
         Commands::Watch {
             until_quiet,
             until_target,
+            max_spawns,
         } => match dest::run_watch(
             root,
             until_quiet,
             until_target.as_deref(),
+            max_spawns,
             std::time::Duration::from_millis(200),
         ) {
             Ok(code) => code,
@@ -200,4 +214,10 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             }
         },
     }
+}
+
+#[cfg(test)]
+#[test]
+fn watch_max_spawns_stops_new_claims() {
+    dest::watch::tests::watch_max_spawns_stops_new_claims();
 }

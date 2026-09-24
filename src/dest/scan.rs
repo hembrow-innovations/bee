@@ -170,7 +170,7 @@ fn unknown_key(map: &YamlMap, folder: &FolderEntry) -> Result<Option<String>, St
         let Some(k) = key.as_str() else {
             continue;
         };
-        if k == "claimed-at" {
+        if k == "claimed-at" || k == "claimed-by" {
             continue;
         }
         if !allowed.contains(k) {

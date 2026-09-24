@@ -22,23 +22,28 @@ use self::scan::{scan, ScanResult};
 
 pub use config::{lookup_notes, NotesDirs};
 pub use explain::{explain, gc};
-pub use once::run_once;
+pub use once::{dry_run, run_once};
 pub use watch::run_watch;
 
 pub fn scan_match_claim(
     cwd: &Path,
     run_id: &str,
     at: &str,
+    max_spawns: Option<u64>,
 ) -> Result<(ScanResult, Vec<Match>, usize), String> {
     let config = load_dest_config(cwd)?;
     let scanned = scan(cwd, &config, at, false)?;
     let found = match_notes(&config.lanes, &scanned.notes, &config.disable, Some(cwd));
     let mut claimed = 0;
+    let mut slots = 0u64;
     let mut taken: BTreeMap<String, u64> = BTreeMap::new();
     let mut matches = Vec::new();
     for m in found {
         if m.lane.cmds.is_empty() {
             matches.push(m);
+            continue;
+        }
+        if max_spawns.is_some_and(|cap| slots >= cap) {
             continue;
         }
         if let Some(&cap) = config.concurrency.get(&m.lane.lane) {
@@ -57,6 +62,7 @@ pub fn scan_match_claim(
         if claim(&m.note.abs, &trigger, &m.lane.claim_status, run_id, at) == ClaimResult::Claimed {
             claimed += 1;
         }
+        slots += 1;
         matches.push(m);
     }
     Ok((scanned, matches, claimed))
@@ -80,12 +86,12 @@ mod tests {
         .unwrap();
         fs::create_dir_all(root.join("inbox")).unwrap();
         fs::write(root.join("inbox/n.md"), "---\nid: a\nstatus: ready\n---\nbody\n").unwrap();
-        let (_, matches, claimed) = scan_match_claim(root, "run-1", "t").unwrap();
+        let (_, matches, claimed) = scan_match_claim(root, "run-1", "t", None).unwrap();
         assert_eq!(matches.len(), 1);
         assert_eq!(claimed, 1);
         let text = fs::read_to_string(root.join("inbox/n.md")).unwrap();
         assert!(text.contains("claimed-by: run-1"));
-        let (_, _, claimed2) = scan_match_claim(root, "run-2", "t").unwrap();
+        let (_, _, claimed2) = scan_match_claim(root, "run-2", "t", None).unwrap();
         assert_eq!(claimed2, 0);
     }
 
@@ -119,7 +125,7 @@ mod tests {
         );
         note(root, "a.md", "a", "ready");
         note(root, "b.md", "b", "ready");
-        let (_, matches, claimed) = scan_match_claim(root, "run-1", "t").unwrap();
+        let (_, matches, claimed) = scan_match_claim(root, "run-1", "t", None).unwrap();
         assert_eq!(claimed, 1);
         assert_eq!(matches.len(), 1);
         let a = fs::read_to_string(root.join("inbox/a.md")).unwrap();
@@ -127,7 +133,7 @@ mod tests {
         assert!(a.contains("claimed-by: run-1"), "{a}");
         assert!(b.contains("status: ready"), "{b}");
         assert!(!b.contains("claimed-by"), "{b}");
-        let (_, matches2, claimed2) = scan_match_claim(root, "run-2", "t2").unwrap();
+        let (_, matches2, claimed2) = scan_match_claim(root, "run-2", "t2", None).unwrap();
         assert_eq!(claimed2, 1);
         assert_eq!(matches2.len(), 1);
         let b2 = fs::read_to_string(root.join("inbox/b.md")).unwrap();
@@ -144,7 +150,7 @@ mod tests {
         );
         note(root, "a.md", "a", "ready");
         note(root, "b.md", "b", "ready");
-        let (_, matches, claimed) = scan_match_claim(root, "run-1", "t").unwrap();
+        let (_, matches, claimed) = scan_match_claim(root, "run-1", "t", None).unwrap();
         assert_eq!(claimed, 2);
         assert_eq!(matches.len(), 2);
     }
@@ -158,7 +164,7 @@ mod tests {
             "  work:\n    type: single\n    concurrency: 1\n    trigger:\n      status: ready\n    claim-status: claimed\n",
         );
         note(root, "a.md", "a", "ready");
-        let (_, matches, claimed) = scan_match_claim(root, "run-1", "t").unwrap();
+        let (_, matches, claimed) = scan_match_claim(root, "run-1", "t", None).unwrap();
         assert_eq!(claimed, 0);
         assert_eq!(matches.len(), 1);
         let text = fs::read_to_string(root.join("inbox/a.md")).unwrap();
@@ -176,7 +182,7 @@ mod tests {
         );
         note(root, "a.md", "a", "ready");
         note(root, "b.md", "b", "queued");
-        let (_, _, claimed) = scan_match_claim(root, "run-1", "t").unwrap();
+        let (_, _, claimed) = scan_match_claim(root, "run-1", "t", None).unwrap();
         assert_eq!(claimed, 2);
     }
 }
