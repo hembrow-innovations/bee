@@ -30,9 +30,16 @@ pub fn parse_front_matter(raw: &str) -> ParseFrontMatter {
 }
 
 pub fn quarantine_note(abs: &Path, dest_dir: &Path, origin: &str, fault: &str, at: &str) {
+    if !abs.is_file() {
+        return;
+    }
     fs::create_dir_all(dest_dir).unwrap();
     let dest = dest_dir.join(abs.file_name().unwrap());
-    fs::rename(abs, &dest).unwrap();
+    match fs::rename(abs, &dest) {
+        Ok(()) => {}
+        Err(err) if err.kind() == ErrorKind::NotFound => return,
+        Err(err) => panic!("{err}"),
+    }
     fs::write(
         &dest,
         format!("---\norigin-location: {origin}\nquarantined-at: {at}\nfault: {fault}\n---\n"),
@@ -183,6 +190,15 @@ mod tests {
             parse_front_matter("---\nid: a\n"),
             ParseFrontMatter::Fault("parse-error")
         ));
+    }
+
+    #[test]
+    fn quarantine_missing_source_does_not_panic() {
+        let dir = tempdir().unwrap();
+        let src = dir.path().join("gone.md");
+        let q = dir.path().join("q");
+        quarantine_note(&src, &q, "gone.md", "parse-error", "t");
+        assert!(!q.join("gone.md").exists());
     }
 
     #[test]
