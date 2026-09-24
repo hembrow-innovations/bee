@@ -16,6 +16,7 @@ const NOTES_KEYS: &[&str] = &["planning", "archive", "tickets", "quarantine", "l
 pub struct DestConfig {
     pub folders: Vec<Value>,
     pub lanes: Vec<Lane>,
+    pub concurrency: BTreeMap<String, u64>,
     pub disable: Vec<String>,
     pub watch: Option<Vec<String>>,
     pub history: Option<String>,
@@ -78,7 +79,7 @@ pub fn load_dest_config(cwd: &Path) -> Result<DestConfig, String> {
         None => vec![],
         _ => return Err("folders must be a list".into()),
     };
-    let lanes = parse_lanes(map.get(Value::String("lanes".into())))?;
+    let (lanes, concurrency) = parse_lanes(map.get(Value::String("lanes".into())))?;
     let disable = parse_string_list(map.get(Value::String("disable".into())))?;
     let watch = match map.get(Value::String("watch".into())) {
         None => None,
@@ -92,6 +93,7 @@ pub fn load_dest_config(cwd: &Path) -> Result<DestConfig, String> {
     Ok(DestConfig {
         folders,
         lanes,
+        concurrency,
         disable,
         watch,
         history,
@@ -161,7 +163,7 @@ fn hive_rel(root: &Path, rel: &str) -> Result<PathBuf, String> {
     Ok(root.join(p))
 }
 
-fn parse_lanes(value: Option<&Value>) -> Result<Vec<Lane>, String> {
+fn parse_lanes(value: Option<&Value>) -> Result<(Vec<Lane>, BTreeMap<String, u64>), String> {
     let Some(value) = value else {
         return Err("\"lanes\" is required".into());
     };
@@ -172,6 +174,7 @@ fn parse_lanes(value: Option<&Value>) -> Result<Vec<Lane>, String> {
         return Err("\"lanes\" must be a map".into());
     };
     let mut lanes = Vec::new();
+    let mut concurrency = BTreeMap::new();
     for (k, item) in map {
         let id = k.as_str().ok_or("lane id is required")?.to_string();
         if id.is_empty() {
@@ -200,7 +203,10 @@ fn parse_lanes(value: Option<&Value>) -> Result<Vec<Lane>, String> {
             .and_then(Value::as_str)
             .unwrap_or("claimed")
             .to_string();
-        let cmds = parse_cmds(type_, item)?;
+        let cmds = parse_cmds(type_, &item)?;
+        if let Some(cap) = parse_concurrency(&id, &item)? {
+            concurrency.insert(id.clone(), cap);
+        }
         lanes.push(Lane {
             lane: id,
             trigger,
@@ -209,7 +215,19 @@ fn parse_lanes(value: Option<&Value>) -> Result<Vec<Lane>, String> {
             cmds,
         });
     }
-    Ok(lanes)
+    Ok((lanes, concurrency))
+}
+
+fn parse_concurrency(id: &str, item: &serde_yaml::Mapping) -> Result<Option<u64>, String> {
+    let Some(value) = item.get(Value::String("concurrency".into())) else {
+        return Ok(None);
+    };
+    match value.as_u64() {
+        Some(n) if n > 0 => Ok(Some(n)),
+        _ => Err(format!(
+            "lane \"{id}\" concurrency must be a positive integer"
+        )),
+    }
 }
 
 fn parse_cmds(type_: &str, item: &serde_yaml::Mapping) -> Result<Vec<CmdSpec>, String> {
@@ -393,5 +411,33 @@ mod tests {
         write_yaml(dir.path(), "lanes: {}\n");
         let err = lookup_notes(dir.path()).unwrap_err();
         assert!(err.contains("notes.planning"), "{err}");
+    }
+
+    #[test]
+    fn concurrency_zero_fails_load() {
+        let dir = tempdir().unwrap();
+        write_yaml(
+            dir.path(),
+            "lanes:\n  work:\n    type: single\n    concurrency: 0\n    trigger:\n      status: ready\n",
+        );
+        let err = load_dest_config(dir.path()).unwrap_err();
+        assert!(
+            err.contains("lane \"work\" concurrency must be a positive integer"),
+            "{err}"
+        );
+    }
+
+    #[test]
+    fn concurrency_non_integer_fails_load() {
+        let dir = tempdir().unwrap();
+        write_yaml(
+            dir.path(),
+            "lanes:\n  work:\n    type: single\n    concurrency: 1.5\n    trigger:\n      status: ready\n",
+        );
+        let err = load_dest_config(dir.path()).unwrap_err();
+        assert!(
+            err.contains("lane \"work\" concurrency must be a positive integer"),
+            "{err}"
+        );
     }
 }
