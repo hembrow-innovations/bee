@@ -15,11 +15,3 @@ dist/
 .DS_Store
 .idea/
 .vscode/
-
-hivemind/node_modules/
-hivemind/dist/
-hivemind/build/
-hivemind/coverage/
-hivemind/out/
-hivemind/*.tsbuildinfo
-hivemind/.cache/
