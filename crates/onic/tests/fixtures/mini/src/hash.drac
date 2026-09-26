@@ -1,0 +1,38 @@
+function encodePassword() {}
+
+function hashPassword() {
+  encodePassword(); hasher.digest(); factory()(); dracTag`x`;
+}
+
+extern "C" function nativeHash();
+
+type HashBuf = i32;
+
+class PasswordHasher {
+  static {
+    class Salt {
+      encode() {}
+    }
+  }
+}
+void (() => {});
+function runDracInstance() {
+  const hasher = new PasswordHasher();
+  hasher();
+}
+const moduleHasher = new PasswordHasher();
+function runDracModuleInstance() {
+  moduleHasher();
+}
+class DracHasherBox {
+  constructor() {}
+  box = new PasswordHasher();
+  runDracClassInstance() {
+    box();
+  }
+}
+void box();
+function runDracExtern() {
+  nativeHash();
+}
+const api = { hash() {} };

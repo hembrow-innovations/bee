@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>onic</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header>
+      <form id="filters">
+        <input id="q" name="q" type="search" placeholder="Search nodes" autocomplete="off" />
+        <input id="seed" name="seed" type="text" placeholder="Seed name or id" />
+        <label>hops <input id="hops" name="hops" type="number" min="0" max="3" value="1" /></label>
+        <label>limit <input id="limit" name="limit" type="number" min="1" max="500" value="200" /></label>
+        <fieldset id="kinds"></fieldset>
+        <button type="submit">Load</button>
+      </form>
+      <p id="status">Type a search or seed. Load with no filter shows a capped slice, not the database file.</p>
+    </header>
+    <main>
+      <canvas id="graph" width="1200" height="720"></canvas>
+      <aside id="detail">
+        <div id="detail-head">
+          <h2 id="detail-title">Node</h2>
+          <button type="button" id="detail-mode" hidden>Raw</button>
+        </div>
+        <p id="detail-empty">Select a node.</p>
+        <div id="detail-styled" hidden>
+          <dl>
+            <dt>Kind</dt>
+            <dd id="d-kind"></dd>
+            <dt>Name</dt>
+            <dd id="d-name"></dd>
+            <dt>File</dt>
+            <dd id="d-file"></dd>
+            <dt>Lines</dt>
+            <dd id="d-lines"></dd>
+          </dl>
+          <h3>Body</h3>
+          <pre id="d-body"></pre>
+          <h3>Edges</h3>
+          <ul id="d-edges"></ul>
+        </div>
+        <pre id="node-json" hidden></pre>
+      </aside>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+import { hashPassword, PasswordHasher } from "./hash.drac";
+import { hashPassword as hashPasswordPkg } from "example.com/mini/src/hash";
+import { dracAuthIndex } from "./auth";
+
+function runDracImported() {
+  PasswordHasher();
+}
+function runDracImportedMiss() {
+  missingDracImported();
+}

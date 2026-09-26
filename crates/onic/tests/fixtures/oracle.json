@@ -1,0 +1,4346 @@
+{
+  "nodes": [
+    {
+      "id": "comment:src/auth.ts:3",
+      "kind": "comment",
+      "name": "why@src/auth.ts:3",
+      "file_path": "src/auth.ts",
+      "start_line": 3,
+      "end_line": 4,
+      "body": "Sessions live on the server so they can be revoked."
+    },
+    {
+      "id": "doc:README.md",
+      "kind": "doc",
+      "name": "README",
+      "file_path": "README.md",
+      "start_line": 1,
+      "end_line": 4,
+      "body": "# Mini\n\nFixture project for onic tests."
+    },
+    {
+      "id": "doc:docs/auth.md",
+      "kind": "doc",
+      "name": "Auth",
+      "file_path": "docs/auth.md",
+      "start_line": 1,
+      "end_line": 12,
+      "body": "# Login\n\nSee [[SessionStore]] and [session notes](./session.md#session-store).\n\nA missing name stays [[MissingStore]]."
+    },
+    {
+      "id": "doc:docs/session.md",
+      "kind": "doc",
+      "name": "SessionStore",
+      "file_path": "docs/session.md",
+      "start_line": 1,
+      "end_line": 9,
+      "body": "# Session store\n\nUsed by [[login]]."
+    },
+    {
+      "id": "file:README.md",
+      "kind": "file",
+      "name": "README.md",
+      "file_path": "README.md",
+      "start_line": 1,
+      "end_line": 4,
+      "body": null
+    },
+    {
+      "id": "file:docs/auth.md",
+      "kind": "file",
+      "name": "auth.md",
+      "file_path": "docs/auth.md",
+      "start_line": 1,
+      "end_line": 12,
+      "body": null
+    },
+    {
+      "id": "file:docs/session.md",
+      "kind": "file",
+      "name": "session.md",
+      "file_path": "docs/session.md",
+      "start_line": 1,
+      "end_line": 9,
+      "body": null
+    },
+    {
+      "id": "file:src/auth.ts",
+      "kind": "file",
+      "name": "auth.ts",
+      "file_path": "src/auth.ts",
+      "start_line": 1,
+      "end_line": 56,
+      "body": null
+    },
+    {
+      "id": "file:src/auth/index.drac",
+      "kind": "file",
+      "name": "index.drac",
+      "file_path": "src/auth/index.drac",
+      "start_line": 1,
+      "end_line": 2,
+      "body": null
+    },
+    {
+      "id": "file:src/barrel.drac",
+      "kind": "file",
+      "name": "barrel.drac",
+      "file_path": "src/barrel.drac",
+      "start_line": 1,
+      "end_line": 2,
+      "body": null
+    },
+    {
+      "id": "file:src/barrel.ts",
+      "kind": "file",
+      "name": "barrel.ts",
+      "file_path": "src/barrel.ts",
+      "start_line": 1,
+      "end_line": 3,
+      "body": null
+    },
+    {
+      "id": "file:src/check.drac",
+      "kind": "file",
+      "name": "check.drac",
+      "file_path": "src/check.drac",
+      "start_line": 1,
+      "end_line": 11,
+      "body": null
+    },
+    {
+      "id": "file:src/check.py",
+      "kind": "file",
+      "name": "check.py",
+      "file_path": "src/check.py",
+      "start_line": 1,
+      "end_line": 10,
+      "body": null
+    },
+    {
+      "id": "file:src/check.rs",
+      "kind": "file",
+      "name": "check.rs",
+      "file_path": "src/check.rs",
+      "start_line": 1,
+      "end_line": 3,
+      "body": null
+    },
+    {
+      "id": "file:src/doc.go",
+      "kind": "file",
+      "name": "doc.go",
+      "file_path": "src/doc.go",
+      "start_line": 1,
+      "end_line": 2,
+      "body": null
+    },
+    {
+      "id": "file:src/encode/doc.go",
+      "kind": "file",
+      "name": "doc.go",
+      "file_path": "src/encode/doc.go",
+      "start_line": 1,
+      "end_line": 2,
+      "body": null
+    },
+    {
+      "id": "file:src/encode/encode.go",
+      "kind": "file",
+      "name": "encode.go",
+      "file_path": "src/encode/encode.go",
+      "start_line": 1,
+      "end_line": 6,
+      "body": null
+    },
+    {
+      "id": "file:src/encode/internal/secret/secret.go",
+      "kind": "file",
+      "name": "secret.go",
+      "file_path": "src/encode/internal/secret/secret.go",
+      "start_line": 1,
+      "end_line": 2,
+      "body": null
+    },
+    {
+      "id": "file:src/hash.drac",
+      "kind": "file",
+      "name": "hash.drac",
+      "file_path": "src/hash.drac",
+      "start_line": 1,
+      "end_line": 39,
+      "body": null
+    },
+    {
+      "id": "file:src/hash.go",
+      "kind": "file",
+      "name": "hash.go",
+      "file_path": "src/hash.go",
+      "start_line": 1,
+      "end_line": 55,
+      "body": null
+    },
+    {
+      "id": "file:src/hash.py",
+      "kind": "file",
+      "name": "hash.py",
+      "file_path": "src/hash.py",
+      "start_line": 1,
+      "end_line": 304,
+      "body": null
+    },
+    {
+      "id": "file:src/hash.rs",
+      "kind": "file",
+      "name": "hash.rs",
+      "file_path": "src/hash.rs",
+      "start_line": 1,
+      "end_line": 55,
+      "body": null
+    },
+    {
+      "id": "file:src/lib.rs",
+      "kind": "file",
+      "name": "lib.rs",
+      "file_path": "src/lib.rs",
+      "start_line": 1,
+      "end_line": 15,
+      "body": null
+    },
+    {
+      "id": "file:src/mod/index.ts",
+      "kind": "file",
+      "name": "index.ts",
+      "file_path": "src/mod/index.ts",
+      "start_line": 1,
+      "end_line": 2,
+      "body": null
+    },
+    {
+      "id": "file:src/other.ts",
+      "kind": "file",
+      "name": "other.ts",
+      "file_path": "src/other.ts",
+      "start_line": 1,
+      "end_line": 2,
+      "body": null
+    },
+    {
+      "id": "file:src/password.go",
+      "kind": "file",
+      "name": "password.go",
+      "file_path": "src/password.go",
+      "start_line": 1,
+      "end_line": 4,
+      "body": null
+    },
+    {
+      "id": "file:src/session.ts",
+      "kind": "file",
+      "name": "session.ts",
+      "file_path": "src/session.ts",
+      "start_line": 1,
+      "end_line": 29,
+      "body": null
+    },
+    {
+      "id": "file:src/side/side.go",
+      "kind": "file",
+      "name": "side.go",
+      "file_path": "src/side/side.go",
+      "start_line": 1,
+      "end_line": 5,
+      "body": null
+    },
+    {
+      "id": "file:src/view.tsx",
+      "kind": "file",
+      "name": "view.tsx",
+      "file_path": "src/view.tsx",
+      "start_line": 1,
+      "end_line": 4,
+      "body": null
+    },
+    {
+      "id": "heading:README.md#mini",
+      "kind": "heading",
+      "name": "Mini",
+      "file_path": "README.md",
+      "start_line": 1,
+      "end_line": 1,
+      "body": "Mini"
+    },
+    {
+      "id": "heading:docs/auth.md#login",
+      "kind": "heading",
+      "name": "Login",
+      "file_path": "docs/auth.md",
+      "start_line": 7,
+      "end_line": 7,
+      "body": "Login"
+    },
+    {
+      "id": "heading:docs/session.md#session-store",
+      "kind": "heading",
+      "name": "Session store",
+      "file_path": "docs/session.md",
+      "start_line": 6,
+      "end_line": 6,
+      "body": "Session store"
+    },
+    {
+      "id": "symbol:src/auth.ts#HasherBox",
+      "kind": "symbol",
+      "name": "HasherBox",
+      "file_path": "src/auth.ts",
+      "start_line": 36,
+      "end_line": 43,
+      "body": null
+    },
+    {
+      "id": "symbol:src/auth.ts#HasherBox.runClassInstance",
+      "kind": "symbol",
+      "name": "HasherBox.runClassInstance",
+      "file_path": "src/auth.ts",
+      "start_line": 39,
+      "end_line": 42,
+      "body": null
+    },
+    {
+      "id": "symbol:src/auth.ts#api.hash",
+      "kind": "symbol",
+      "name": "api.hash",
+      "file_path": "src/auth.ts",
+      "start_line": 22,
+      "end_line": 22,
+      "body": null
+    },
+    {
+      "id": "symbol:src/auth.ts#login",
+      "kind": "symbol",
+      "name": "login",
+      "file_path": "src/auth.ts",
+      "start_line": 5,
+      "end_line": 10,
+      "body": null
+    },
+    {
+      "id": "symbol:src/auth.ts#runComputedSave",
+      "kind": "symbol",
+      "name": "runComputedSave",
+      "file_path": "src/auth.ts",
+      "start_line": 12,
+      "end_line": 15,
+      "body": null
+    },
+    {
+      "id": "symbol:src/auth.ts#runImported",
+      "kind": "symbol",
+      "name": "runImported",
+      "file_path": "src/auth.ts",
+      "start_line": 48,
+      "end_line": 50,
+      "body": null
+    },
+    {
+      "id": "symbol:src/auth.ts#runImportedMiss",
+      "kind": "symbol",
+      "name": "runImportedMiss",
+      "file_path": "src/auth.ts",
+      "start_line": 52,
+      "end_line": 55,
+      "body": null
+    },
+    {
+      "id": "symbol:src/auth.ts#runInstance",
+      "kind": "symbol",
+      "name": "runInstance",
+      "file_path": "src/auth.ts",
+      "start_line": 24,
+      "end_line": 28,
+      "body": null
+    },
+    {
+      "id": "symbol:src/auth.ts#runModuleInstance",
+      "kind": "symbol",
+      "name": "runModuleInstance",
+      "file_path": "src/auth.ts",
+      "start_line": 32,
+      "end_line": 34,
+      "body": null
+    },
+    {
+      "id": "symbol:src/auth.ts#runNestedCall",
+      "kind": "symbol",
+      "name": "runNestedCall",
+      "file_path": "src/auth.ts",
+      "start_line": 17,
+      "end_line": 20,
+      "body": null
+    },
+    {
+      "id": "symbol:src/check.drac#runDracImported",
+      "kind": "symbol",
+      "name": "runDracImported",
+      "file_path": "src/check.drac",
+      "start_line": 5,
+      "end_line": 7,
+      "body": null
+    },
+    {
+      "id": "symbol:src/check.drac#runDracImportedMiss",
+      "kind": "symbol",
+      "name": "runDracImportedMiss",
+      "file_path": "src/check.drac",
+      "start_line": 8,
+      "end_line": 10,
+      "body": null
+    },
+    {
+      "id": "symbol:src/check.py#run_imported",
+      "kind": "symbol",
+      "name": "run_imported",
+      "file_path": "src/check.py",
+      "start_line": 6,
+      "end_line": 6,
+      "body": null
+    },
+    {
+      "id": "symbol:src/check.py#run_imported_miss",
+      "kind": "symbol",
+      "name": "run_imported_miss",
+      "file_path": "src/check.py",
+      "start_line": 9,
+      "end_line": 9,
+      "body": null
+    },
+    {
+      "id": "symbol:src/encode/encode.go#Encode",
+      "kind": "symbol",
+      "name": "Encode",
+      "file_path": "src/encode/encode.go",
+      "start_line": 5,
+      "end_line": 5,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#DracHasherBox",
+      "kind": "symbol",
+      "name": "DracHasherBox",
+      "file_path": "src/hash.drac",
+      "start_line": 27,
+      "end_line": 33,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#DracHasherBox.constructor",
+      "kind": "symbol",
+      "name": "DracHasherBox.constructor",
+      "file_path": "src/hash.drac",
+      "start_line": 28,
+      "end_line": 28,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#DracHasherBox.runDracClassInstance",
+      "kind": "symbol",
+      "name": "DracHasherBox.runDracClassInstance",
+      "file_path": "src/hash.drac",
+      "start_line": 30,
+      "end_line": 32,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#HashBuf",
+      "kind": "symbol",
+      "name": "HashBuf",
+      "file_path": "src/hash.drac",
+      "start_line": 9,
+      "end_line": 9,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#PasswordHasher",
+      "kind": "symbol",
+      "name": "PasswordHasher",
+      "file_path": "src/hash.drac",
+      "start_line": 11,
+      "end_line": 17,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#PasswordHasher.Salt",
+      "kind": "symbol",
+      "name": "PasswordHasher.Salt",
+      "file_path": "src/hash.drac",
+      "start_line": 13,
+      "end_line": 15,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#PasswordHasher.Salt.encode",
+      "kind": "symbol",
+      "name": "PasswordHasher.Salt.encode",
+      "file_path": "src/hash.drac",
+      "start_line": 14,
+      "end_line": 14,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#api.hash",
+      "kind": "symbol",
+      "name": "api.hash",
+      "file_path": "src/hash.drac",
+      "start_line": 38,
+      "end_line": 38,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#arrow:18",
+      "kind": "symbol",
+      "name": "arrow:18",
+      "file_path": "src/hash.drac",
+      "start_line": 18,
+      "end_line": 18,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#encodePassword",
+      "kind": "symbol",
+      "name": "encodePassword",
+      "file_path": "src/hash.drac",
+      "start_line": 1,
+      "end_line": 1,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#hashPassword",
+      "kind": "symbol",
+      "name": "hashPassword",
+      "file_path": "src/hash.drac",
+      "start_line": 3,
+      "end_line": 5,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#nativeHash",
+      "kind": "symbol",
+      "name": "nativeHash",
+      "file_path": "src/hash.drac",
+      "start_line": 7,
+      "end_line": 7,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#runDracExtern",
+      "kind": "symbol",
+      "name": "runDracExtern",
+      "file_path": "src/hash.drac",
+      "start_line": 35,
+      "end_line": 37,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#runDracInstance",
+      "kind": "symbol",
+      "name": "runDracInstance",
+      "file_path": "src/hash.drac",
+      "start_line": 19,
+      "end_line": 22,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.drac#runDracModuleInstance",
+      "kind": "symbol",
+      "name": "runDracModuleInstance",
+      "file_path": "src/hash.drac",
+      "start_line": 24,
+      "end_line": 26,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#DeferEncode",
+      "kind": "symbol",
+      "name": "DeferEncode",
+      "file_path": "src/hash.go",
+      "start_line": 23,
+      "end_line": 25,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#Hash",
+      "kind": "symbol",
+      "name": "Hash",
+      "file_path": "src/hash.go",
+      "start_line": 50,
+      "end_line": 50,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#HashPassword",
+      "kind": "symbol",
+      "name": "HashPassword",
+      "file_path": "src/hash.go",
+      "start_line": 5,
+      "end_line": 11,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#Hasher",
+      "kind": "symbol",
+      "name": "Hasher",
+      "file_path": "src/hash.go",
+      "start_line": 17,
+      "end_line": 17,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#Hasher.Digest",
+      "kind": "symbol",
+      "name": "Hasher.Digest",
+      "file_path": "src/hash.go",
+      "start_line": 17,
+      "end_line": 17,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#PasswordHasher",
+      "kind": "symbol",
+      "name": "PasswordHasher",
+      "file_path": "src/hash.go",
+      "start_line": 19,
+      "end_line": 19,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#PasswordHasher.Digest",
+      "kind": "symbol",
+      "name": "PasswordHasher.Digest",
+      "file_path": "src/hash.go",
+      "start_line": 15,
+      "end_line": 15,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#digest",
+      "kind": "symbol",
+      "name": "digest",
+      "file_path": "src/hash.go",
+      "start_line": 39,
+      "end_line": 39,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#func:30",
+      "kind": "symbol",
+      "name": "func:30",
+      "file_path": "src/hash.go",
+      "start_line": 30,
+      "end_line": 30,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#func:7",
+      "kind": "symbol",
+      "name": "func:7",
+      "file_path": "src/hash.go",
+      "start_line": 7,
+      "end_line": 9,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#init",
+      "kind": "symbol",
+      "name": "init",
+      "file_path": "src/hash.go",
+      "start_line": 21,
+      "end_line": 21,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#viaAlias",
+      "kind": "symbol",
+      "name": "viaAlias",
+      "file_path": "src/hash.go",
+      "start_line": 27,
+      "end_line": 32,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#viaConv",
+      "kind": "symbol",
+      "name": "viaConv",
+      "file_path": "src/hash.go",
+      "start_line": 52,
+      "end_line": 54,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#viaMethodValue",
+      "kind": "symbol",
+      "name": "viaMethodValue",
+      "file_path": "src/hash.go",
+      "start_line": 34,
+      "end_line": 37,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#viaNamedResult",
+      "kind": "symbol",
+      "name": "viaNamedResult",
+      "file_path": "src/hash.go",
+      "start_line": 41,
+      "end_line": 44,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.go#viaPkgVar",
+      "kind": "symbol",
+      "name": "viaPkgVar",
+      "file_path": "src/hash.go",
+      "start_line": 46,
+      "end_line": 48,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#AttrLhsHolder",
+      "kind": "symbol",
+      "name": "AttrLhsHolder",
+      "file_path": "src/hash.py",
+      "start_line": 240,
+      "end_line": 243,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#AttrLhsHolder.run_attr_lhs",
+      "kind": "symbol",
+      "name": "AttrLhsHolder.run_attr_lhs",
+      "file_path": "src/hash.py",
+      "start_line": 241,
+      "end_line": 243,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#ClassAssignAliasHolder",
+      "kind": "symbol",
+      "name": "ClassAssignAliasHolder",
+      "file_path": "src/hash.py",
+      "start_line": 296,
+      "end_line": 299,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#ClassAssignClearHolder",
+      "kind": "symbol",
+      "name": "ClassAssignClearHolder",
+      "file_path": "src/hash.py",
+      "start_line": 286,
+      "end_line": 289,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#ClassBeforeAssignHolder",
+      "kind": "symbol",
+      "name": "ClassBeforeAssignHolder",
+      "file_path": "src/hash.py",
+      "start_line": 279,
+      "end_line": 283,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#ClassBeforeAssignHolder.run_class_before",
+      "kind": "symbol",
+      "name": "ClassBeforeAssignHolder.run_class_before",
+      "file_path": "src/hash.py",
+      "start_line": 280,
+      "end_line": 281,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#ClassWalrusAliasHolder",
+      "kind": "symbol",
+      "name": "ClassWalrusAliasHolder",
+      "file_path": "src/hash.py",
+      "start_line": 259,
+      "end_line": 262,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#ClassWalrusClearHolder",
+      "kind": "symbol",
+      "name": "ClassWalrusClearHolder",
+      "file_path": "src/hash.py",
+      "start_line": 269,
+      "end_line": 272,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#ClassWalrusHolder",
+      "kind": "symbol",
+      "name": "ClassWalrusHolder",
+      "file_path": "src/hash.py",
+      "start_line": 250,
+      "end_line": 252,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#HasherHolder",
+      "kind": "symbol",
+      "name": "HasherHolder",
+      "file_path": "src/hash.py",
+      "start_line": 225,
+      "end_line": 233,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#HasherHolder.run_class_inherit",
+      "kind": "symbol",
+      "name": "HasherHolder.run_class_inherit",
+      "file_path": "src/hash.py",
+      "start_line": 228,
+      "end_line": 229,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#PasswordHasher",
+      "kind": "symbol",
+      "name": "PasswordHasher",
+      "file_path": "src/hash.py",
+      "start_line": 9,
+      "end_line": 18,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#PasswordHasher.Salt",
+      "kind": "symbol",
+      "name": "PasswordHasher.Salt",
+      "file_path": "src/hash.py",
+      "start_line": 10,
+      "end_line": 12,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#PasswordHasher.Salt.stamp",
+      "kind": "symbol",
+      "name": "PasswordHasher.Salt.stamp",
+      "file_path": "src/hash.py",
+      "start_line": 11,
+      "end_line": 12,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "symbol",
+      "name": "PasswordHasher.__call__",
+      "file_path": "src/hash.py",
+      "start_line": 17,
+      "end_line": 18,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#PasswordHasher.digest",
+      "kind": "symbol",
+      "name": "PasswordHasher.digest",
+      "file_path": "src/hash.py",
+      "start_line": 14,
+      "end_line": 15,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#encode_password",
+      "kind": "symbol",
+      "name": "encode_password",
+      "file_path": "src/hash.py",
+      "start_line": 1,
+      "end_line": 2,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#hash_password",
+      "kind": "symbol",
+      "name": "hash_password",
+      "file_path": "src/hash.py",
+      "start_line": 5,
+      "end_line": 6,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#lambda:12",
+      "kind": "symbol",
+      "name": "lambda:12",
+      "file_path": "src/hash.py",
+      "start_line": 12,
+      "end_line": 12,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#lambda:149",
+      "kind": "symbol",
+      "name": "lambda:149",
+      "file_path": "src/hash.py",
+      "start_line": 149,
+      "end_line": 149,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#lambda:156",
+      "kind": "symbol",
+      "name": "lambda:156",
+      "file_path": "src/hash.py",
+      "start_line": 156,
+      "end_line": 156,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#lambda:163",
+      "kind": "symbol",
+      "name": "lambda:163",
+      "file_path": "src/hash.py",
+      "start_line": 163,
+      "end_line": 163,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#lambda:170",
+      "kind": "symbol",
+      "name": "lambda:170",
+      "file_path": "src/hash.py",
+      "start_line": 170,
+      "end_line": 170,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#lambda:233",
+      "kind": "symbol",
+      "name": "lambda:233",
+      "file_path": "src/hash.py",
+      "start_line": 233,
+      "end_line": 233,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#lambda:60",
+      "kind": "symbol",
+      "name": "lambda:60",
+      "file_path": "src/hash.py",
+      "start_line": 60,
+      "end_line": 60,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#lambda:79",
+      "kind": "symbol",
+      "name": "lambda:79",
+      "file_path": "src/hash.py",
+      "start_line": 79,
+      "end_line": 79,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#lambda:90",
+      "kind": "symbol",
+      "name": "lambda:90",
+      "file_path": "src/hash.py",
+      "start_line": 90,
+      "end_line": 90,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#nested_add",
+      "kind": "symbol",
+      "name": "nested_add",
+      "file_path": "src/hash.py",
+      "start_line": 111,
+      "end_line": 113,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#nested_clear",
+      "kind": "symbol",
+      "name": "nested_clear",
+      "file_path": "src/hash.py",
+      "start_line": 103,
+      "end_line": 105,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#nested_instance",
+      "kind": "symbol",
+      "name": "nested_instance",
+      "file_path": "src/hash.py",
+      "start_line": 52,
+      "end_line": 53,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#nested_module",
+      "kind": "symbol",
+      "name": "nested_module",
+      "file_path": "src/hash.py",
+      "start_line": 83,
+      "end_line": 84,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_add",
+      "kind": "symbol",
+      "name": "run_add",
+      "file_path": "src/hash.py",
+      "start_line": 110,
+      "end_line": 115,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_alias",
+      "kind": "symbol",
+      "name": "run_alias",
+      "file_path": "src/hash.py",
+      "start_line": 63,
+      "end_line": 66,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_attr_ctor",
+      "kind": "symbol",
+      "name": "run_attr_ctor",
+      "file_path": "src/hash.py",
+      "start_line": 136,
+      "end_line": 138,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_attr_lhs_miss",
+      "kind": "symbol",
+      "name": "run_attr_lhs_miss",
+      "file_path": "src/hash.py",
+      "start_line": 246,
+      "end_line": 247,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_before",
+      "kind": "symbol",
+      "name": "run_before",
+      "file_path": "src/hash.py",
+      "start_line": 93,
+      "end_line": 94,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_call",
+      "kind": "symbol",
+      "name": "run_call",
+      "file_path": "src/hash.py",
+      "start_line": 40,
+      "end_line": 41,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_class_assign_alias_miss",
+      "kind": "symbol",
+      "name": "run_class_assign_alias_miss",
+      "file_path": "src/hash.py",
+      "start_line": 302,
+      "end_line": 303,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_class_assign_clear_keep",
+      "kind": "symbol",
+      "name": "run_class_assign_clear_keep",
+      "file_path": "src/hash.py",
+      "start_line": 292,
+      "end_line": 293,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_class_inherit_miss",
+      "kind": "symbol",
+      "name": "run_class_inherit_miss",
+      "file_path": "src/hash.py",
+      "start_line": 236,
+      "end_line": 237,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_class_walrus_alias_miss",
+      "kind": "symbol",
+      "name": "run_class_walrus_alias_miss",
+      "file_path": "src/hash.py",
+      "start_line": 265,
+      "end_line": 266,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_class_walrus_clear_keep",
+      "kind": "symbol",
+      "name": "run_class_walrus_clear_keep",
+      "file_path": "src/hash.py",
+      "start_line": 275,
+      "end_line": 276,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_class_walrus_miss",
+      "kind": "symbol",
+      "name": "run_class_walrus_miss",
+      "file_path": "src/hash.py",
+      "start_line": 255,
+      "end_line": 256,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_clear",
+      "kind": "symbol",
+      "name": "run_clear",
+      "file_path": "src/hash.py",
+      "start_line": 100,
+      "end_line": 107,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_digest",
+      "kind": "symbol",
+      "name": "run_digest",
+      "file_path": "src/hash.py",
+      "start_line": 21,
+      "end_line": 23,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_encode",
+      "kind": "symbol",
+      "name": "run_encode",
+      "file_path": "src/hash.py",
+      "start_line": 26,
+      "end_line": 27,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_fn_walrus",
+      "kind": "symbol",
+      "name": "run_fn_walrus",
+      "file_path": "src/hash.py",
+      "start_line": 198,
+      "end_line": 200,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_fn_walrus_alias",
+      "kind": "symbol",
+      "name": "run_fn_walrus_alias",
+      "file_path": "src/hash.py",
+      "start_line": 207,
+      "end_line": 209,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_fn_walrus_alias_miss",
+      "kind": "symbol",
+      "name": "run_fn_walrus_alias_miss",
+      "file_path": "src/hash.py",
+      "start_line": 212,
+      "end_line": 213,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_fn_walrus_clear",
+      "kind": "symbol",
+      "name": "run_fn_walrus_clear",
+      "file_path": "src/hash.py",
+      "start_line": 216,
+      "end_line": 218,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_fn_walrus_clear_keep",
+      "kind": "symbol",
+      "name": "run_fn_walrus_clear_keep",
+      "file_path": "src/hash.py",
+      "start_line": 221,
+      "end_line": 222,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_fn_walrus_miss",
+      "kind": "symbol",
+      "name": "run_fn_walrus_miss",
+      "file_path": "src/hash.py",
+      "start_line": 203,
+      "end_line": 204,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_getattr",
+      "kind": "symbol",
+      "name": "run_getattr",
+      "file_path": "src/hash.py",
+      "start_line": 30,
+      "end_line": 32,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_instance",
+      "kind": "symbol",
+      "name": "run_instance",
+      "file_path": "src/hash.py",
+      "start_line": 44,
+      "end_line": 46,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_lambda",
+      "kind": "symbol",
+      "name": "run_lambda",
+      "file_path": "src/hash.py",
+      "start_line": 58,
+      "end_line": 60,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_lambda_add_miss",
+      "kind": "symbol",
+      "name": "run_lambda_add_miss",
+      "file_path": "src/hash.py",
+      "start_line": 166,
+      "end_line": 167,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_lambda_alias_miss",
+      "kind": "symbol",
+      "name": "run_lambda_alias_miss",
+      "file_path": "src/hash.py",
+      "start_line": 173,
+      "end_line": 174,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_lambda_clear_keep",
+      "kind": "symbol",
+      "name": "run_lambda_clear_keep",
+      "file_path": "src/hash.py",
+      "start_line": 159,
+      "end_line": 160,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_lambda_param_keep",
+      "kind": "symbol",
+      "name": "run_lambda_param_keep",
+      "file_path": "src/hash.py",
+      "start_line": 152,
+      "end_line": 153,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_module",
+      "kind": "symbol",
+      "name": "run_module",
+      "file_path": "src/hash.py",
+      "start_line": 72,
+      "end_line": 73,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_module_lambda",
+      "kind": "symbol",
+      "name": "run_module_lambda",
+      "file_path": "src/hash.py",
+      "start_line": 89,
+      "end_line": 90,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_module_nested",
+      "kind": "symbol",
+      "name": "run_module_nested",
+      "file_path": "src/hash.py",
+      "start_line": 82,
+      "end_line": 86,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_nested",
+      "kind": "symbol",
+      "name": "run_nested",
+      "file_path": "src/hash.py",
+      "start_line": 49,
+      "end_line": 55,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_param",
+      "kind": "symbol",
+      "name": "run_param",
+      "file_path": "src/hash.py",
+      "start_line": 141,
+      "end_line": 142,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_param_keep",
+      "kind": "symbol",
+      "name": "run_param_keep",
+      "file_path": "src/hash.py",
+      "start_line": 145,
+      "end_line": 146,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_set_add",
+      "kind": "symbol",
+      "name": "run_set_add",
+      "file_path": "src/hash.py",
+      "start_line": 127,
+      "end_line": 129,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_set_clear",
+      "kind": "symbol",
+      "name": "run_set_clear",
+      "file_path": "src/hash.py",
+      "start_line": 118,
+      "end_line": 120,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_set_keep",
+      "kind": "symbol",
+      "name": "run_set_keep",
+      "file_path": "src/hash.py",
+      "start_line": 123,
+      "end_line": 124,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_set_miss",
+      "kind": "symbol",
+      "name": "run_set_miss",
+      "file_path": "src/hash.py",
+      "start_line": 132,
+      "end_line": 133,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_subscript",
+      "kind": "symbol",
+      "name": "run_subscript",
+      "file_path": "src/hash.py",
+      "start_line": 35,
+      "end_line": 37,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_walrus",
+      "kind": "symbol",
+      "name": "run_walrus",
+      "file_path": "src/hash.py",
+      "start_line": 180,
+      "end_line": 181,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_walrus_alias",
+      "kind": "symbol",
+      "name": "run_walrus_alias",
+      "file_path": "src/hash.py",
+      "start_line": 187,
+      "end_line": 188,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.py#run_walrus_clear",
+      "kind": "symbol",
+      "name": "run_walrus_clear",
+      "file_path": "src/hash.py",
+      "start_line": 194,
+      "end_line": 195,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#Digest",
+      "kind": "symbol",
+      "name": "Digest",
+      "file_path": "src/hash.rs",
+      "start_line": 26,
+      "end_line": 28,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#Digest.digest",
+      "kind": "symbol",
+      "name": "Digest.digest",
+      "file_path": "src/hash.rs",
+      "start_line": 27,
+      "end_line": 27,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#Hasher",
+      "kind": "symbol",
+      "name": "Hasher",
+      "file_path": "src/hash.rs",
+      "start_line": 51,
+      "end_line": 51,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#Hasher.digest",
+      "kind": "symbol",
+      "name": "Hasher.digest",
+      "file_path": "src/hash.rs",
+      "start_line": 53,
+      "end_line": 53,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#PasswordHasher.digest",
+      "kind": "symbol",
+      "name": "PasswordHasher.digest",
+      "file_path": "src/hash.rs",
+      "start_line": 22,
+      "end_line": 22,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#PasswordHasher.new",
+      "kind": "symbol",
+      "name": "PasswordHasher.new",
+      "file_path": "src/hash.rs",
+      "start_line": 23,
+      "end_line": 23,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#Point",
+      "kind": "symbol",
+      "name": "Point",
+      "file_path": "src/hash.rs",
+      "start_line": 34,
+      "end_line": 34,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#closure:39",
+      "kind": "symbol",
+      "name": "closure:39",
+      "file_path": "src/hash.rs",
+      "start_line": 39,
+      "end_line": 39,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#closure:8",
+      "kind": "symbol",
+      "name": "closure:8",
+      "file_path": "src/hash.rs",
+      "start_line": 8,
+      "end_line": 10,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#encode",
+      "kind": "symbol",
+      "name": "encode",
+      "file_path": "src/hash.rs",
+      "start_line": 17,
+      "end_line": 19,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#encode_password",
+      "kind": "symbol",
+      "name": "encode_password",
+      "file_path": "src/hash.rs",
+      "start_line": 15,
+      "end_line": 15,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#hash_password",
+      "kind": "symbol",
+      "name": "hash_password",
+      "file_path": "src/hash.rs",
+      "start_line": 1,
+      "end_line": 13,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#inner",
+      "kind": "symbol",
+      "name": "inner",
+      "file_path": "src/hash.rs",
+      "start_line": 45,
+      "end_line": 47,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#nested",
+      "kind": "symbol",
+      "name": "nested",
+      "file_path": "src/hash.rs",
+      "start_line": 5,
+      "end_line": 7,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#via_iso",
+      "kind": "symbol",
+      "name": "via_iso",
+      "file_path": "src/hash.rs",
+      "start_line": 43,
+      "end_line": 49,
+      "body": null
+    },
+    {
+      "id": "symbol:src/hash.rs#via_let",
+      "kind": "symbol",
+      "name": "via_let",
+      "file_path": "src/hash.rs",
+      "start_line": 36,
+      "end_line": 41,
+      "body": null
+    },
+    {
+      "id": "symbol:src/lib.rs#via_miss",
+      "kind": "symbol",
+      "name": "via_miss",
+      "file_path": "src/lib.rs",
+      "start_line": 12,
+      "end_line": 14,
+      "body": null
+    },
+    {
+      "id": "symbol:src/lib.rs#via_use",
+      "kind": "symbol",
+      "name": "via_use",
+      "file_path": "src/lib.rs",
+      "start_line": 8,
+      "end_line": 10,
+      "body": null
+    },
+    {
+      "id": "symbol:src/other.ts#expireSessions",
+      "kind": "symbol",
+      "name": "expireSessions",
+      "file_path": "src/other.ts",
+      "start_line": 1,
+      "end_line": 1,
+      "body": null
+    },
+    {
+      "id": "symbol:src/password.go#EncodePassword",
+      "kind": "symbol",
+      "name": "EncodePassword",
+      "file_path": "src/password.go",
+      "start_line": 3,
+      "end_line": 3,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#Saver",
+      "kind": "symbol",
+      "name": "Saver",
+      "file_path": "src/session.ts",
+      "start_line": 1,
+      "end_line": 3,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#SessionStore",
+      "kind": "symbol",
+      "name": "SessionStore",
+      "file_path": "src/session.ts",
+      "start_line": 5,
+      "end_line": 24,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#SessionStore.#probe",
+      "kind": "symbol",
+      "name": "SessionStore.#probe",
+      "file_path": "src/session.ts",
+      "start_line": 8,
+      "end_line": 8,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#SessionStore.Inner",
+      "kind": "symbol",
+      "name": "SessionStore.Inner",
+      "file_path": "src/session.ts",
+      "start_line": 11,
+      "end_line": 13,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#SessionStore.Inner.encode",
+      "kind": "symbol",
+      "name": "SessionStore.Inner.encode",
+      "file_path": "src/session.ts",
+      "start_line": 12,
+      "end_line": 12,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#SessionStore.constructor",
+      "kind": "symbol",
+      "name": "SessionStore.constructor",
+      "file_path": "src/session.ts",
+      "start_line": 6,
+      "end_line": 6,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#SessionStore.get",
+      "kind": "symbol",
+      "name": "SessionStore.get",
+      "file_path": "src/session.ts",
+      "start_line": 20,
+      "end_line": 23,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#SessionStore.save",
+      "kind": "symbol",
+      "name": "SessionStore.save",
+      "file_path": "src/session.ts",
+      "start_line": 16,
+      "end_line": 18,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#arrow:27",
+      "kind": "symbol",
+      "name": "arrow:27",
+      "file_path": "src/session.ts",
+      "start_line": 27,
+      "end_line": 27,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#expireSessions",
+      "kind": "symbol",
+      "name": "expireSessions",
+      "file_path": "src/session.ts",
+      "start_line": 26,
+      "end_line": 26,
+      "body": null
+    },
+    {
+      "id": "symbol:src/session.ts#importedFn",
+      "kind": "symbol",
+      "name": "importedFn",
+      "file_path": "src/session.ts",
+      "start_line": 28,
+      "end_line": 28,
+      "body": null
+    },
+    {
+      "id": "symbol:src/view.tsx#runJsx",
+      "kind": "symbol",
+      "name": "runJsx",
+      "file_path": "src/view.tsx",
+      "start_line": 1,
+      "end_line": 3,
+      "body": null
+    },
+    {
+      "id": "tag:security",
+      "kind": "tag",
+      "name": "security",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:Digest",
+      "kind": "unresolved",
+      "name": "Digest",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:MissingStore",
+      "kind": "unresolved",
+      "name": "MissingStore",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:PasswordHasher",
+      "kind": "unresolved",
+      "name": "PasswordHasher",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:box",
+      "kind": "unresolved",
+      "name": "box",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:digest",
+      "kind": "unresolved",
+      "name": "digest",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:dracTag",
+      "kind": "unresolved",
+      "name": "dracTag",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:example.com/mini/src/encode/internal/secret",
+      "kind": "unresolved",
+      "name": "example.com/mini/src/encode/internal/secret",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:f",
+      "kind": "unresolved",
+      "name": "f",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:factory",
+      "kind": "unresolved",
+      "name": "factory",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:getattr",
+      "kind": "unresolved",
+      "name": "getattr",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher",
+      "kind": "unresolved",
+      "name": "hasher",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher10",
+      "kind": "unresolved",
+      "name": "hasher10",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher11",
+      "kind": "unresolved",
+      "name": "hasher11",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher12",
+      "kind": "unresolved",
+      "name": "hasher12",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher13",
+      "kind": "unresolved",
+      "name": "hasher13",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher15",
+      "kind": "unresolved",
+      "name": "hasher15",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher16",
+      "kind": "unresolved",
+      "name": "hasher16",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher17",
+      "kind": "unresolved",
+      "name": "hasher17",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher18",
+      "kind": "unresolved",
+      "name": "hasher18",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher2",
+      "kind": "unresolved",
+      "name": "hasher2",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher20",
+      "kind": "unresolved",
+      "name": "hasher20",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher21",
+      "kind": "unresolved",
+      "name": "hasher21",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher3",
+      "kind": "unresolved",
+      "name": "hasher3",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher4",
+      "kind": "unresolved",
+      "name": "hasher4",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher5",
+      "kind": "unresolved",
+      "name": "hasher5",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher6",
+      "kind": "unresolved",
+      "name": "hasher6",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher8",
+      "kind": "unresolved",
+      "name": "hasher8",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:hasher9",
+      "kind": "unresolved",
+      "name": "hasher9",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:missingDracImported",
+      "kind": "unresolved",
+      "name": "missingDracImported",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:missingImported",
+      "kind": "unresolved",
+      "name": "missingImported",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    },
+    {
+      "id": "unresolved:missing_imported",
+      "kind": "unresolved",
+      "name": "missing_imported",
+      "file_path": null,
+      "start_line": null,
+      "end_line": null,
+      "body": null
+    }
+  ],
+  "edges": [
+    {
+      "src": "comment:src/auth.ts:3",
+      "dst": "symbol:src/auth.ts#login",
+      "kind": "relates",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "doc:README.md",
+      "dst": "heading:README.md#mini",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "doc:docs/auth.md",
+      "dst": "heading:docs/auth.md#login",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "doc:docs/auth.md",
+      "dst": "heading:docs/session.md#session-store",
+      "kind": "links",
+      "confidence": "resolved",
+      "props": "{\"style\":\"markdown\",\"href\":\"./session.md#session-store\"}"
+    },
+    {
+      "src": "doc:docs/auth.md",
+      "dst": "symbol:src/session.ts#SessionStore",
+      "kind": "links",
+      "confidence": "resolved",
+      "props": "{\"style\":\"wikilink\",\"href\":\"SessionStore\"}"
+    },
+    {
+      "src": "doc:docs/auth.md",
+      "dst": "symbol:src/session.ts#SessionStore",
+      "kind": "relates",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "doc:docs/auth.md",
+      "dst": "tag:security",
+      "kind": "tagged",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "doc:docs/auth.md",
+      "dst": "unresolved:MissingStore",
+      "kind": "links",
+      "confidence": "extracted",
+      "props": "{\"style\":\"wikilink\",\"href\":\"MissingStore\"}"
+    },
+    {
+      "src": "doc:docs/session.md",
+      "dst": "heading:docs/session.md#session-store",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "doc:docs/session.md",
+      "dst": "symbol:src/auth.ts#login",
+      "kind": "links",
+      "confidence": "resolved",
+      "props": "{\"style\":\"wikilink\",\"href\":\"login\"}"
+    },
+    {
+      "src": "doc:docs/session.md",
+      "dst": "tag:security",
+      "kind": "tagged",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:README.md",
+      "dst": "doc:README.md",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:docs/auth.md",
+      "dst": "doc:docs/auth.md",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:docs/session.md",
+      "dst": "doc:docs/session.md",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "comment:src/auth.ts:3",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "file:src/session.ts",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"./session.js\"}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#HasherBox",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#HasherBox.runClassInstance",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#api.hash",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#login",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#runComputedSave",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#runImported",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#runImportedMiss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#runInstance",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#runModuleInstance",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "symbol:src/auth.ts#runNestedCall",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "unresolved:PasswordHasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/auth.ts",
+      "dst": "unresolved:box",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/barrel.drac",
+      "dst": "file:src/hash.drac",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"./hash.drac\"}"
+    },
+    {
+      "src": "file:src/barrel.ts",
+      "dst": "file:src/mod/index.ts",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"./mod\"}"
+    },
+    {
+      "src": "file:src/barrel.ts",
+      "dst": "file:src/session.ts",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"./session.js\"}"
+    },
+    {
+      "src": "file:src/check.drac",
+      "dst": "file:src/auth/index.drac",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"./auth\"}"
+    },
+    {
+      "src": "file:src/check.drac",
+      "dst": "file:src/hash.drac",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"./hash.drac\"}"
+    },
+    {
+      "src": "file:src/check.drac",
+      "dst": "file:src/hash.drac",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"example.com/mini/src/hash\"}"
+    },
+    {
+      "src": "file:src/check.drac",
+      "dst": "symbol:src/check.drac#runDracImported",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/check.drac",
+      "dst": "symbol:src/check.drac#runDracImportedMiss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/check.py",
+      "dst": "file:src/hash.py",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\".hash\"}"
+    },
+    {
+      "src": "file:src/check.py",
+      "dst": "file:src/hash.py",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"src.hash\"}"
+    },
+    {
+      "src": "file:src/check.py",
+      "dst": "symbol:src/check.py#run_imported",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/check.py",
+      "dst": "symbol:src/check.py#run_imported_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/check.rs",
+      "dst": "file:src/hash.rs",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"crate::hash\"}"
+    },
+    {
+      "src": "file:src/check.rs",
+      "dst": "file:src/hash.rs",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"hash\"}"
+    },
+    {
+      "src": "file:src/encode/encode.go",
+      "dst": "file:src/encode/internal/secret/secret.go",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"src/encode/internal/secret\"}"
+    },
+    {
+      "src": "file:src/encode/encode.go",
+      "dst": "symbol:src/encode/encode.go#Encode",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#DracHasherBox",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#DracHasherBox.constructor",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#DracHasherBox.runDracClassInstance",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#HashBuf",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#PasswordHasher",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#PasswordHasher.Salt",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#PasswordHasher.Salt.encode",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#api.hash",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#arrow:18",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#encodePassword",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#hashPassword",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#nativeHash",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#runDracExtern",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#runDracInstance",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "symbol:src/hash.drac#runDracModuleInstance",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.drac",
+      "dst": "unresolved:box",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "file:src/encode/encode.go",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"src/encode\"}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#DeferEncode",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#Hash",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#HashPassword",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#Hasher",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#Hasher.Digest",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#PasswordHasher",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#PasswordHasher.Digest",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#digest",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#func:30",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#func:7",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#init",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#viaAlias",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#viaConv",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#viaMethodValue",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#viaNamedResult",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.go",
+      "dst": "symbol:src/hash.go#viaPkgVar",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#AttrLhsHolder",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#AttrLhsHolder.run_attr_lhs",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#ClassAssignAliasHolder",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#ClassAssignClearHolder",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#ClassBeforeAssignHolder",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#ClassBeforeAssignHolder.run_class_before",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#ClassWalrusAliasHolder",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#ClassWalrusClearHolder",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#ClassWalrusHolder",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#HasherHolder",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#HasherHolder.run_class_inherit",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#PasswordHasher.Salt",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#PasswordHasher.Salt.stamp",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#PasswordHasher.digest",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#encode_password",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#hash_password",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#lambda:12",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#lambda:149",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#lambda:156",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#lambda:163",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#lambda:170",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#lambda:233",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#lambda:60",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#lambda:79",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#lambda:90",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#nested_add",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#nested_clear",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#nested_instance",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#nested_module",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_add",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_alias",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_attr_ctor",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_attr_lhs_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_before",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_call",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_class_assign_alias_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_class_assign_clear_keep",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_class_inherit_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_class_walrus_alias_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_class_walrus_clear_keep",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_class_walrus_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_clear",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_digest",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_encode",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_fn_walrus",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_fn_walrus_alias",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_fn_walrus_alias_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_fn_walrus_clear",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_fn_walrus_clear_keep",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_fn_walrus_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_getattr",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_instance",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_lambda",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_lambda_add_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_lambda_alias_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_lambda_clear_keep",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_lambda_param_keep",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_module",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_module_lambda",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_module_nested",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_nested",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_param",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_param_keep",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_set_add",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_set_clear",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_set_keep",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_set_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_subscript",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_walrus",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_walrus_alias",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.py",
+      "dst": "symbol:src/hash.py#run_walrus_clear",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#Digest",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#Digest.digest",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#Hasher",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#Hasher.digest",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#PasswordHasher.digest",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#PasswordHasher.new",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#Point",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#closure:39",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#closure:8",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#encode",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#encode_password",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#hash_password",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#inner",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#nested",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#via_iso",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/hash.rs",
+      "dst": "symbol:src/hash.rs#via_let",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/lib.rs",
+      "dst": "file:src/hash.rs",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"crate::hash\"}"
+    },
+    {
+      "src": "file:src/lib.rs",
+      "dst": "file:src/hash.rs",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"crate::hash::hash_password\"}"
+    },
+    {
+      "src": "file:src/lib.rs",
+      "dst": "file:src/hash.rs",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"hash\"}"
+    },
+    {
+      "src": "file:src/lib.rs",
+      "dst": "file:src/hash.rs",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"hash::hash_password\"}"
+    },
+    {
+      "src": "file:src/lib.rs",
+      "dst": "symbol:src/lib.rs#via_miss",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/lib.rs",
+      "dst": "symbol:src/lib.rs#via_use",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/other.ts",
+      "dst": "symbol:src/other.ts#expireSessions",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/password.go",
+      "dst": "symbol:src/password.go#EncodePassword",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#Saver",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#SessionStore",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#SessionStore.#probe",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#SessionStore.Inner",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#SessionStore.Inner.encode",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#SessionStore.constructor",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#SessionStore.get",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#SessionStore.save",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#arrow:27",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#expireSessions",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/session.ts",
+      "dst": "symbol:src/session.ts#importedFn",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "file:src/side/side.go",
+      "dst": "file:src/encode/encode.go",
+      "kind": "imports",
+      "confidence": "resolved",
+      "props": "{\"spec\":\"example.com/mini/src/encode\"}"
+    },
+    {
+      "src": "file:src/side/side.go",
+      "dst": "unresolved:example.com/mini/src/encode/internal/secret",
+      "kind": "imports",
+      "confidence": "extracted",
+      "props": "{\"spec\":\"example.com/mini/src/encode/internal/secret\"}"
+    },
+    {
+      "src": "file:src/view.tsx",
+      "dst": "symbol:src/view.tsx#runJsx",
+      "kind": "contains",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/auth.ts#HasherBox",
+      "dst": "unresolved:PasswordHasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/auth.ts#HasherBox.runClassInstance",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/auth.ts#login",
+      "dst": "comment:src/auth.ts:3",
+      "kind": "relates",
+      "confidence": "extracted",
+      "props": "{\"adjacent\":true}"
+    },
+    {
+      "src": "symbol:src/auth.ts#login",
+      "dst": "symbol:src/session.ts#SessionStore",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/auth.ts#login",
+      "dst": "symbol:src/session.ts#SessionStore.save",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/auth.ts#login",
+      "dst": "symbol:src/session.ts#expireSessions",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/auth.ts#runComputedSave",
+      "dst": "symbol:src/session.ts#SessionStore",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/auth.ts#runComputedSave",
+      "dst": "symbol:src/session.ts#SessionStore.save",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/auth.ts#runImported",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/auth.ts#runImportedMiss",
+      "dst": "unresolved:missingImported",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/auth.ts#runInstance",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/auth.ts#runInstance",
+      "dst": "unresolved:PasswordHasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/auth.ts#runModuleInstance",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/auth.ts#runNestedCall",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/auth.ts#runNestedCall",
+      "dst": "unresolved:factory",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/check.drac#runDracImported",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/check.drac#runDracImportedMiss",
+      "dst": "unresolved:missingDracImported",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/check.py#run_imported",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/check.py#run_imported_miss",
+      "dst": "unresolved:hasher21",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.drac#DracHasherBox.runDracClassInstance",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.drac#hashPassword",
+      "dst": "symbol:src/hash.drac#encodePassword",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.drac#hashPassword",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.drac#hashPassword",
+      "dst": "unresolved:digest",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.drac#hashPassword",
+      "dst": "unresolved:dracTag",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.drac#hashPassword",
+      "dst": "unresolved:factory",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.drac#runDracExtern",
+      "dst": "symbol:src/hash.drac#nativeHash",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.drac#runDracInstance",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.drac#runDracModuleInstance",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.go#DeferEncode",
+      "dst": "symbol:src/password.go#EncodePassword",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.go#HashPassword",
+      "dst": "symbol:src/password.go#EncodePassword",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.go#HashPassword",
+      "dst": "unresolved:Digest",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.go#func:7",
+      "dst": "symbol:src/password.go#EncodePassword",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.go#viaAlias",
+      "dst": "symbol:src/hash.go#HashPassword",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.go#viaAlias",
+      "dst": "symbol:src/hash.go#func:30",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.go#viaMethodValue",
+      "dst": "unresolved:Digest",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.go#viaNamedResult",
+      "dst": "symbol:src/hash.go#digest",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.go#viaPkgVar",
+      "dst": "symbol:src/hash.go#HashPassword",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#AttrLhsHolder.run_attr_lhs",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#AttrLhsHolder.run_attr_lhs",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassAssignAliasHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassAssignAliasHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassAssignClearHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassAssignClearHolder",
+      "dst": "unresolved:hasher18",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassBeforeAssignHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassBeforeAssignHolder.run_class_before",
+      "dst": "unresolved:hasher17",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassWalrusAliasHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassWalrusAliasHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassWalrusClearHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassWalrusClearHolder",
+      "dst": "unresolved:hasher16",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassWalrusHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#ClassWalrusHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#HasherHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#HasherHolder",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#HasherHolder.run_class_inherit",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#PasswordHasher.__call__",
+      "dst": "symbol:src/hash.py#hash_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#PasswordHasher.digest",
+      "dst": "symbol:src/hash.py#hash_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#hash_password",
+      "dst": "symbol:src/hash.py#encode_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#lambda:149",
+      "dst": "unresolved:hasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#lambda:156",
+      "dst": "unresolved:hasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#lambda:163",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#lambda:163",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#lambda:170",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#lambda:233",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#lambda:60",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#lambda:79",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#lambda:90",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#nested_add",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#nested_add",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#nested_clear",
+      "dst": "unresolved:hasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#nested_instance",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#nested_module",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_add",
+      "dst": "unresolved:hasher3",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_alias",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_alias",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_attr_ctor",
+      "dst": "symbol:src/hash.py#PasswordHasher.Salt",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_attr_ctor",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_attr_lhs_miss",
+      "dst": "unresolved:hasher12",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_before",
+      "dst": "unresolved:hasher2",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_call",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_call",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_class_assign_alias_miss",
+      "dst": "unresolved:hasher20",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_class_assign_clear_keep",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_class_inherit_miss",
+      "dst": "unresolved:hasher11",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_class_walrus_alias_miss",
+      "dst": "unresolved:hasher15",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_class_walrus_clear_keep",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_class_walrus_miss",
+      "dst": "unresolved:hasher13",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_clear",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_clear",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_digest",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_digest",
+      "dst": "symbol:src/hash.py#PasswordHasher.digest",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_encode",
+      "dst": "symbol:src/hash.py#encode_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_fn_walrus",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_fn_walrus",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_fn_walrus_alias",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_fn_walrus_alias_miss",
+      "dst": "unresolved:hasher10",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_fn_walrus_clear",
+      "dst": "unresolved:hasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_fn_walrus_clear_keep",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_fn_walrus_miss",
+      "dst": "unresolved:hasher9",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_getattr",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_getattr",
+      "dst": "symbol:src/hash.py#PasswordHasher.digest",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_getattr",
+      "dst": "unresolved:getattr",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_instance",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_instance",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_lambda",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_lambda_add_miss",
+      "dst": "unresolved:hasher5",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_lambda_alias_miss",
+      "dst": "unresolved:hasher6",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_lambda_clear_keep",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_lambda_param_keep",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_module",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_module_nested",
+      "dst": "symbol:src/hash.py#nested_module",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_nested",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_nested",
+      "dst": "symbol:src/hash.py#nested_instance",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_param",
+      "dst": "unresolved:hasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_param_keep",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_set_add",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_set_add",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_set_clear",
+      "dst": "unresolved:hasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_set_keep",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_set_miss",
+      "dst": "unresolved:hasher4",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_subscript",
+      "dst": "symbol:src/hash.py#PasswordHasher",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_subscript",
+      "dst": "symbol:src/hash.py#PasswordHasher.digest",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_walrus",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_walrus_alias",
+      "dst": "symbol:src/hash.py#PasswordHasher.__call__",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.py#run_walrus_clear",
+      "dst": "unresolved:hasher8",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#Digest.digest",
+      "dst": "symbol:src/hash.rs#encode_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#closure:8",
+      "dst": "symbol:src/hash.rs#encode_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#hash_password",
+      "dst": "symbol:src/hash.rs#PasswordHasher.new",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.rs#hash_password",
+      "dst": "symbol:src/hash.rs#Point",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#hash_password",
+      "dst": "symbol:src/hash.rs#encode",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#hash_password",
+      "dst": "symbol:src/hash.rs#encode_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#hash_password",
+      "dst": "unresolved:digest",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{\"member\":true}"
+    },
+    {
+      "src": "symbol:src/hash.rs#inner",
+      "dst": "unresolved:f",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#nested",
+      "dst": "symbol:src/hash.rs#encode_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#via_iso",
+      "dst": "symbol:src/hash.rs#encode_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#via_let",
+      "dst": "symbol:src/hash.rs#closure:39",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/hash.rs#via_let",
+      "dst": "symbol:src/hash.rs#encode_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/lib.rs#via_miss",
+      "dst": "unresolved:missing_imported",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/lib.rs#via_use",
+      "dst": "symbol:src/hash.rs#hash_password",
+      "kind": "calls",
+      "confidence": "resolved",
+      "props": "{}"
+    },
+    {
+      "src": "symbol:src/view.tsx#runJsx",
+      "dst": "unresolved:PasswordHasher",
+      "kind": "calls",
+      "confidence": "extracted",
+      "props": "{\"jsx\":true}"
+    }
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "lang": "md"
+    },
+    {
+      "path": "docs/auth.md",
+      "lang": "md"
+    },
+    {
+      "path": "docs/session.md",
+      "lang": "md"
+    },
+    {
+      "path": "src/auth.ts",
+      "lang": "ts"
+    },
+    {
+      "path": "src/auth/index.drac",
+      "lang": "drac"
+    },
+    {
+      "path": "src/barrel.drac",
+      "lang": "drac"
+    },
+    {
+      "path": "src/barrel.ts",
+      "lang": "ts"
+    },
+    {
+      "path": "src/check.drac",
+      "lang": "drac"
+    },
+    {
+      "path": "src/check.py",
+      "lang": "py"
+    },
+    {
+      "path": "src/check.rs",
+      "lang": "rust"
+    },
+    {
+      "path": "src/doc.go",
+      "lang": "go"
+    },
+    {
+      "path": "src/encode/doc.go",
+      "lang": "go"
+    },
+    {
+      "path": "src/encode/encode.go",
+      "lang": "go"
+    },
+    {
+      "path": "src/encode/internal/secret/secret.go",
+      "lang": "go"
+    },
+    {
+      "path": "src/hash.drac",
+      "lang": "drac"
+    },
+    {
+      "path": "src/hash.go",
+      "lang": "go"
+    },
+    {
+      "path": "src/hash.py",
+      "lang": "py"
+    },
+    {
+      "path": "src/hash.rs",
+      "lang": "rust"
+    },
+    {
+      "path": "src/lib.rs",
+      "lang": "rust"
+    },
+    {
+      "path": "src/mod/index.ts",
+      "lang": "ts"
+    },
+    {
+      "path": "src/other.ts",
+      "lang": "ts"
+    },
+    {
+      "path": "src/password.go",
+      "lang": "go"
+    },
+    {
+      "path": "src/session.ts",
+      "lang": "ts"
+    },
+    {
+      "path": "src/side/side.go",
+      "lang": "go"
+    },
+    {
+      "path": "src/view.tsx",
+      "lang": "ts"
+    }
+  ]
+}

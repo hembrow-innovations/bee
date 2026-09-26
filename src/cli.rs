@@ -29,6 +29,9 @@ tracker notes:
 docs:
   docs      Read and write the docs vault
 
+graph:
+  onic      Map a project into a SQLite graph
+
 See 'bee <command> --help' to read about a specific command.
 ";
 
@@ -159,6 +162,43 @@ pub enum Commands {
         #[command(subcommand)]
         cmd: DocsCmd,
     },
+    #[command(about = "Map a project into a SQLite graph")]
+    Onic {
+        #[arg(long, global = true)]
+        db: Option<std::path::PathBuf>,
+        #[arg(long, global = true)]
+        root: Option<std::path::PathBuf>,
+        #[arg(long, global = true)]
+        port: Option<u16>,
+        #[command(subcommand)]
+        cmd: OnicCmd,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum OnicCmd {
+    #[command(about = "Write .onic/graph.db")]
+    Build {
+        dir: Option<std::path::PathBuf>,
+        #[arg(long)]
+        watch: bool,
+    },
+    #[command(about = "Print graph schema text")]
+    Schema,
+    #[command(about = "Run one read-only SQL statement")]
+    Sql { query: String },
+    #[command(about = "Search nodes by name")]
+    Search { text: String },
+    #[command(about = "Explain one node")]
+    Explain { name: String },
+    #[command(about = "Compact one node")]
+    Compact { name: String },
+    #[command(about = "List neighbors of one node")]
+    Neighbors { name: String },
+    #[command(about = "Find a path between two nodes")]
+    Path { from: String, to: String },
+    #[command(about = "Serve the local viewer")]
+    Serve,
 }
 
 #[derive(Debug, Subcommand)]
@@ -362,7 +402,7 @@ mod tests {
 
     const UNION: &[&str] = &[
         "init", "sync", "pin", "status", "doctor", "project", "progen", "find", "context", "run",
-        "generate", "once", "watch", "explain", "gc", "note", "docs",
+        "generate", "once", "watch", "explain", "gc", "note", "docs", "onic",
     ];
 
     fn help_text() -> String {

@@ -6,6 +6,7 @@ mod docs;
 mod forward;
 mod hive;
 mod note;
+mod onic;
 
 pub use dest::{lookup_notes, NotesDirs};
 pub use forward::{forward_heio_bin, forward_old_bin};
@@ -15,7 +16,8 @@ pub use hive::{project, sync};
 use std::path::Path;
 
 pub use cli::{
-    resolve_wt_flags, Cli, Commands, DocsCmd, NoteCmd, NoteKind, PinCmd, ProgenCmd, ProjectCmd,
+    resolve_wt_flags, Cli, Commands, DocsCmd, NoteCmd, NoteKind, OnicCmd, PinCmd, ProgenCmd,
+    ProjectCmd,
 };
 pub use hive::{
     actors_dir, hive_root, hivemind_dir, init_workbench, lanes_path, load_workbench,
@@ -206,6 +208,23 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
         Commands::Docs { vault, cmd } => match docs::run(root, vault.as_deref(), &cmd) {
             Ok(text) => {
                 print!("{text}");
+                0
+            }
+            Err(e) => {
+                eprintln!("{e}");
+                1
+            }
+        },
+        Commands::Onic {
+            db,
+            root: project_root,
+            port,
+            cmd,
+        } => match onic::run(root, db.as_deref(), project_root.as_deref(), port, &cmd) {
+            Ok(text) => {
+                if !text.is_empty() {
+                    println!("{text}");
+                }
                 0
             }
             Err(e) => {

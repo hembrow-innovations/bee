@@ -1,0 +1,25 @@
+[package]
+name = "hive-onic"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+description = "Project graph for bee onic"
+
+[dependencies]
+ignore = "0.4"
+notify = "6.1"
+regex = { workspace = true }
+rusqlite = { version = "0.31", features = ["bundled"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = "0.10"
+thiserror = { workspace = true }
+tree-sitter = "0.25"
+tree-sitter-go = "0.25"
+tree-sitter-python = "0.25"
+tree-sitter-rust = "0.24"
+tree-sitter-typescript = "0.23"
+
+[dev-dependencies]
+serde_json = { workspace = true }
+tempfile = { workspace = true }
