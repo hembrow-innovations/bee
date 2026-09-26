@@ -65,6 +65,12 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                 root, &name, path, url, branch, gitlink,
             )),
             ProjectCmd::Rm { name } => hive_exit(hive::project::rm_project(root, &name)),
+            ProjectCmd::Git { name, git_args } => {
+                match hive::project::git_project(root, &name, &git_args, wt.as_deref()) {
+                    Ok(status) => status.code().unwrap_or(1) as u8,
+                    Err(e) => hive_core::exit_code(&e) as u8,
+                }
+            }
             ProjectCmd::Worktree { cmd } => match cmd {
                 WorktreeCmd::List { project } => {
                     hive_exit(hive::worktree::list_worktrees(root, &project))
@@ -278,4 +284,16 @@ fn wt_add_branch_primary_unmoved() {
 #[test]
 fn wt_add_refuses_existing_path() {
     hive::worktree::tests::wt_add_refuses_existing_path();
+}
+
+#[cfg(test)]
+#[test]
+fn project_git_wt_missing_slot() {
+    hive::project::tests::project_git_wt_missing_slot();
+}
+
+#[cfg(test)]
+#[test]
+fn project_git_wt_skips_pin() {
+    hive::project::tests::project_git_wt_skips_pin();
 }

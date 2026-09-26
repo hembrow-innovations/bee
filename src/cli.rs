@@ -364,6 +364,12 @@ pub enum ProjectCmd {
     Rm {
         name: String,
     },
+    #[command(about = "Run git in a project checkout")]
+    Git {
+        name: String,
+        #[arg(last = true)]
+        git_args: Vec<String>,
+    },
     #[command(about = "Worktree slots")]
     Worktree {
         #[command(subcommand)]
