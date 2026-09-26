@@ -85,6 +85,11 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     &slot,
                     branch.as_deref(),
                 )),
+                WorktreeCmd::Rm {
+                    project,
+                    slot,
+                    force,
+                } => hive_exit(hive::worktree::rm_worktree(root, &project, &slot, force)),
             },
         },
         Commands::Progen { cmd } => match cmd {
@@ -284,6 +289,24 @@ fn wt_add_branch_primary_unmoved() {
 #[test]
 fn wt_add_refuses_existing_path() {
     hive::worktree::tests::wt_add_refuses_existing_path();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_rm_keeps_primary() {
+    hive::worktree::tests::wt_rm_keeps_primary();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_rm_refuses_unregistered() {
+    hive::worktree::tests::wt_rm_refuses_unregistered();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_rm_forwards_force() {
+    hive::worktree::tests::wt_rm_forwards_force();
 }
 
 #[cfg(test)]

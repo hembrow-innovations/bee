@@ -390,6 +390,13 @@ pub enum WorktreeCmd {
         #[arg(long)]
         branch: Option<String>,
     },
+    #[command(about = "Remove a worktree slot")]
+    Rm {
+        project: String,
+        slot: String,
+        #[arg(long)]
+        force: bool,
+    },
 }
 
 #[derive(Debug, Subcommand)]
