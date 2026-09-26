@@ -107,18 +107,19 @@ pub fn generate(
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use crate::git_fixture::bare_with_main;
     use crate::init_workbench;
     use crate::project::add_project;
     use crate::workbench_path;
+    use clap::Parser;
     use hive_actions::CwdTarget;
     use std::fs;
     use tempfile::tempdir;
 
     #[test]
-    fn doctor_warns_without_fixing_orphan_slot() {
+    pub(crate) fn doctor_warns_without_fixing_orphan_slot() {
         let dir = tempdir().unwrap();
         let root = dir.path();
         init_workbench(root).unwrap();
@@ -144,6 +145,45 @@ mod tests {
             .iter()
             .any(|c| c.id.contains("worktree_orphan") && c.fixable));
         assert!(orphan.is_dir());
+        println!("odm.wt:doctor-warn");
+    }
+
+    #[test]
+    pub(crate) fn run_wt_missing_slot_exits_4() {
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+        init_workbench(root).unwrap();
+        fs::create_dir_all(root.join("projects/alpha")).unwrap();
+        fs::create_dir_all(root.join("actions")).unwrap();
+        fs::write(
+            root.join("actions/core.yaml"),
+            "pwdhere:\n  tasks:\n    - run: echo hi\n",
+        )
+        .unwrap();
+        fs::write(
+            workbench_path(root),
+            "projects:\n  alpha:\n    path: projects/alpha\nactions:\n  core: actions/core.yaml\n",
+        )
+        .unwrap();
+
+        let missing = crate::Cli::try_parse_from([
+            "bee",
+            "run",
+            "--project",
+            "alpha",
+            "--wt",
+            "missing",
+            "pwdhere",
+        ])
+        .unwrap();
+        assert_eq!(crate::execute(missing, root), 4);
+        assert!(!root.join("worktrees/alpha/missing").exists());
+
+        let bare_wt =
+            crate::Cli::try_parse_from(["bee", "run", "--wt", "missing", "pwdhere"]).unwrap();
+        assert_eq!(crate::execute(bare_wt, root), 1);
+        assert!(!root.join("worktrees").exists());
+        println!("odm.wt:no-auto-create");
     }
 
     #[test]

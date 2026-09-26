@@ -346,3 +346,15 @@ fn project_git_wt_missing_slot() {
 fn project_git_wt_skips_pin() {
     hive::project::tests::project_git_wt_skips_pin();
 }
+
+#[cfg(test)]
+#[test]
+fn run_wt_missing_slot_exits_4() {
+    hive::ops::tests::run_wt_missing_slot_exits_4();
+}
+
+#[cfg(test)]
+#[test]
+fn doctor_warns_without_fixing_orphan_slot() {
+    hive::ops::tests::doctor_warns_without_fixing_orphan_slot();
+}
