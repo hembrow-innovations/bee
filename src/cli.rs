@@ -397,6 +397,15 @@ pub enum WorktreeCmd {
         #[arg(long)]
         force: bool,
     },
+    #[command(about = "Remove orphan slot directories")]
+    Prune {
+        #[arg(required_unless_present = "all")]
+        project: Option<String>,
+        #[arg(long)]
+        all: bool,
+        #[arg(long)]
+        force: bool,
+    },
 }
 
 #[derive(Debug, Subcommand)]

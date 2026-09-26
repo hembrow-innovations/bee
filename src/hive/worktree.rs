@@ -30,6 +30,98 @@ pub fn rm_worktree(root: &Path, project: &str, slot: &str, force: bool) -> Resul
     Ok(())
 }
 
+pub fn prune_worktrees(
+    root: &Path,
+    project: Option<&str>,
+    all: bool,
+    force: bool,
+) -> Result<u8, HiveError> {
+    if all && project.is_some() {
+        return Err(HiveError::usage("prune --all does not take a project name"));
+    }
+    let wb = load_workbench(root)?;
+    let git = Git::new();
+    if all {
+        let out = hive_core::worktree_prune_all(&git, &wb, force)?;
+        print!("{}", format_prune_all(&out));
+        return Ok(exit_after_skips(out.skipped_nonempty.is_empty()));
+    }
+    let project =
+        project.ok_or_else(|| HiveError::usage("prune requires a project unless --all"))?;
+    let out = hive_core::worktree_prune(&git, &wb, project, force)?;
+    print!("{}", format_prune(&out));
+    Ok(exit_after_skips(out.skipped_nonempty.is_empty()))
+}
+
+fn exit_after_skips(none_skipped: bool) -> u8 {
+    if none_skipped {
+        0
+    } else {
+        3
+    }
+}
+
+fn format_prune(out: &hive_core::WorktreePruneOutcome) -> String {
+    let mut s = prune_summary(
+        out.pruned.len(),
+        &out.pruned
+            .iter()
+            .map(|p| p.name.clone())
+            .collect::<Vec<_>>(),
+    );
+    append_skipped(
+        &mut s,
+        &out.skipped_nonempty
+            .iter()
+            .map(|p| p.name.clone())
+            .collect::<Vec<_>>(),
+    );
+    s.push('\n');
+    s
+}
+
+fn format_prune_all(out: &hive_core::WorktreePruneAllOutcome) -> String {
+    let mut s = prune_summary(
+        out.pruned.len(),
+        &out.pruned
+            .iter()
+            .map(|p| format!("{}/{}", p.project, p.name))
+            .collect::<Vec<_>>(),
+    );
+    append_skipped(
+        &mut s,
+        &out.skipped_nonempty
+            .iter()
+            .map(|p| format!("{}/{}", p.project, p.name))
+            .collect::<Vec<_>>(),
+    );
+    s.push('\n');
+    s
+}
+
+fn prune_summary(count: usize, names: &[String]) -> String {
+    if count == 0 {
+        "pruned 0 orphan worktree dirs".to_string()
+    } else {
+        format!(
+            "pruned {count} orphan worktree dir{}: {}",
+            if count == 1 { "" } else { "s" },
+            names.join(", ")
+        )
+    }
+}
+
+fn append_skipped(s: &mut String, names: &[String]) {
+    if names.is_empty() {
+        return;
+    }
+    s.push_str(&format!(
+        "\nskipped non-empty orphan{} (use --force): {}",
+        if names.len() == 1 { "" } else { "s" },
+        names.join(", ")
+    ));
+}
+
 fn render_list(root: &Path, project: &str) -> Result<String, HiveError> {
     let wb = load_workbench(root)?;
     let git = Git::new();
@@ -365,6 +457,131 @@ pub(crate) mod tests {
         assert_rm(&forced, "alpha", "agent", true);
         assert_eq!(crate::execute(forced, &root), 0);
         assert!(!slot.exists());
+        assert!(primary.is_dir());
+        assert_eq!(head_sha(&primary), before);
+    }
+
+    fn prune_cli(project: Option<&str>, all: bool, force: bool) -> crate::Cli {
+        let mut args = vec![
+            "bee".to_string(),
+            "project".to_string(),
+            "worktree".to_string(),
+            "prune".to_string(),
+        ];
+        if all {
+            args.push("--all".into());
+        }
+        if let Some(project) = project {
+            args.push(project.into());
+        }
+        if force {
+            args.push("--force".into());
+        }
+        let argv: Vec<&str> = args.iter().map(String::as_str).collect();
+        crate::Cli::try_parse_from(argv).unwrap()
+    }
+
+    fn assert_prune(cli: &crate::Cli, project: Option<&str>, all: bool, force: bool) {
+        match &cli.command {
+            crate::Commands::Project {
+                cmd:
+                    crate::ProjectCmd::Worktree {
+                        cmd:
+                            crate::WorktreeCmd::Prune {
+                                project: got_project,
+                                all: got_all,
+                                force: got_force,
+                            },
+                    },
+            } => {
+                assert_eq!(got_project.as_deref(), project);
+                assert_eq!(*got_all, all);
+                assert_eq!(*got_force, force);
+            }
+            other => panic!("expected worktree prune, got {other:?}"),
+        }
+    }
+
+    #[test]
+    pub(crate) fn wt_prune_keeps_registered() {
+        let dir = tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let primary = git_project(&root, "alpha");
+        let before = head_sha(&primary);
+        let branch = current_branch(&primary);
+
+        let agent = add_cli("alpha", "agent", Some("topic"));
+        assert_eq!(crate::execute(agent, &root), 0);
+        let slot = root.join("worktrees/alpha/agent");
+        let orphan = root.join("worktrees/alpha/stale");
+        fs::create_dir_all(&orphan).unwrap();
+        assert!(slot.is_dir());
+        assert!(orphan.is_dir());
+        assert_eq!(
+            orphan.strip_prefix(&root).unwrap().to_str().unwrap(),
+            "worktrees/alpha/stale"
+        );
+
+        let cli = prune_cli(Some("alpha"), false, false);
+        assert_prune(&cli, Some("alpha"), false, false);
+        assert_eq!(crate::execute(cli, &root), 0);
+
+        assert!(!orphan.exists());
+        assert!(slot.is_dir());
+        assert!(primary.is_dir());
+        assert_eq!(head_sha(&primary), before);
+        assert_eq!(current_branch(&primary), branch);
+        println!("odm.wt:prune-orphans");
+    }
+
+    #[test]
+    pub(crate) fn wt_prune_skips_nonempty_unless_force() {
+        let dir = tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let primary = git_project(&root, "alpha");
+        let before = head_sha(&primary);
+        let empty = root.join("worktrees/alpha/empty");
+        let full = root.join("worktrees/alpha/full");
+        fs::create_dir_all(&empty).unwrap();
+        fs::create_dir_all(&full).unwrap();
+        fs::write(full.join("leftover"), "keep").unwrap();
+
+        let plain = prune_cli(Some("alpha"), false, false);
+        assert_prune(&plain, Some("alpha"), false, false);
+        assert_eq!(crate::execute(plain, &root), 3);
+        assert!(!empty.exists());
+        assert_eq!(fs::read_to_string(full.join("leftover")).unwrap(), "keep");
+        assert_eq!(head_sha(&primary), before);
+
+        let forced = prune_cli(Some("alpha"), false, true);
+        assert_prune(&forced, Some("alpha"), false, true);
+        assert_eq!(crate::execute(forced, &root), 0);
+        assert!(!full.exists());
+        assert!(primary.is_dir());
+        assert_eq!(head_sha(&primary), before);
+    }
+
+    #[test]
+    pub(crate) fn wt_prune_all_rejects_project() {
+        assert!(crate::Cli::try_parse_from(["bee", "project", "worktree", "prune"]).is_err());
+
+        let dir = tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let primary = git_project(&root, "alpha");
+        let before = head_sha(&primary);
+        let orphan = root.join("worktrees/alpha/stale");
+        fs::create_dir_all(&orphan).unwrap();
+
+        let clash = prune_cli(Some("alpha"), true, false);
+        assert_prune(&clash, Some("alpha"), true, false);
+        assert_eq!(crate::execute(clash, &root), 1);
+        assert!(orphan.is_dir());
+        assert_eq!(head_sha(&primary), before);
+
+        let all = prune_cli(None, true, false);
+        assert_prune(&all, None, true, false);
+        assert_eq!(crate::execute(all, &root), 0);
+        assert!(!orphan.exists());
         assert!(primary.is_dir());
         assert_eq!(head_sha(&primary), before);
     }

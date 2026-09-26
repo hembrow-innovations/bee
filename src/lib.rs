@@ -90,6 +90,14 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     slot,
                     force,
                 } => hive_exit(hive::worktree::rm_worktree(root, &project, &slot, force)),
+                WorktreeCmd::Prune {
+                    project,
+                    all,
+                    force,
+                } => match hive::worktree::prune_worktrees(root, project.as_deref(), all, force) {
+                    Ok(code) => code,
+                    Err(e) => hive_core::exit_code(&e) as u8,
+                },
             },
         },
         Commands::Progen { cmd } => match cmd {
@@ -307,6 +315,24 @@ fn wt_rm_refuses_unregistered() {
 #[test]
 fn wt_rm_forwards_force() {
     hive::worktree::tests::wt_rm_forwards_force();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_prune_keeps_registered() {
+    hive::worktree::tests::wt_prune_keeps_registered();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_prune_skips_nonempty_unless_force() {
+    hive::worktree::tests::wt_prune_skips_nonempty_unless_force();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_prune_all_rejects_project() {
+    hive::worktree::tests::wt_prune_all_rejects_project();
 }
 
 #[cfg(test)]
