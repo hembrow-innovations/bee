@@ -364,6 +364,19 @@ pub enum ProjectCmd {
     Rm {
         name: String,
     },
+    #[command(about = "List registered worktree slots")]
+    Worktree {
+        #[command(subcommand)]
+        cmd: WorktreeCmd,
+    },
+}
+
+#[derive(Debug, Subcommand)]
+pub enum WorktreeCmd {
+    #[command(about = "Print registered slots for a project")]
+    List {
+        project: String,
+    },
 }
 
 #[derive(Debug, Subcommand)]

@@ -17,7 +17,7 @@ use std::path::Path;
 
 pub use cli::{
     resolve_wt_flags, Cli, Commands, DocsCmd, NoteCmd, NoteKind, OnicCmd, PinCmd, ProgenCmd,
-    ProjectCmd,
+    ProjectCmd, WorktreeCmd,
 };
 pub use hive::{
     actors_dir, hive_root, hivemind_dir, init_workbench, lanes_path, load_workbench,
@@ -65,6 +65,11 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                 root, &name, path, url, branch, gitlink,
             )),
             ProjectCmd::Rm { name } => hive_exit(hive::project::rm_project(root, &name)),
+            ProjectCmd::Worktree { cmd } => match cmd {
+                WorktreeCmd::List { project } => {
+                    hive_exit(hive::worktree::list_worktrees(root, &project))
+                }
+            },
         },
         Commands::Progen { cmd } => match cmd {
             ProgenCmd::Add {
@@ -239,4 +244,16 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
 #[test]
 fn watch_max_spawns_stops_new_claims() {
     dest::watch::tests::watch_max_spawns_stops_new_claims();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_list_prints_slot_path() {
+    hive::worktree::tests::wt_list_prints_slot_path();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_list_non_git_exits_3() {
+    hive::worktree::tests::wt_list_non_git_exits_3();
 }

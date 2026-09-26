@@ -5,6 +5,7 @@ pub mod paths;
 pub mod pin;
 pub mod project;
 pub mod sync;
+pub mod worktree;
 
 #[cfg(test)]
 pub mod git_fixture;
