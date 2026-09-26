@@ -364,7 +364,7 @@ pub enum ProjectCmd {
     Rm {
         name: String,
     },
-    #[command(about = "List registered worktree slots")]
+    #[command(about = "Worktree slots")]
     Worktree {
         #[command(subcommand)]
         cmd: WorktreeCmd,
@@ -376,6 +376,13 @@ pub enum WorktreeCmd {
     #[command(about = "Print registered slots for a project")]
     List {
         project: String,
+    },
+    #[command(about = "Add a worktree slot")]
+    Add {
+        project: String,
+        slot: String,
+        #[arg(long)]
+        branch: Option<String>,
     },
 }
 

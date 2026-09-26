@@ -69,6 +69,16 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                 WorktreeCmd::List { project } => {
                     hive_exit(hive::worktree::list_worktrees(root, &project))
                 }
+                WorktreeCmd::Add {
+                    project,
+                    slot,
+                    branch,
+                } => hive_exit(hive::worktree::add_worktree(
+                    root,
+                    &project,
+                    &slot,
+                    branch.as_deref(),
+                )),
             },
         },
         Commands::Progen { cmd } => match cmd {
@@ -256,4 +266,16 @@ fn wt_list_prints_slot_path() {
 #[test]
 fn wt_list_non_git_exits_3() {
     hive::worktree::tests::wt_list_non_git_exits_3();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_add_branch_primary_unmoved() {
+    hive::worktree::tests::wt_add_branch_primary_unmoved();
+}
+
+#[cfg(test)]
+#[test]
+fn wt_add_refuses_existing_path() {
+    hive::worktree::tests::wt_add_refuses_existing_path();
 }

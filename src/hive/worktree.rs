@@ -11,6 +11,18 @@ pub fn list_worktrees(root: &Path, project: &str) -> Result<(), HiveError> {
     Ok(())
 }
 
+pub fn add_worktree(
+    root: &Path,
+    project: &str,
+    slot: &str,
+    branch: Option<&str>,
+) -> Result<(), HiveError> {
+    let wb = load_workbench(root)?;
+    let git = Git::new();
+    hive_core::worktree_add(&git, &wb, project, slot, branch)?;
+    Ok(())
+}
+
 fn render_list(root: &Path, project: &str) -> Result<String, HiveError> {
     let wb = load_workbench(root)?;
     let git = Git::new();
@@ -103,6 +115,124 @@ pub(crate) mod tests {
             crate::Cli::try_parse_from(["bee", "project", "worktree", "list", "plain"]).unwrap();
         assert_eq!(crate::execute(cli, &root), 3);
         println!("odm.wt:git-project");
+    }
+
+    fn current_branch(repo: &Path) -> String {
+        let out = Command::new("git")
+            .args(["-C", repo.to_str().unwrap(), "branch", "--show-current"])
+            .output()
+            .unwrap();
+        assert!(
+            out.status.success(),
+            "{}",
+            String::from_utf8_lossy(&out.stderr)
+        );
+        String::from_utf8(out.stdout).unwrap().trim().to_string()
+    }
+
+    fn git_project(root: &Path, name: &str) -> std::path::PathBuf {
+        init_workbench(root).unwrap();
+        let rel = format!("projects/{name}");
+        let primary = root.join(&rel);
+        fs::create_dir_all(&primary).unwrap();
+        git_init_commit(&primary);
+        register_project(root, name, &rel);
+        primary
+    }
+
+    fn add_cli(project: &str, slot: &str, branch: Option<&str>) -> crate::Cli {
+        let mut args = vec![
+            "bee".to_string(),
+            "project".to_string(),
+            "worktree".to_string(),
+            "add".to_string(),
+            project.to_string(),
+            slot.to_string(),
+        ];
+        if let Some(branch) = branch {
+            args.push("--branch".into());
+            args.push(branch.into());
+        }
+        let argv: Vec<&str> = args.iter().map(String::as_str).collect();
+        crate::Cli::try_parse_from(argv).unwrap()
+    }
+
+    fn assert_add(cli: &crate::Cli, project: &str, slot: &str, branch: Option<&str>) {
+        match &cli.command {
+            crate::Commands::Project {
+                cmd:
+                    crate::ProjectCmd::Worktree {
+                        cmd:
+                            crate::WorktreeCmd::Add {
+                                project: got_project,
+                                slot: got_slot,
+                                branch: got_branch,
+                            },
+                    },
+            } => {
+                assert_eq!(got_project, project);
+                assert_eq!(got_slot, slot);
+                assert_eq!(got_branch.as_deref(), branch);
+            }
+            other => panic!("expected worktree add, got {other:?}"),
+        }
+    }
+
+    #[test]
+    pub(crate) fn wt_add_branch_primary_unmoved() {
+        let dir = tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let primary = git_project(&root, "alpha");
+        let before = head_sha(&primary);
+
+        let cli = add_cli("alpha", "agent", Some("topic"));
+        assert_add(&cli, "alpha", "agent", Some("topic"));
+        assert_eq!(crate::execute(cli, &root), 0);
+
+        assert_eq!(head_sha(&primary), before);
+        let slot = root.join("worktrees/alpha/agent");
+        assert!(slot.is_dir());
+        assert!(!slot.starts_with(root.join(".odm")));
+        assert_eq!(current_branch(&slot), "topic");
+
+        let omit = add_cli("alpha", "same", None);
+        assert_add(&omit, "alpha", "same", None);
+        let omit_code = crate::execute(omit, &root);
+        assert_ne!(omit_code, 1, "omitted --branch must not be a bin refusal");
+        assert_eq!(head_sha(&primary), before);
+        println!("primary-head:unchanged");
+    }
+
+    #[test]
+    pub(crate) fn wt_add_refuses_existing_path() {
+        let dir = tempdir().unwrap();
+        let root = dir.path().canonicalize().unwrap();
+        let primary = git_project(&root, "alpha");
+        let before = head_sha(&primary);
+
+        let first = add_cli("alpha", "agent", Some("topic"));
+        assert_eq!(crate::execute(first, &root), 0);
+        let slot = root.join("worktrees/alpha/agent");
+        assert_eq!(
+            slot.strip_prefix(&root).unwrap().to_str().unwrap(),
+            "worktrees/alpha/agent"
+        );
+        fs::write(slot.join("marker"), "keep").unwrap();
+
+        let err = add_worktree(&root, "alpha", "agent", Some("other")).unwrap_err();
+        assert_eq!(hive_core::exit_code(&err), 3);
+        assert!(err.to_string().contains("worktrees/alpha/agent"), "{err}");
+        assert!(!err.to_string().contains(".odm/"));
+
+        let second = add_cli("alpha", "agent", Some("other"));
+        assert_add(&second, "alpha", "agent", Some("other"));
+        assert_eq!(crate::execute(second, &root), 3);
+
+        assert!(slot.join("marker").is_file());
+        assert_eq!(fs::read_to_string(slot.join("marker")).unwrap(), "keep");
+        assert_eq!(current_branch(&slot), "topic");
+        assert_eq!(head_sha(&primary), before);
+        println!("odm.wt:path");
     }
 
     #[test]
