@@ -611,7 +611,7 @@ mod tests {
     }
 
     #[test]
-    fn project_rm_matches_queen_argv() {
+    fn project_rm_parses_name() {
         let cli = Cli::try_parse_from(["bee", "project", "rm", "alpha"]).unwrap();
         match cli.command {
             Commands::Project {
