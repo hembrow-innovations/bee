@@ -220,6 +220,65 @@ pub(crate) mod tests {
         .unwrap()
     }
 
+    fn hive_with_only_adr(rel: &str) -> tempfile::TempDir {
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+        init_workbench(root).unwrap();
+        write_rel(root, rel, "# scan adr\n");
+        dir
+    }
+
+    fn pack_json(root: &Path) -> String {
+        let cli =
+            crate::Cli::try_parse_from(["bee", "context", "--area", "scan", "--json"]).unwrap();
+        match &cli.command {
+            crate::Commands::Context {
+                json: true,
+                id: None,
+                ..
+            } => {}
+            other => panic!("expected context --json with no id, got {other:?}"),
+        }
+        let (code, text) = capture_stdout(|| crate::execute(cli, root));
+        assert_eq!(code, 0);
+        text
+    }
+
+    fn capture_stdout(f: impl FnOnce() -> u8) -> (u8, String) {
+        use std::io::Write;
+        use std::os::fd::AsRawFd;
+        extern "C" {
+            fn dup(fd: i32) -> i32;
+            fn dup2(old: i32, new: i32) -> i32;
+            fn close(fd: i32) -> i32;
+        }
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        std::io::stdout().flush().unwrap();
+        let code = unsafe {
+            let saved = dup(1);
+            assert!(saved >= 0);
+            assert!(dup2(tmp.as_file().as_raw_fd(), 1) >= 0);
+            let code = f();
+            std::io::stdout().flush().unwrap();
+            dup2(saved, 1);
+            close(saved);
+            code
+        };
+        (code, fs::read_to_string(tmp.path()).unwrap())
+    }
+
+    fn assert_pack_json(text: &str) {
+        let t = text.trim();
+        assert!(
+            t.starts_with('{') && t.ends_with('}'),
+            "expected json object, got {text:?}"
+        );
+        for key in ["query", "area", "must_read", "related", "excluded"] {
+            let needle = format!("\"{key}\"");
+            assert!(t.contains(&needle), "missing json key {key} in {text:?}");
+        }
+    }
+
     #[test]
     pub(crate) fn doctor_warns_without_fixing_orphan_slot() {
         let dir = tempdir().unwrap();
@@ -356,6 +415,27 @@ pub(crate) mod tests {
             "related has {related_hits} hits: {related:?}"
         );
         println!("bee.context:pack-md");
+    }
+
+    #[test]
+    pub(crate) fn context_pack_host_json() {
+        let adr = hive_with_only_adr("docs/adr/scan-note.md");
+        let json = pack_json(adr.path());
+        assert_pack_json(&json);
+        assert!(
+            json.contains("docs/adr/scan-note.md"),
+            "docs/adr layout missing from pack: {json:?}"
+        );
+
+        let nested = hive_with_only_adr("docs/decisions/adr/scan-note.md");
+        let json = pack_json(nested.path());
+        assert_pack_json(&json);
+        assert!(
+            json.contains("docs/decisions/adr/scan-note.md"),
+            "docs/decisions/adr layout missing from pack: {json:?}"
+        );
+
+        println!("bee.context:pack-host");
     }
 
     #[test]
