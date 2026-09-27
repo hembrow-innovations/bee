@@ -377,6 +377,12 @@ fn context_id_and_selector_exits_usage() {
 
 #[cfg(test)]
 #[test]
+fn context_pack_prints_markdown() {
+    hive::ops::tests::context_pack_prints_markdown();
+}
+
+#[cfg(test)]
+#[test]
 fn run_wt_missing_slot_exits_4() {
     hive::ops::tests::run_wt_missing_slot_exits_4();
 }

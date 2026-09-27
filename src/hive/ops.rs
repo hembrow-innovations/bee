@@ -117,6 +117,9 @@ pub(crate) mod tests {
     use hive_actions::CwdTarget;
     use hive_store::ensure_vault;
     use std::fs;
+    use std::io::{Read, Write};
+    use std::os::fd::FromRawFd;
+    use std::sync::Mutex;
     use tempfile::tempdir;
 
     fn hive_with_neighborhood() -> tempfile::TempDir {
@@ -137,6 +140,107 @@ pub(crate) mod tests {
         .unwrap();
         fs::write(workbench_path(root), "progens:\n  mem:\n    path: mem\n").unwrap();
         dir
+    }
+
+    fn write_rel(root: &Path, rel: &str, body: &str) {
+        let path = root.join(rel);
+        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::write(path, body).unwrap();
+    }
+
+    fn hive_with_pack_fixture() -> tempfile::TempDir {
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+        init_workbench(root).unwrap();
+        write_rel(
+            root,
+            "docs/guides/guides-agent-gotchas.md",
+            "# Agent gotchas\n",
+        );
+        write_rel(
+            root,
+            "docs/specs/bee/scan/purpose.md",
+            "# Scan purpose\n",
+        );
+        for name in ["alpha", "bravo", "charlie", "delta", "echo"] {
+            write_rel(
+                root,
+                &format!("docs/specs/bee/scan/{name}/contract.md"),
+                &format!("# {name} contract\n"),
+            );
+        }
+        for i in 1..=12 {
+            write_rel(
+                root,
+                &format!("docs/specs/bee/scan/extra-{i:02}.md"),
+                &format!("# extra {i}\n"),
+            );
+        }
+        dir
+    }
+
+    fn markdown_section<'a>(text: &'a str, heading: &str) -> &'a str {
+        let mut start = None;
+        let mut end = text.len();
+        let mut off = 0;
+        for line in text.lines() {
+            let name = line.trim_start_matches('#').trim();
+            let is_heading = line.trim().starts_with('#') && !name.is_empty();
+            if is_heading && name == heading && start.is_none() {
+                start = Some(off + line.len());
+            } else if is_heading && start.is_some() {
+                end = off;
+                break;
+            }
+            off += line.len() + 1;
+        }
+        match start {
+            Some(s) => {
+                let s = if s < text.len() && text.as_bytes().get(s) == Some(&b'\n') {
+                    s + 1
+                } else {
+                    s
+                };
+                &text[s.min(text.len())..end.min(text.len())]
+            }
+            None => "",
+        }
+    }
+
+    fn capture_stdout(f: impl FnOnce() -> u8) -> (u8, String) {
+        static LOCK: Mutex<()> = Mutex::new(());
+        let _guard = LOCK.lock().unwrap();
+        let mut fds = [0i32; 2];
+        assert_eq!(unsafe { pipe(fds.as_mut_ptr()) }, 0);
+        let old = unsafe { dup(1) };
+        assert!(old >= 0);
+        assert!(unsafe { dup2(fds[1], 1) } >= 0);
+        let code = f();
+        let _ = std::io::stdout().flush();
+        unsafe {
+            dup2(old, 1);
+            close(old);
+            close(fds[1]);
+        }
+        let mut file = unsafe { std::fs::File::from_raw_fd(fds[0]) };
+        let mut buf = Vec::new();
+        file.read_to_end(&mut buf).unwrap();
+        (code, String::from_utf8_lossy(&buf).into_owned())
+    }
+
+    fn pack_stdout(root: &Path) -> String {
+        let cli = crate::Cli::try_parse_from(["bee", "context", "--area", "scan"]).unwrap();
+        let (code, text) = capture_stdout(|| crate::execute(cli, root));
+        assert_eq!(code, 0);
+        text
+    }
+
+    #[link(name = "c")]
+    extern "C" {
+        fn pipe(pipefd: *mut i32) -> i32;
+        fn dup(fd: i32) -> i32;
+        fn dup2(oldfd: i32, newfd: i32) -> i32;
+        fn close(fd: i32) -> i32;
     }
 
     #[test]
@@ -234,6 +338,47 @@ pub(crate) mod tests {
             Err(_) => {}
         }
         println!("bee.context:usage");
+    }
+
+    #[test]
+    pub(crate) fn context_pack_prints_markdown() {
+        let dir = hive_with_pack_fixture();
+        let text = pack_stdout(dir.path());
+        for heading in [
+            "Query",
+            "Area",
+            "Must read",
+            "Related",
+            "Excluded",
+            "Next",
+        ] {
+            assert!(
+                text.lines()
+                    .any(|l| l.trim_start_matches('#').trim() == heading),
+                "missing heading {heading} in {text:?}"
+            );
+        }
+        let must = markdown_section(&text, "Must read");
+        assert!(
+            must.contains("guides-agent-gotchas.md"),
+            "must read missing always-on guide: {must:?}"
+        );
+        assert!(
+            must.contains("purpose.md"),
+            "must read missing area purpose: {must:?}"
+        );
+        let contracts = must.matches("contract.md").count();
+        assert!(
+            contracts <= 4,
+            "must read has {contracts} contracts: {must:?}"
+        );
+        let related = markdown_section(&text, "Related");
+        let related_hits = related.matches(".md").count();
+        assert!(
+            related_hits <= 10,
+            "related has {related_hits} hits: {related:?}"
+        );
+        println!("bee.context:pack-md");
     }
 
     #[test]
