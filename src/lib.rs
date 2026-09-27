@@ -7,6 +7,7 @@ mod forward;
 mod hive;
 mod note;
 mod onic;
+mod pack;
 
 pub use dest::{lookup_notes, NotesDirs};
 pub use forward::{forward_heio_bin, forward_old_bin};
@@ -132,7 +133,7 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             query,
             unit,
             domain,
-            k: _,
+            k,
             json: _,
         } => {
             let has_selector =
@@ -145,7 +146,22 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     }
                     Err(e) => hive_core::exit_code(&e) as u8,
                 },
-                (None, true) => 0,
+                (None, true) => match pack::build_pack(
+                    root,
+                    pack::PackSelectors {
+                        area,
+                        query,
+                        unit,
+                        domain,
+                        k,
+                    },
+                ) {
+                    Ok(text) => {
+                        print!("{text}");
+                        0
+                    }
+                    Err(e) => hive_core::exit_code(&e) as u8,
+                },
                 _ => 1,
             }
         }

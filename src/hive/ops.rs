@@ -117,9 +117,6 @@ pub(crate) mod tests {
     use hive_actions::CwdTarget;
     use hive_store::ensure_vault;
     use std::fs;
-    use std::io::{Read, Write};
-    use std::os::fd::FromRawFd;
-    use std::sync::Mutex;
     use tempfile::tempdir;
 
     fn hive_with_neighborhood() -> tempfile::TempDir {
@@ -207,40 +204,20 @@ pub(crate) mod tests {
         }
     }
 
-    fn capture_stdout(f: impl FnOnce() -> u8) -> (u8, String) {
-        static LOCK: Mutex<()> = Mutex::new(());
-        let _guard = LOCK.lock().unwrap();
-        let mut fds = [0i32; 2];
-        assert_eq!(unsafe { pipe(fds.as_mut_ptr()) }, 0);
-        let old = unsafe { dup(1) };
-        assert!(old >= 0);
-        assert!(unsafe { dup2(fds[1], 1) } >= 0);
-        let code = f();
-        let _ = std::io::stdout().flush();
-        unsafe {
-            dup2(old, 1);
-            close(old);
-            close(fds[1]);
-        }
-        let mut file = unsafe { std::fs::File::from_raw_fd(fds[0]) };
-        let mut buf = Vec::new();
-        file.read_to_end(&mut buf).unwrap();
-        (code, String::from_utf8_lossy(&buf).into_owned())
-    }
-
     fn pack_stdout(root: &Path) -> String {
         let cli = crate::Cli::try_parse_from(["bee", "context", "--area", "scan"]).unwrap();
-        let (code, text) = capture_stdout(|| crate::execute(cli, root));
-        assert_eq!(code, 0);
-        text
-    }
-
-    #[link(name = "c")]
-    extern "C" {
-        fn pipe(pipefd: *mut i32) -> i32;
-        fn dup(fd: i32) -> i32;
-        fn dup2(oldfd: i32, newfd: i32) -> i32;
-        fn close(fd: i32) -> i32;
+        assert_eq!(crate::execute(cli, root), 0);
+        crate::pack::build_pack(
+            root,
+            crate::pack::PackSelectors {
+                area: Some("scan".into()),
+                query: None,
+                unit: None,
+                domain: None,
+                k: 10,
+            },
+        )
+        .unwrap()
     }
 
     #[test]
