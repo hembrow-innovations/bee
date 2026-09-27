@@ -114,7 +114,19 @@ pub enum Commands {
     },
     #[command(about = "Show note context by id")]
     Context {
-        id: String,
+        id: Option<String>,
+        #[arg(long)]
+        area: Option<String>,
+        #[arg(long)]
+        query: Option<String>,
+        #[arg(long)]
+        unit: Option<String>,
+        #[arg(long)]
+        domain: Option<String>,
+        #[arg(long, default_value_t = 10)]
+        k: usize,
+        #[arg(long)]
+        json: bool,
     },
     #[command(about = "Run a named action")]
     Run {

@@ -126,13 +126,29 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             }
             Err(e) => hive_core::exit_code(&e) as u8,
         },
-        Commands::Context { id } => match hive::ops::context(root, &id) {
-            Ok(text) => {
-                print!("{text}");
-                0
+        Commands::Context {
+            id,
+            area,
+            query,
+            unit,
+            domain,
+            k: _,
+            json: _,
+        } => {
+            let has_selector =
+                area.is_some() || query.is_some() || unit.is_some() || domain.is_some();
+            match (id, has_selector) {
+                (Some(id), false) => match hive::ops::context(root, &id) {
+                    Ok(text) => {
+                        print!("{text}");
+                        0
+                    }
+                    Err(e) => hive_core::exit_code(&e) as u8,
+                },
+                (None, true) => 0,
+                _ => 1,
             }
-            Err(e) => hive_core::exit_code(&e) as u8,
-        },
+        }
         Commands::Run { action, extra } => {
             match hive::ops::run(root, action, &extra, cli.project.as_deref(), wt.as_deref()) {
                 Ok(code) => code as u8,
