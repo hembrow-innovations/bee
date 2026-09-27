@@ -53,6 +53,7 @@ tempfile = "3"
 [dependencies]
 clap = { workspace = true }
 serde = { workspace = true }
+serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 hive-actions = { workspace = true }
 hive-core = { workspace = true }

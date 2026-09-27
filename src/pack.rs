@@ -1,10 +1,12 @@
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use hive_core::HiveError;
+use serde::Serialize;
 use serde_yaml::Value;
 
 use crate::dest::note::{parse_front_matter, ParseFrontMatter};
+use crate::docs::find_vault_root;
 
 const ALWAYS_ON: &[&str] = &[
     "docs/guides/guides-intent-system.md",
@@ -20,6 +22,7 @@ const HOT_ROOTS: &[&str] = &[
     ".hivemind/planning/tickets",
     ".hivemind/planning/sprints",
     "docs/adr",
+    "docs/decisions/adr",
 ];
 
 const SKIP_DIRS: &[&str] = &["archive", "closed", "completed"];
@@ -100,15 +103,75 @@ pub struct PackSelectors {
     pub k: usize,
 }
 
+#[derive(Serialize)]
+pub struct Pack {
+    pub query: String,
+    pub area: Option<String>,
+    pub domain: Option<String>,
+    pub unit: Option<String>,
+    pub hot_file_count: usize,
+    pub must_read: Vec<String>,
+    pub related: Vec<String>,
+    pub excluded: Vec<String>,
+}
+
+impl Pack {
+    pub fn markdown(&self) -> String {
+        render(
+            &self.query,
+            self.area.as_deref(),
+            self.domain.as_deref(),
+            &self.must_read,
+            &self.related,
+        )
+    }
+
+    pub fn json(&self) -> String {
+        serde_json::to_string(self).unwrap_or_else(|_| "{}".to_string())
+    }
+}
+
+#[cfg(test)]
+thread_local! {
+    static CAPTURE: std::cell::RefCell<Option<String>> = const { std::cell::RefCell::new(None) };
+}
+
+pub(crate) fn emit(text: &str) {
+    #[cfg(test)]
+    {
+        CAPTURE.with(|c| {
+            if let Some(buf) = c.borrow_mut().as_mut() {
+                buf.push_str(text);
+            }
+        });
+    }
+    print!("{text}");
+}
+
+#[cfg(test)]
+pub(crate) fn capture_out(f: impl FnOnce() -> u8) -> (u8, String) {
+    CAPTURE.with(|c| *c.borrow_mut() = Some(String::new()));
+    let code = f();
+    CAPTURE.with(|c| (code, c.borrow_mut().take().unwrap_or_default()))
+}
+
 struct Note {
     rel: String,
     body: String,
 }
 
-pub fn build_pack(vault: &Path, sel: PackSelectors) -> Result<String, HiveError> {
-    let (area, query, domain) = resolve_selectors(vault, &sel)?;
+fn pack_hive(start: &Path) -> PathBuf {
+    find_vault_root(start, None, None)
+        .and_then(|hit| hit.root.parent().map(Path::to_path_buf))
+        .unwrap_or_else(|| start.to_path_buf())
+}
+
+pub fn build_pack(start: &Path, sel: PackSelectors) -> Result<Pack, HiveError> {
+    let vault = pack_hive(start);
+    let unit = sel.unit.clone();
+    let (area, query, domain) = resolve_selectors(&vault, &sel)?;
     let k = sel.k;
-    let notes = walk_hot(vault);
+    let notes = walk_hot(&vault);
     let tokens = query_tokens(&query);
     let slug = area.as_deref().map(area_slug);
     let mut must = Vec::new();
@@ -193,7 +256,16 @@ pub fn build_pack(vault: &Path, sel: PackSelectors) -> Result<String, HiveError>
         }
     }
     related.truncate(k);
-    Ok(render(&query, area.as_deref(), domain.as_deref(), &must, &related))
+    Ok(Pack {
+        query,
+        area,
+        domain,
+        unit,
+        hot_file_count: notes.len(),
+        must_read: must,
+        related,
+        excluded: EXCLUDED.iter().map(|s| (*s).to_string()).collect(),
+    })
 }
 
 fn resolve_selectors(

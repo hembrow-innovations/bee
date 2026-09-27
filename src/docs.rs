@@ -105,7 +105,7 @@ pub(crate) fn run_with_env(
     }
 }
 
-fn find_vault_root(
+pub(crate) fn find_vault_root(
     start: &Path,
     vault_arg: Option<&str>,
     env_vault: Option<&str>,

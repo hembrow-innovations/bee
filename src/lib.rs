@@ -134,7 +134,7 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
             unit,
             domain,
             k,
-            json: _,
+            json,
         } => {
             let has_selector =
                 area.is_some() || query.is_some() || unit.is_some() || domain.is_some();
@@ -156,8 +156,9 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                         k,
                     },
                 ) {
-                    Ok(text) => {
-                        print!("{text}");
+                    Ok(pack) => {
+                        let text = if json { pack.json() } else { pack.markdown() };
+                        pack::emit(&text);
                         0
                     }
                     Err(e) => hive_core::exit_code(&e) as u8,

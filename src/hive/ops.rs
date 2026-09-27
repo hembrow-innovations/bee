@@ -218,6 +218,7 @@ pub(crate) mod tests {
             },
         )
         .unwrap()
+        .markdown()
     }
 
     fn hive_with_only_adr(rel: &str) -> tempfile::TempDir {
@@ -239,32 +240,9 @@ pub(crate) mod tests {
             } => {}
             other => panic!("expected context --json with no id, got {other:?}"),
         }
-        let (code, text) = capture_stdout(|| crate::execute(cli, root));
+        let (code, text) = crate::pack::capture_out(|| crate::execute(cli, root));
         assert_eq!(code, 0);
         text
-    }
-
-    fn capture_stdout(f: impl FnOnce() -> u8) -> (u8, String) {
-        use std::io::Write;
-        use std::os::fd::AsRawFd;
-        extern "C" {
-            fn dup(fd: i32) -> i32;
-            fn dup2(old: i32, new: i32) -> i32;
-            fn close(fd: i32) -> i32;
-        }
-        let tmp = tempfile::NamedTempFile::new().unwrap();
-        std::io::stdout().flush().unwrap();
-        let code = unsafe {
-            let saved = dup(1);
-            assert!(saved >= 0);
-            assert!(dup2(tmp.as_file().as_raw_fd(), 1) >= 0);
-            let code = f();
-            std::io::stdout().flush().unwrap();
-            dup2(saved, 1);
-            close(saved);
-            code
-        };
-        (code, fs::read_to_string(tmp.path()).unwrap())
     }
 
     fn assert_pack_json(text: &str) {
@@ -273,7 +251,16 @@ pub(crate) mod tests {
             t.starts_with('{') && t.ends_with('}'),
             "expected json object, got {text:?}"
         );
-        for key in ["query", "area", "must_read", "related", "excluded"] {
+        for key in [
+            "query",
+            "area",
+            "domain",
+            "unit",
+            "hot_file_count",
+            "must_read",
+            "related",
+            "excluded",
+        ] {
             let needle = format!("\"{key}\"");
             assert!(t.contains(&needle), "missing json key {key} in {text:?}");
         }
