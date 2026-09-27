@@ -277,7 +277,11 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     1
                 }
             },
-            NoteCmd::Lookup { query } => match note::write::lookup::lookup(root, &query) {
+            NoteCmd::Lookup {
+                query,
+                scope,
+                regex,
+            } => match note::write::lookup::lookup(root, &query, &scope, regex) {
                 Ok(text) if text.is_empty() => 0,
                 Ok(text) => {
                     pack::emit(&format!("{text}\n"));

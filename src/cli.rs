@@ -263,6 +263,10 @@ pub enum NoteCmd {
     Status { id: String, status: String },
     Housekeep,
     Lookup {
+        #[arg(long, default_value = "planning")]
+        scope: String,
+        #[arg(long)]
+        regex: bool,
         #[arg(required = true)]
         query: Vec<String>,
     },
