@@ -53,12 +53,7 @@ pub fn scan_match_claim(
             }
             taken.insert(m.lane.lane.clone(), used + 1);
         }
-        let trigger = m
-            .lane
-            .trigger
-            .get("status")
-            .cloned()
-            .unwrap_or(Value::Null);
+        let trigger = m.lane.trigger.get("status").cloned().unwrap_or(Value::Null);
         if claim(&m.note.abs, &trigger, &m.lane.claim_status, run_id, at) == ClaimResult::Claimed {
             claimed += 1;
         }
@@ -85,7 +80,11 @@ mod tests {
         )
         .unwrap();
         fs::create_dir_all(root.join("inbox")).unwrap();
-        fs::write(root.join("inbox/n.md"), "---\nid: a\nstatus: ready\n---\nbody\n").unwrap();
+        fs::write(
+            root.join("inbox/n.md"),
+            "---\nid: a\nstatus: ready\n---\nbody\n",
+        )
+        .unwrap();
         let (_, matches, claimed) = scan_match_claim(root, "run-1", "t", None).unwrap();
         assert_eq!(matches.len(), 1);
         assert_eq!(claimed, 1);

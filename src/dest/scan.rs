@@ -36,7 +36,12 @@ struct FolderEntry {
     required: Vec<String>,
 }
 
-pub fn scan(cwd: &Path, config: &DestConfig, now: &str, readonly: bool) -> Result<ScanResult, String> {
+pub fn scan(
+    cwd: &Path,
+    config: &DestConfig,
+    now: &str,
+    readonly: bool,
+) -> Result<ScanResult, String> {
     let folders = read_folders(&config.folders)?;
     let quarantine = folders
         .iter()
@@ -78,13 +83,19 @@ pub fn scan(cwd: &Path, config: &DestConfig, now: &str, readonly: bool) -> Resul
                         if !readonly {
                             quarantine_note(&abs, &dest_dir, &origin, &fault, now);
                         }
-                        quarantines.push(QuarantinedNote { path: origin, fault });
+                        quarantines.push(QuarantinedNote {
+                            path: origin,
+                            fault,
+                        });
                     } else if let Some(missing) = missing_key(&map, &folder.required) {
                         let fault = format!("missing-key:{missing}");
                         if !readonly {
                             quarantine_note(&abs, &dest_dir, &origin, &fault, now);
                         }
-                        quarantines.push(QuarantinedNote { path: origin, fault });
+                        quarantines.push(QuarantinedNote {
+                            path: origin,
+                            fault,
+                        });
                     } else {
                         notes.push(ScannedNote {
                             path: origin,

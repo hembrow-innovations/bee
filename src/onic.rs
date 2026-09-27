@@ -47,7 +47,8 @@ pub fn run(
         other => {
             let project = project_dir(cwd, None, root_flag);
             let db_path = resolve_db(cwd, db, Some(&project));
-            let store = Store::open(&db_path).map_err(|e| missing_graph(&db_path, &project, e.to_string()))?;
+            let store = Store::open(&db_path)
+                .map_err(|e| missing_graph(&db_path, &project, e.to_string()))?;
             match other {
                 OnicCmd::Schema => store.schema_text().map_err(|e| e.to_string()),
                 OnicCmd::Sql { query } => {
@@ -64,7 +65,9 @@ pub fn run(
                 }
                 OnicCmd::Explain { name } => store.explain_json(name).map_err(|e| e.to_string()),
                 OnicCmd::Compact { name } => store.compact_json(name).map_err(|e| e.to_string()),
-                OnicCmd::Neighbors { name } => store.neighbors_json(name).map_err(|e| e.to_string()),
+                OnicCmd::Neighbors { name } => {
+                    store.neighbors_json(name).map_err(|e| e.to_string())
+                }
                 OnicCmd::Path { from, to } => store.path_json(from, to).map_err(|e| e.to_string()),
                 OnicCmd::Build { .. } | OnicCmd::Serve => unreachable!(),
             }
@@ -74,17 +77,29 @@ pub fn run(
 
 fn project_dir(cwd: &Path, dir: Option<&Path>, root_flag: Option<&Path>) -> PathBuf {
     if let Some(dir) = dir {
-        return if dir.is_absolute() { dir.to_path_buf() } else { cwd.join(dir) };
+        return if dir.is_absolute() {
+            dir.to_path_buf()
+        } else {
+            cwd.join(dir)
+        };
     }
     if let Some(root) = root_flag {
-        return if root.is_absolute() { root.to_path_buf() } else { cwd.join(root) };
+        return if root.is_absolute() {
+            root.to_path_buf()
+        } else {
+            cwd.join(root)
+        };
     }
     find_project_root(cwd)
 }
 
 fn missing_graph(db: &Path, root: &Path, err: String) -> String {
     if err.contains("no graph") || err.contains("not ported") {
-        return format!("no graph at {}. run: bee onic build {}", db.display(), root.display());
+        return format!(
+            "no graph at {}. run: bee onic build {}",
+            db.display(),
+            root.display()
+        );
     }
     err
 }
@@ -104,7 +119,15 @@ mod tests {
             .render_help()
             .to_string();
         for name in [
-            "build", "schema", "sql", "search", "explain", "compact", "neighbors", "path", "serve",
+            "build",
+            "schema",
+            "sql",
+            "search",
+            "explain",
+            "compact",
+            "neighbors",
+            "path",
+            "serve",
         ] {
             assert!(help.contains(name), "missing {name} in {help}");
         }

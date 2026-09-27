@@ -38,7 +38,13 @@ pub fn git_init_commit(root: &Path) {
 pub fn git_user(repo: &Path) {
     allow_file_protocol();
     assert!(Command::new("git")
-        .args(["-C", repo.to_str().unwrap(), "config", "user.email", "t@est"])
+        .args([
+            "-C",
+            repo.to_str().unwrap(),
+            "config",
+            "user.email",
+            "t@est"
+        ])
         .status()
         .unwrap()
         .success());

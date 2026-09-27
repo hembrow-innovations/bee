@@ -25,9 +25,7 @@ pub fn doctor(root: &Path) -> Result<(), HiveError> {
     }
 }
 
-pub fn doctor_report(
-    root: &Path,
-) -> Result<hive_core::DoctorReport, HiveError> {
+pub fn doctor_report(root: &Path) -> Result<hive_core::DoctorReport, HiveError> {
     let wb = load_workbench(root)?;
     let git = Git::new();
     run_doctor(&git, &wb, false)
@@ -154,11 +152,7 @@ pub(crate) mod tests {
             "docs/guides/guides-agent-gotchas.md",
             "# Agent gotchas\n",
         );
-        write_rel(
-            root,
-            "docs/specs/bee/scan/purpose.md",
-            "# Scan purpose\n",
-        );
+        write_rel(root, "docs/specs/bee/scan/purpose.md", "# Scan purpose\n");
         for name in ["alpha", "bravo", "charlie", "delta", "echo"] {
             write_rel(
                 root,
@@ -367,14 +361,7 @@ pub(crate) mod tests {
     pub(crate) fn context_pack_prints_markdown() {
         let dir = hive_with_pack_fixture();
         let text = pack_stdout(dir.path());
-        for heading in [
-            "Query",
-            "Area",
-            "Must read",
-            "Related",
-            "Excluded",
-            "Next",
-        ] {
+        for heading in ["Query", "Area", "Must read", "Related", "Excluded", "Next"] {
             assert!(
                 text.lines()
                     .any(|l| l.trim_start_matches('#').trim() == heading),
@@ -456,11 +443,7 @@ pub(crate) mod tests {
         init_workbench(root).unwrap();
         fs::create_dir_all(root.join("tmpl")).unwrap();
         fs::write(root.join("tmpl/hi.txt"), "hi").unwrap();
-        fs::write(
-            workbench_path(root),
-            "generators:\n  core: g.yaml\n",
-        )
-        .unwrap();
+        fs::write(workbench_path(root), "generators:\n  core: g.yaml\n").unwrap();
         fs::write(root.join("g.yaml"), "pkg:\n  template: tmpl\n").unwrap();
         generate(root, Some("pkg".into()), Some("out".into()), false, false).unwrap();
         assert_eq!(fs::read_to_string(root.join("out/hi.txt")).unwrap(), "hi");

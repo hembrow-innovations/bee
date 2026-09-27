@@ -183,7 +183,10 @@ mod tests {
             tokenize("echo hi").unwrap(),
             vec!["echo".to_string(), "hi".into()]
         );
-        assert_eq!(tokenize("echo 'a b'").unwrap(), vec!["echo".to_string(), "a b".into()]);
+        assert_eq!(
+            tokenize("echo 'a b'").unwrap(),
+            vec!["echo".to_string(), "a b".into()]
+        );
         assert!(tokenize("echo 'oops").is_none());
     }
 
@@ -193,7 +196,10 @@ mod tests {
             interpolate("{{env.BEE_MISSING}}", "/", "l", "r", "p"),
             Interpolate::Skip
         ));
-        assert!(matches!(interpolate("hello {{", "/", "l", "r", "p"), Interpolate::Skip));
+        assert!(matches!(
+            interpolate("hello {{", "/", "l", "r", "p"),
+            Interpolate::Skip
+        ));
     }
 
     #[test]

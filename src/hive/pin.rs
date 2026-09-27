@@ -118,7 +118,13 @@ mod tests {
         pin_apply_primary(root, &[], false).unwrap();
         assert_eq!(head_sha(&primary), pinned);
         let det = Command::new("git")
-            .args(["-C", primary.to_str().unwrap(), "symbolic-ref", "-q", "HEAD"])
+            .args([
+                "-C",
+                primary.to_str().unwrap(),
+                "symbolic-ref",
+                "-q",
+                "HEAD",
+            ])
             .status()
             .unwrap();
         assert!(!det.success());

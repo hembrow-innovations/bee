@@ -1,7 +1,9 @@
 use std::fs;
 use std::path::Path;
 
-use hive_core::{parse_config_yaml, validate_and_load_bundles, HiveError, Workbench, WorkbenchConfig};
+use hive_core::{
+    parse_config_yaml, validate_and_load_bundles, HiveError, Workbench, WorkbenchConfig,
+};
 
 use crate::workbench_read_path;
 

@@ -49,7 +49,11 @@ mod tests {
         )
         .unwrap();
         fs::create_dir_all(root.join("inbox")).unwrap();
-        fs::write(root.join("inbox/n.md"), "---\nid: a\nstatus: ready\n---\nbody\n").unwrap();
+        fs::write(
+            root.join("inbox/n.md"),
+            "---\nid: a\nstatus: ready\n---\nbody\n",
+        )
+        .unwrap();
         let text = explain(root).unwrap();
         assert!(text.contains("work"));
         assert!(text.contains("inbox/n.md"));

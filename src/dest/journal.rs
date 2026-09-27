@@ -11,7 +11,12 @@ pub fn journal_line(kind: &str, lane: &str, path: &str, reason: &str) {
     eprintln!("hivemind {kind} {lane} {path} {reason}");
 }
 
-pub fn append_history(history: Option<&Path>, kind: &str, lane: &str, path: &str) -> Result<(), String> {
+pub fn append_history(
+    history: Option<&Path>,
+    kind: &str,
+    lane: &str,
+    path: &str,
+) -> Result<(), String> {
     let Some(history) = history else {
         return Ok(());
     };

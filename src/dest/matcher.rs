@@ -166,10 +166,7 @@ mod tests {
 
     fn note(status: &str, extra: &[(&str, &str)]) -> ScannedNote {
         let mut map = Mapping::new();
-        map.insert(
-            Value::String("status".into()),
-            Value::String(status.into()),
-        );
+        map.insert(Value::String("status".into()), Value::String(status.into()));
         for (k, v) in extra {
             map.insert(Value::String((*k).into()), Value::String((*v).into()));
         }
@@ -182,10 +179,7 @@ mod tests {
 
     fn lane(trigger_status: &str) -> Lane {
         let mut trigger = BTreeMap::new();
-        trigger.insert(
-            "status".into(),
-            Value::String(trigger_status.into()),
-        );
+        trigger.insert("status".into(), Value::String(trigger_status.into()));
         Lane {
             lane: "work".into(),
             trigger,

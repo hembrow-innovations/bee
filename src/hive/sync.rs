@@ -64,16 +64,14 @@ mod tests {
         sync_workbench(root, &[]).unwrap();
         assert_eq!(head_sha(&primary), before);
         let fetched = Command::new("git")
-            .args([
-                "-C",
-                primary.to_str().unwrap(),
-                "rev-parse",
-                "origin/main",
-            ])
+            .args(["-C", primary.to_str().unwrap(), "rev-parse", "origin/main"])
             .output()
             .unwrap();
         assert!(fetched.status.success());
-        let remote = String::from_utf8(fetched.stdout).unwrap().trim().to_string();
+        let remote = String::from_utf8(fetched.stdout)
+            .unwrap()
+            .trim()
+            .to_string();
         assert_ne!(remote, before);
     }
 }
