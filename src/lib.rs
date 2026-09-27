@@ -425,3 +425,9 @@ fn run_wt_missing_slot_exits_4() {
 fn doctor_warns_without_fixing_orphan_slot() {
     hive::ops::tests::doctor_warns_without_fixing_orphan_slot();
 }
+
+#[cfg(test)]
+#[test]
+fn note_lookup_planning() {
+    note::tests::note_lookup_planning();
+}

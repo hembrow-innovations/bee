@@ -213,10 +213,11 @@ pub fn check_ids(start: &Path) -> Result<Vec<IdCollision>, String> {
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use crate::cli::{Cli, Commands, NoteCmd};
     use crate::execute;
+    use clap::Parser;
     use std::fs;
     use tempfile::tempdir;
 
@@ -328,5 +329,43 @@ mod tests {
         write_hive(dir.path(), notes_yaml());
         write_rel(dir.path(), ".heio/planning/rounds/rounds-07-x.md");
         assert_eq!(next_id(dir.path(), NoteKind::Round).unwrap(), "08");
+    }
+
+    #[test]
+    pub(crate) fn note_lookup_planning() {
+        let dir = tempdir().unwrap();
+        write_hive(dir.path(), notes_yaml());
+        let body_rel = ".heio/planning/tasks/zxbodyhit.md";
+        let stem_rel = ".heio/planning/tasks/zxstemquery.md";
+        let body_line = "zxbodyhit on this line";
+        let body_path = dir.path().join(body_rel);
+        fs::create_dir_all(body_path.parent().unwrap()).unwrap();
+        fs::write(&body_path, format!("{body_line}\n")).unwrap();
+        fs::write(dir.path().join(stem_rel), "no match in this body\n").unwrap();
+
+        let parsed = Cli::try_parse_from(["bee", "note", "lookup", "zxbodyhit"]);
+        assert!(parsed.is_ok());
+        let (code, out) = crate::pack::capture_out(|| execute(parsed.unwrap(), dir.path()));
+        assert_eq!(code, 0);
+        let body_hit = format!("{body_rel}:1:{body_line}");
+        assert!(out.contains(&body_hit), "{out}");
+        assert!(!out.contains(&format!("{body_rel}:0:")), "{out}");
+
+        let parsed = Cli::try_parse_from(["bee", "note", "lookup", "zxstemquery"]);
+        assert!(parsed.is_ok());
+        let (code, out) = crate::pack::capture_out(|| execute(parsed.unwrap(), dir.path()));
+        assert_eq!(code, 0);
+        let stem_hit = format!("{stem_rel}:0:zxstemquery");
+        assert!(out.contains(&stem_hit), "{out}");
+
+        let parsed = Cli::try_parse_from(["bee", "note", "lookup", "zxnomatch"]);
+        assert!(parsed.is_ok());
+        let (code, out) = crate::pack::capture_out(|| execute(parsed.unwrap(), dir.path()));
+        assert_eq!(code, 0);
+        assert_eq!(out, "");
+
+        assert!(Cli::try_parse_from(["bee", "note", "lookup"]).is_err());
+
+        println!("bee.note:lookup");
     }
 }
