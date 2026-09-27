@@ -442,3 +442,9 @@ fn doctor_warns_without_fixing_orphan_slot() {
 fn note_lookup_planning() {
     note::tests::note_lookup_planning();
 }
+
+#[cfg(test)]
+#[test]
+fn note_lookup_scope_regex() {
+    note::tests::note_lookup_scope_regex();
+}

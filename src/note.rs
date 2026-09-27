@@ -368,4 +368,95 @@ pub(crate) mod tests {
 
         println!("bee.note:lookup");
     }
+
+    #[test]
+    pub(crate) fn note_lookup_scope_regex() {
+        let dir = tempdir().unwrap();
+        write_hive(dir.path(), notes_yaml());
+        let plan_rel = ".heio/planning/tasks/zxplan.md";
+        let arch_rel = ".heio/archive/planning/tasks/zxarch.md";
+        let stem_rel = ".heio/planning/tasks/zxregexstem.md";
+        let plan_line = "zxshared zxplanbody";
+        let arch_line = "zxshared zxarchbody";
+        let plan_path = dir.path().join(plan_rel);
+        fs::create_dir_all(plan_path.parent().unwrap()).unwrap();
+        fs::write(&plan_path, format!("{plan_line}\n")).unwrap();
+        let arch_path = dir.path().join(arch_rel);
+        fs::create_dir_all(arch_path.parent().unwrap()).unwrap();
+        fs::write(&arch_path, format!("{arch_line}\n")).unwrap();
+        fs::write(dir.path().join(stem_rel), "no match in this body\n").unwrap();
+        let plan_hit = format!("{plan_rel}:1:{plan_line}");
+        let arch_hit = format!("{arch_rel}:1:{arch_line}");
+        let stem_hit = format!("{stem_rel}:0:zxregexstem");
+
+        let parsed_default = Cli::try_parse_from(["bee", "note", "lookup", "zxshared"]);
+        assert!(parsed_default.is_ok());
+        let (default_code, default_out) =
+            crate::pack::capture_out(|| execute(parsed_default.unwrap(), dir.path()));
+        assert_eq!(default_code, 0);
+        assert!(default_out.contains(&plan_hit), "{default_out}");
+        assert!(!default_out.contains(&arch_hit), "{default_out}");
+
+        let parsed_archive =
+            Cli::try_parse_from(["bee", "note", "lookup", "--scope", "archive", "zxshared"]);
+        assert!(parsed_archive.is_ok());
+        let (code, out) = crate::pack::capture_out(|| execute(parsed_archive.unwrap(), dir.path()));
+        assert_eq!(code, 0);
+        assert!(out.contains(&arch_hit), "{out}");
+        assert!(!out.contains(&plan_hit), "{out}");
+
+        let parsed_all =
+            Cli::try_parse_from(["bee", "note", "lookup", "--scope", "all", "zxshared"]);
+        assert!(parsed_all.is_ok());
+        let (code, out) = crate::pack::capture_out(|| execute(parsed_all.unwrap(), dir.path()));
+        assert_eq!(code, 0);
+        assert!(out.contains(&plan_hit), "{out}");
+        assert!(out.contains(&arch_hit), "{out}");
+
+        let parsed_planning =
+            Cli::try_parse_from(["bee", "note", "lookup", "--scope", "planning", "zxshared"]);
+        assert!(parsed_planning.is_ok());
+        let (code, out) =
+            crate::pack::capture_out(|| execute(parsed_planning.unwrap(), dir.path()));
+        assert_eq!(code, 0);
+        assert_eq!(out, default_out);
+
+        let unknown =
+            Cli::try_parse_from(["bee", "note", "lookup", "--scope", "other", "zxshared"]);
+        let unknown_failed = match unknown {
+            Ok(cli) => {
+                let (code, _) = crate::pack::capture_out(|| execute(cli, dir.path()));
+                code != 0
+            }
+            Err(_) => true,
+        };
+        assert!(unknown_failed);
+
+        let parsed_re_body =
+            Cli::try_parse_from(["bee", "note", "lookup", "--regex", "zxplanb.dy"]);
+        assert!(parsed_re_body.is_ok());
+        let (code, out) = crate::pack::capture_out(|| execute(parsed_re_body.unwrap(), dir.path()));
+        assert_eq!(code, 0);
+        assert!(out.contains(&plan_hit), "{out}");
+
+        let parsed_re_stem =
+            Cli::try_parse_from(["bee", "note", "lookup", "--regex", "zxregexst.m"]);
+        assert!(parsed_re_stem.is_ok());
+        let (code, out) = crate::pack::capture_out(|| execute(parsed_re_stem.unwrap(), dir.path()));
+        assert_eq!(code, 0);
+        assert!(out.contains(&stem_hit), "{out}");
+        assert!(!out.contains(&format!("{stem_rel}:1:")), "{out}");
+
+        let bad = Cli::try_parse_from(["bee", "note", "lookup", "--regex", "["]);
+        let bad_failed = match bad {
+            Ok(cli) => {
+                let (code, _) = crate::pack::capture_out(|| execute(cli, dir.path()));
+                code != 0
+            }
+            Err(_) => true,
+        };
+        assert!(bad_failed);
+
+        println!("bee.note:lookup-scope");
+    }
 }
