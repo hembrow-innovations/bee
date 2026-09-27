@@ -349,6 +349,18 @@ fn project_git_wt_skips_pin() {
 
 #[cfg(test)]
 #[test]
+fn context_id_prints_neighborhood() {
+    hive::ops::tests::context_id_prints_neighborhood();
+}
+
+#[cfg(test)]
+#[test]
+fn context_id_and_selector_exits_usage() {
+    hive::ops::tests::context_id_and_selector_exits_usage();
+}
+
+#[cfg(test)]
+#[test]
 fn run_wt_missing_slot_exits_4() {
     hive::ops::tests::run_wt_missing_slot_exits_4();
 }

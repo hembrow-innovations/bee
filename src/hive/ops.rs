@@ -115,8 +115,29 @@ pub(crate) mod tests {
     use crate::workbench_path;
     use clap::Parser;
     use hive_actions::CwdTarget;
+    use hive_store::ensure_vault;
     use std::fs;
     use tempfile::tempdir;
+
+    fn hive_with_neighborhood() -> tempfile::TempDir {
+        let dir = tempdir().unwrap();
+        let root = dir.path();
+        init_workbench(root).unwrap();
+        let vault = root.join("mem");
+        ensure_vault(&vault).unwrap();
+        fs::write(
+            vault.join("alpha.md"),
+            "---\nid: a1\ntitle: Alpha\n---\nSee [[Beta]].\n",
+        )
+        .unwrap();
+        fs::write(
+            vault.join("beta.md"),
+            "---\nid: b1\ntitle: Beta\n---\nOther.\n",
+        )
+        .unwrap();
+        fs::write(workbench_path(root), "progens:\n  mem:\n    path: mem\n").unwrap();
+        dir
+    }
 
     #[test]
     pub(crate) fn doctor_warns_without_fixing_orphan_slot() {
@@ -184,6 +205,35 @@ pub(crate) mod tests {
         assert_eq!(crate::execute(bare_wt, root), 1);
         assert!(!root.join("worktrees").exists());
         println!("odm.wt:no-auto-create");
+    }
+
+    #[test]
+    pub(crate) fn context_id_prints_neighborhood() {
+        let dir = hive_with_neighborhood();
+        let root = dir.path();
+        let cli = crate::Cli::try_parse_from(["bee", "context", "a1"]).unwrap();
+        assert_eq!(crate::execute(cli, root), 0);
+        let text = context(root, "a1").unwrap();
+        assert!(text.starts_with("# context a1\n"), "{text}");
+        assert!(text.contains("## outgoing\n- b1 (Beta)\n"), "{text}");
+        assert!(text.contains("## incoming\n"), "{text}");
+        println!("bee.context:neighborhood");
+    }
+
+    #[test]
+    pub(crate) fn context_id_and_selector_exits_usage() {
+        let dir = hive_with_neighborhood();
+        let root = dir.path();
+        for flag in ["--area", "--query", "--unit", "--domain"] {
+            let parsed = crate::Cli::try_parse_from(["bee", "context", "a1", flag, "bee"]);
+            assert!(parsed.is_ok(), "id plus {flag} must parse then usage-exit");
+            assert_eq!(crate::execute(parsed.unwrap(), root), 1, "{flag}");
+        }
+        match crate::Cli::try_parse_from(["bee", "context"]) {
+            Ok(cli) => assert_eq!(crate::execute(cli, root), 1),
+            Err(_) => {}
+        }
+        println!("bee.context:usage");
     }
 
     #[test]
