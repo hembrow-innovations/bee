@@ -262,6 +262,10 @@ pub enum NoteCmd {
     Claim { id: String },
     Status { id: String, status: String },
     Housekeep,
+    Lookup {
+        #[arg(required = true)]
+        query: Vec<String>,
+    },
 }
 
 #[derive(Debug, Subcommand)]

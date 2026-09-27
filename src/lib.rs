@@ -277,6 +277,17 @@ pub fn execute(cli: Cli, root: &Path) -> u8 {
                     1
                 }
             },
+            NoteCmd::Lookup { query } => match note::write::lookup::lookup(root, &query) {
+                Ok(text) if text.is_empty() => 0,
+                Ok(text) => {
+                    pack::emit(&format!("{text}\n"));
+                    0
+                }
+                Err(e) => {
+                    eprintln!("{e}");
+                    1
+                }
+            },
         },
         Commands::Docs { vault, cmd } => match docs::run(root, vault.as_deref(), &cmd) {
             Ok(text) => {
