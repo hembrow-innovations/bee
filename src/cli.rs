@@ -32,7 +32,7 @@ docs:
 graph:
   onic      Map a project into a SQLite graph
 
-See 'bee <command> --help' to read about a specific command.
+See 'bee help <command>' to read about a specific command.
 ";
 
 const HELP_TEMPLATE: &str = "\
@@ -40,6 +40,7 @@ const HELP_TEMPLATE: &str = "\
 
 Options:
 {options}
+  -v, --version          Print version
 
 {after-help}";
 
@@ -51,7 +52,8 @@ Options:
     after_help = SITUATION_HELP,
     help_template = HELP_TEMPLATE,
     override_usage = "bee [--project=<PROJECT>] [--wt=<WT>] <command> [<args>]",
-    disable_help_subcommand = true
+    disable_help_subcommand = true,
+    disable_version_flag = true
 )]
 pub struct Cli {
     #[arg(long, global = true, help = "Select a named project")]
@@ -60,6 +62,44 @@ pub struct Cli {
     pub wt: Vec<String>,
     #[command(subcommand)]
     pub command: Commands,
+}
+
+pub fn rewrite_version_argv<I, S>(args: I) -> Vec<String>
+where
+    I: IntoIterator<Item = S>,
+    S: Into<String>,
+{
+    let mut args: Vec<String> = args.into_iter().map(Into::into).collect();
+    if args.len() >= 3 {
+        let a1 = args[1].as_str();
+        if a1 == "help" || a1 == "--help" {
+            args.swap(1, 2);
+            args[2] = "--help".to_string();
+            return args;
+        }
+    }
+    let mut i = 1;
+    while i < args.len() {
+        let a = args[i].as_str();
+        if a == "-v" || a == "--version" {
+            args[i] = "version".to_string();
+            break;
+        }
+        if i == 1 && a == "help" {
+            args[i] = "--help".to_string();
+            break;
+        }
+        if a == "--project" || a == "--wt" {
+            i += 2;
+            continue;
+        }
+        if a.starts_with("--project=") || a.starts_with("--wt=") {
+            i += 1;
+            continue;
+        }
+        break;
+    }
+    args
 }
 
 pub fn resolve_wt_flags(flags: &[String]) -> Result<Option<String>, HiveError> {
@@ -185,6 +225,8 @@ pub enum Commands {
         #[command(subcommand)]
         cmd: OnicCmd,
     },
+    #[command(about = "Print version")]
+    Version,
 }
 
 #[derive(Debug, Subcommand)]
@@ -698,7 +740,7 @@ mod tests {
     fn help_has_command_help_footer() {
         let help = help_text();
         let foot = help.lines().position(|line| {
-            line.contains("bee <command> --help") || line.contains("bee help <command>")
+            line.contains("bee help <command>")
         });
         let hive = help.lines().position(|line| {
             line.trim()
